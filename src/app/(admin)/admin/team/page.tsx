@@ -19,7 +19,7 @@ const responsiveTable = "max-md:block max-md:[&_thead]:sr-only max-md:[&_tbody]:
 
 export default async function TeamPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const access = await requireAdminAccess();
-  const { members, invitations } = await listTeamAccess();
+  const { members, invitations, referenceTime } = await listTeamAccess();
   const params = await searchParams;
   const status = typeof params.status === "string" ? params.status : null;
   const error = typeof params.error === "string" ? params.error : null;
@@ -100,12 +100,12 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
       <Card>
         <CardHeader>
           <CardTitle>Zaproszenia oczekujące</CardTitle>
-          <CardDescription>Sprawdź, czy zaproszenie zostało wysłane i jak długo jest ważne.</CardDescription>
+          <CardDescription>Sprawdź stan wysyłki. Zaproszenie w panelu i link w wiadomości mają osobne terminy ważności; jeśli link wygaśnie, wyślij go ponownie.</CardDescription>
         </CardHeader>
         <CardContent>
           {invitations.length ? (
             <Table className={responsiveTable}>
-              <TableHeader><TableRow><TableHead>Adres</TableHead><TableHead>Rola</TableHead><TableHead>Dostarczenie</TableHead><TableHead>Ważność</TableHead>{canInvite ? <TableHead className="text-right">Działania</TableHead> : null}</TableRow></TableHeader>
+              <TableHeader><TableRow><TableHead>Adres</TableHead><TableHead>Rola</TableHead><TableHead>Wysyłka</TableHead><TableHead>Zaproszenie aktywne do</TableHead>{canInvite ? <TableHead className="text-right">Działania</TableHead> : null}</TableRow></TableHeader>
               <TableBody>
                 {invitations.map((invitation) => {
                   const canRevoke = access.role === "owner" || (access.role === "admin" && invitation.invited_by === access.user.id && invitation.role === "viewer");
@@ -113,12 +113,12 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
                     <TableRow key={invitation.id}>
                       <TableCell className="break-all font-bold md:min-w-52">{invitation.email}</TableCell>
                       <TableCell><span className="mr-2 text-muted-foreground md:hidden">Rola:</span><RoleBadge role={invitation.role} /></TableCell>
-                      <TableCell><span className="mr-2 text-muted-foreground md:hidden">Dostarczenie:</span>{deliveryLabel(invitation)}</TableCell>
-                      <TableCell className="text-muted-foreground md:whitespace-nowrap"><span className="mr-2 md:hidden">Ważność:</span>{expiryLabel(invitation.expires_at)}</TableCell>
+                      <TableCell><span className="mr-2 text-muted-foreground md:hidden">Wysyłka:</span>{deliveryLabel(invitation)}</TableCell>
+                      <TableCell className="text-muted-foreground md:whitespace-nowrap"><span className="mr-2 md:hidden">Zaproszenie aktywne do:</span>{expiryLabel(invitation.expires_at)}</TableCell>
                       {canInvite ? (
                         <TableCell>
                           <div className="flex flex-wrap gap-2 md:justify-end">
-                            {invitation.status === "failed" && canRevoke ? <RetryInvitationButton email={invitation.email} role={invitation.role} /> : null}
+                            {canRevoke && invitation.delivery_status !== "existing_user" && Date.parse(invitation.expires_at) > Date.parse(referenceTime) ? <RetryInvitationButton invitationId={invitation.id} sent={invitation.delivery_status === "sent"} /> : null}
                             {canRevoke ? <RevokeInvitationDialog invitationId={invitation.id} email={invitation.email} /> : null}
                           </div>
                         </TableCell>
@@ -144,25 +144,27 @@ function TeamNotice({ children, tone }: { children: React.ReactNode; tone: "succ
 }
 
 function successMessage(status: string) {
-  if (status === "sent") return "Zaproszenie zapisano i wysłano przez Supabase Auth.";
-  if (status === "existing_user") return "Zaproszenie zapisano. Ta osoba ma już konto Auth i może użyć formularza logowania.";
-  if (status === "ownership-transferred") return "Ownership został przekazany atomowo.";
+  if (status === "sent") return "Zaproszenie zapisano i wysłano e-mailem.";
+  if (status === "existing_user") return "Zaproszenie zapisano. Ta osoba ma już konto i może użyć formularza logowania.";
+  if (status === "already_pending") return "Wysyłka tego zaproszenia już trwa lub została niedawno rozpoczęta. Sprawdź stan za chwilę.";
+  if (status === "ownership-transferred") return "Rola właściciela została przekazana.";
   return "Zmiana została zapisana.";
 }
 
 function errorMessage(error: string) {
-  if (error === "delivery-failed") return "Supabase Auth nie dostarczył zaproszenia. Stan oznaczono jako nieudany; możesz ponowić próbę.";
-  if (error === "reconciliation-required") return "Auth zmienił stan, ale zapis aplikacji się nie udał. Ponów zaproszenie, aby uzgodnić stan.";
+  if (error === "delivery-failed") return "Nie udało się wysłać zaproszenia. Możesz ponowić próbę na tym samym zaproszeniu.";
+  if (error === "reconciliation-required") return "Wysyłka mogła się udać, ale nie zapisaliśmy jej wyniku. Sprawdź stan i ponów próbę na tym samym zaproszeniu, jeśli to konieczne.";
   if (error === "member-update-rejected") return "Nie udało się zmienić członkostwa. Odśwież stronę i sprawdź aktualną rolę.";
-  if (error === "transfer-rejected") return "Ownership nie został przekazany. Cel musi być aktywnym członkiem, a Twoja rola nadal musi być owner.";
+  if (error === "transfer-rejected") return "Nie udało się przekazać roli właściciela. Odbiorca musi być aktywnym członkiem, a Ty nadal musisz mieć rolę właściciela.";
+  if (error === "retry-rejected") return "Nie można ponowić tego zaproszenia. Sprawdź, czy nadal oczekuje, nie wygasło i masz uprawnienia do jego obsługi.";
   return "Operacja została odrzucona. Odśwież stronę i spróbuj ponownie.";
 }
 
 function deliveryLabel(invitation: AdminInvitation) {
-  if (invitation.status === "failed" || invitation.delivery_status === "failed") return "Nieudane · można ponowić";
-  if (invitation.delivery_status === "existing_user") return "Istniejące konto · magic link";
-  if (invitation.delivery_status === "sent") return "Wysłane";
-  return "Nie rozpoczęto";
+  if (invitation.status === "failed" || invitation.delivery_status === "failed") return `Nieudane · prób: ${invitation.attempt_count}`;
+  if (invitation.delivery_status === "existing_user") return "Istniejące konto · link logowania";
+  if (invitation.delivery_status === "sent") return `Wysłane · prób: ${invitation.attempt_count}`;
+  return invitation.attempt_count ? `Wysyłka w toku · prób: ${invitation.attempt_count}` : "Nie rozpoczęto";
 }
 
 function expiryLabel(value: string) {

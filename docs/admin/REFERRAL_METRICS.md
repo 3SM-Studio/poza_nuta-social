@@ -21,6 +21,8 @@ Secondary values may include total outbound clicks, multi-destination acquired s
 
 Rank by new anonymous visitors descending, then acquired sessions, then outbound sessions, then stable participant ID. This keeps volume and quality visible without a fabricated composite score. Ties may share data values while display position remains deterministic.
 
+The participant display label uses the most recent **historical acquisition snapshot** among eligible sessions, ordered by acquisition event time and then event ID. It does not use a random session UUID as a recency proxy or retroactively replace old snapshots with the current profile name. If there is no eligible snapshot, the current participant display name is the fallback. A rename changes neither participant ID nor metrics.
+
 ## Fixture contract
 
 If Michał first-acquires consented visitor A, `analytics_visitors.first_acquisition.referralParticipantId` remains Michał. If a later session for visitor A is canonically acquired by Dima, that session credits Dima. Neither session credits more than one participant.

@@ -29,6 +29,7 @@ import type { AdminRole } from "@/lib/admin";
 import type { AdminMember } from "@/lib/admin-team";
 import {
   inviteMemberAction,
+  retryInvitationAction,
   revokeInvitationAction,
   transferOwnershipAction,
   updateMemberAction,
@@ -44,7 +45,7 @@ export function InviteMemberDialog({ actorRole }: { actorRole: AdminRole }) {
         <DialogHeader>
           <DialogTitle>Zaproś do panelu</DialogTitle>
           <DialogDescription>
-            Nowa osoba dostanie jednorazowy link. Istniejące konto zaloguje się własnym magic linkiem.
+            Nowa osoba dostanie jednorazowy link. Osoba z istniejącym kontem zaloguje się własnym linkiem do logowania.
           </DialogDescription>
         </DialogHeader>
         <form action={inviteMemberAction} className="space-y-4">
@@ -184,12 +185,11 @@ export function RevokeInvitationDialog({ invitationId, email }: { invitationId: 
   );
 }
 
-export function RetryInvitationButton({ email, role }: { email: string; role: "admin" | "viewer" }) {
+export function RetryInvitationButton({ invitationId, sent }: { invitationId: string; sent: boolean }) {
   return (
-    <form action={inviteMemberAction}>
-      <Input type="hidden" name="email" value={email} />
-      <Input type="hidden" name="role" value={role} />
-      <SubmitButton idle="Ponów" pending="Ponawiam…" variant="outline" size="sm" className="max-md:min-h-11" />
+    <form action={retryInvitationAction}>
+      <Input type="hidden" name="invitationId" value={invitationId} />
+      <SubmitButton idle={sent ? "Wyślij link ponownie" : "Ponów wysyłkę"} pending="Wysyłam…" variant="outline" size="sm" className="max-md:min-h-11" />
     </form>
   );
 }

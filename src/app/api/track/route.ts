@@ -4,15 +4,15 @@ import { acquisitionFromRequest, EVENT_NAMES, sanitizePath, type AnalyticsEventN
 import { getSiteUrl } from "@/lib/env";
 import { validVisitId } from "@/lib/attribution";
 import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
+import { readBoundedJson } from "@/lib/bounded-json";
 
 export const runtime = "nodejs";
 const clientEvents = new Set<AnalyticsEventName>(["page_view", "contact_view", "contact_click", "hub_resumed"]);
 
 export async function POST(request: NextRequest) {
-  const contentLength = Number(request.headers.get("content-length") || 0);
-  if (contentLength > 12_000) return reply({ error: "payload-too-large" }, 413);
-  let body: Record<string, unknown>;
-  try { body = await request.json(); } catch { return reply({ error: "invalid-json" }, 400); }
+  const parsed = await readBoundedJson(request, 12_000);
+  if (!parsed.ok) return reply({ error: parsed.error }, parsed.error === "payload-too-large" ? 413 : 400);
+  const body = parsed.value;
   const eventName = String(body.eventName || "") as AnalyticsEventName;
   if (!EVENT_NAMES.includes(eventName) || !clientEvents.has(eventName)) return reply({ error: "invalid-event" }, 400);
   const eventId = validVisitId(typeof body.eventId === "string" ? body.eventId : null);

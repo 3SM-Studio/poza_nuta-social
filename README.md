@@ -38,17 +38,7 @@ npm run impeccable:install
 npm run dev
 ```
 
-Create a fresh Supabase project dedicated to this application and apply migrations in order:
-
-```text
-supabase/migrations/001_initial.sql
-supabase/migrations/002_sessions_audit_dashboard.sql
-supabase/migrations/003_dashboard_ranges.sql
-supabase/migrations/20260919171044_harden_attribution_and_permissions.sql
-supabase/migrations/20260920120000_analytics_visitor_session_event_v1.sql
-supabase/migrations/20260922092419_analytics_v2_1_correctness_freeze.sql
-supabase/seed.sql
-```
+Create a fresh Supabase project dedicated to this application. For local development, start the local stack and use `npx supabase db reset --local`: it replays **every committed file** in `supabase/migrations/` in order, including Admin Platform V2 and subsequent hardening, then applies `supabase/seed.sql`. Do not select migrations from a hand-maintained list. For a dedicated remote project, verify the linked project ID and use the controlled Supabase CLI migration workflow to apply all pending committed migrations; never apply only the analytics migrations.
 
 Configure Supabase Auth redirect URLs for local development, previews and `https://social.pozanuta.pl/auth/callback`.
 
@@ -61,9 +51,11 @@ npm run lint
 npm run typecheck
 npm test
 npm run test:db
+npx supabase db advisors --local --type all --level warn --fail-on error
 npm run test:analytics:concurrency
 npm run test:scenario-matrix
 npm run build
+npm audit --audit-level=moderate
 npm run test:e2e
 # With isolated local Supabase/Auth/Mailpit running:
 npm run test:e2e:local

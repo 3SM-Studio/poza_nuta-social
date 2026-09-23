@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(58);
+select plan(73);
 
 insert into auth.users (
   id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -27,8 +27,10 @@ returns trigger
 language plpgsql
 as $$
 begin
-  if new.action = 'admin.invitation.create'
-    and new.new_value->>'email' = 'audit-failure-v2@pozanuta.test'
+  if (new.action = 'admin.invitation.create'
+      and new.new_value->>'email' = 'audit-failure-v2@pozanuta.test')
+    or (new.action = 'admin.invitation.role_change'
+      and new.new_value->>'email' = 'audit-role-failure-v2@pozanuta.test')
   then
     raise exception 'forced_invitation_audit_failure';
   end if;
@@ -133,6 +135,41 @@ select ok(not (public.admin_invitation_prepare_v1(
   'pending-v2@pozanuta.test','admin'
 )->>'created')::boolean,'duplicate pending invitation is idempotent');
 select is((select count(*)::int from public.admin_invitations where email='pending-v2@pozanuta.test' and status='pending'),1,'duplicate prepare leaves one pending invitation');
+select public.admin_invitation_prepare_v1(
+  'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',
+  'role-change-v2@pozanuta.test','viewer'
+);
+select is((public.admin_invitation_prepare_v1(
+  'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',
+  'role-change-v2@pozanuta.test','admin'
+)->'invitation'->>'role'),'admin','owner can promote a pending invitation from viewer to admin');
+select is((select count(*)::int from public.audit_log where action='admin.invitation.role_change' and entity_id=(select id::text from public.admin_invitations where email='role-change-v2@pozanuta.test')),1,'pending privilege change has exactly one dedicated audit');
+select ok((select old_value->>'role'='viewer' and new_value->>'role'='admin'
+    and actor_user_id='d1000000-0000-4000-8000-000000000001'::uuid and created_at is not null
+    from public.audit_log where action='admin.invitation.role_change'
+      and entity_id=(select id::text from public.admin_invitations where email='role-change-v2@pozanuta.test')),
+  'role-change audit identifies actor, invitation, previous role, new role and timestamp');
+select is((select count(*)::int from public.audit_log where action='admin.invitation.create' and entity_id=(select id::text from public.admin_invitations where email='role-change-v2@pozanuta.test')),1,'role change does not duplicate the creation audit');
+select public.admin_invitation_prepare_v1(
+  'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',
+  'role-change-v2@pozanuta.test','admin'
+);
+select is((select count(*)::int from public.audit_log where action='admin.invitation.role_change' and entity_id=(select id::text from public.admin_invitations where email='role-change-v2@pozanuta.test')),1,'same-role prepare does not create a fake change audit');
+select throws_ok(
+  $$select public.admin_invitation_prepare_v1('d1000000-0000-4000-8000-000000000002','admin-v2@pozanuta.test','role-change-v2@pozanuta.test','viewer')$$,
+  '42501','invitation_role_forbidden','admin cannot change an owner-created pending admin invitation role'
+);
+select public.admin_invitation_prepare_v1(
+  'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',
+  'audit-role-failure-v2@pozanuta.test','viewer'
+);
+select throws_ok(
+  $$select public.admin_invitation_prepare_v1('d1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test','audit-role-failure-v2@pozanuta.test','admin')$$,
+  'P0001','forced_invitation_audit_failure','failed role-change audit rolls back the privilege change'
+);
+select ok((select role='viewer' from public.admin_invitations where email='audit-role-failure-v2@pozanuta.test')
+    and (select count(*) from public.audit_log where action='admin.invitation.role_change' and new_value->>'email'='audit-role-failure-v2@pozanuta.test')=0,
+  'failed role change leaves neither the new privilege nor a success audit');
 select is((public.admin_invitation_prepare_v1(
   'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',
   'pending-v2@pozanuta.test','viewer'
@@ -182,6 +219,18 @@ select is((public.admin_invitation_record_delivery_v1(
   'sent',null,null
 )->>'delivery_status'),'sent','retry can return the invitation to a sent pending state');
 select is((select count(*)::int from public.audit_log where entity_id=(select id::text from public.admin_invitations where email='admin-viewer-invite-v2@pozanuta.test') and action in ('admin.invitation.delivery_failed','admin.invitation.delivery_sent')),2,'delivery outcomes each have exactly one audit row');
+select ok(not (public.admin_invitation_begin_delivery_v1(
+  'd1000000-0000-4000-8000-000000000002','admin-v2@pozanuta.test',
+  (select id from public.admin_invitations where email='admin-viewer-invite-v2@pozanuta.test')
+)->>'deliveryStarted')::boolean,'duplicate pending resend is skipped during the cooldown');
+select is((select attempt_count from public.admin_invitations where email='admin-viewer-invite-v2@pozanuta.test'),2,'duplicate pending resend does not increment attempt count');
+update public.admin_invitations set last_attempt_at=now()-interval '3 minutes' where email='admin-viewer-invite-v2@pozanuta.test';
+select ok((public.admin_invitation_begin_delivery_v1(
+  'd1000000-0000-4000-8000-000000000002','admin-v2@pozanuta.test',
+  (select id from public.admin_invitations where email='admin-viewer-invite-v2@pozanuta.test')
+)->>'deliveryStarted')::boolean,'pending invitation can be resent after the cooldown');
+select is((select attempt_count from public.admin_invitations where email='admin-viewer-invite-v2@pozanuta.test'),3,'resend increments the same invitation attempt count');
+select is((select count(*)::int from public.admin_invitations where email='admin-viewer-invite-v2@pozanuta.test'),1,'failed retry and pending resend retain one invitation identity');
 select throws_ok(
   $$select public.admin_invitation_prepare_v1('d1000000-0000-4000-8000-000000000002','admin-v2@pozanuta.test','admin-admin-invite-v2@pozanuta.test','admin')$$,
   '42501','invitation_role_forbidden','admin cannot invite another admin'
@@ -223,6 +272,10 @@ select throws_ok(
   $$select public.admin_invitation_revoke_v1('d1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',(select id from public.admin_invitations where email='revoked-v2@pozanuta.test'))$$,
   '22023','invitation_not_revocable','revoked invitation cannot transition twice'
 );
+select throws_ok(
+  $$select public.admin_invitation_begin_delivery_v1('d1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',(select id from public.admin_invitations where email='revoked-v2@pozanuta.test'))$$,
+  '22023','invitation_not_retryable','revoked invitation cannot be retried'
+);
 
 select public.admin_invitation_prepare_v1(
   'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',
@@ -238,6 +291,10 @@ select ok((public.admin_invitation_accept_v1(
   'd1000000-0000-4000-8000-000000000006','invitee-v2@pozanuta.test'
 )->>'alreadyMember')::boolean,'repeated acceptance recognizes the active member without another transition');
 select is((select count(*)::int from public.audit_log where action='admin.invitation.accept' and entity_id='d1000000-0000-4000-8000-000000000006'),1,'repeated acceptance adds no fake audit row');
+select throws_ok(
+  $$select public.admin_invitation_begin_delivery_v1('d1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',(select id from public.admin_invitations where email='invitee-v2@pozanuta.test'))$$,
+  '22023','invitation_not_retryable','accepted invitation cannot be retried'
+);
 
 select is((public.admin_member_update_v1(
   'd1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test',

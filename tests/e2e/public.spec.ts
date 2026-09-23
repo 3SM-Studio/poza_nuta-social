@@ -44,6 +44,58 @@ test("consent choice is explicit and does not create a visitor when denied", asy
   expect(cookies.some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
 });
 
+test("privacy settings change consent in both directions and persist after reload", async ({ page, context }, testInfo) => {
+  await page.goto("/");
+  await expect(page.getByRole("complementary", { name: "Ustawienia prywatności" })).toBeVisible();
+  await page.getByRole("complementary", { name: "Ustawienia prywatności" }).getByRole("button", { name: "Tylko niezbędne" }).click();
+  await expect(page.getByRole("complementary", { name: "Ustawienia prywatności" })).toBeHidden();
+  await page.goto("/privacy");
+  await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
+  expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
+
+  await page.getByRole("button", { name: "Włącz analitykę" }).click();
+  await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
+  const firstVisitor = (await context.cookies()).find((cookie) => cookie.name === "pn_visitor");
+  expect(firstVisitor?.value).toBeTruthy();
+  expect(firstVisitor?.httpOnly).toBe(true);
+  await page.reload();
+  await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
+  expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).toBe(firstVisitor?.value);
+
+  await page.getByRole("button", { name: "Tylko niezbędne" }).click();
+  await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
+  expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
+  await page.reload();
+  await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
+  await page.getByRole("button", { name: "Włącz analitykę" }).click();
+  await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
+  expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).toBeTruthy();
+  expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).not.toBe(firstVisitor?.value);
+  for (const viewport of [
+    { width: 360, height: 800 },
+    { width: 390, height: 844 },
+    { width: 720, height: 450 },
+    { width: 1440, height: 900 },
+  ]) {
+    await page.setViewportSize(viewport);
+    const width = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(width, `privacy page should not overflow at ${viewport.width}px`).toBeLessThanOrEqual(0);
+    await expect(page.getByRole("button", { name: "Włącz analitykę" })).toBeVisible();
+    await testInfo.attach(`privacy-${viewport.width}x${viewport.height}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
+    if (testInfo.project.name === "desktop-chromium") await page.screenshot({ path: `test-results/privacy-${viewport.width}x${viewport.height}.png`, fullPage: true });
+  }
+});
+
+test("privacy page offers the first choice without an overlapping banner", async ({ page, context }) => {
+  await page.goto("/privacy");
+  await expect(page.getByText("Nie wybrano jeszcze ustawienia analityki.")).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Ustawienia prywatności" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Włącz analitykę" }).click();
+  await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
+  await expect(page.getByRole("complementary", { name: "Ustawienia prywatności" })).toBeHidden();
+  expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(true);
+});
+
 test("consent lifecycle grants, reuses, withdraws, separates marketing, and rejects tampering", async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -74,8 +126,25 @@ test("consent lifecycle grants, reuses, withdraws, separates marketing, and reje
   await context.addCookies([{ name: "pn_consent", value: "forged", url: page.url() }]);
   await page.reload();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
+  await expect(page.getByRole("complementary", { name: "Ustawienia prywatności" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "POZA NUTĄ", exact: true })).toBeVisible();
   await context.close();
+});
+
+test("analytics endpoint enforces its byte limit and rejects malformed events", async ({ request }) => {
+  const valid = await request.post("/api/track", { data: { eventName: "page_view", eventId: crypto.randomUUID(), path: "/" } });
+  expect(valid.status()).toBe(204);
+  const exact = JSON.stringify({ eventName: "unsupported", padding: "x".repeat(12_000 - JSON.stringify({ eventName: "unsupported", padding: "" }).length) });
+  expect(new TextEncoder().encode(exact).byteLength).toBe(12_000);
+  const atLimit = await request.post("/api/track", { data: exact, headers: { "content-type": "application/json" } });
+  expect(atLimit.status()).toBe(400);
+  expect(await atLimit.json()).toEqual({ error: "invalid-event" });
+  const tooLarge = await request.post("/api/track", { data: `${exact}x`, headers: { "content-type": "application/json" } });
+  expect(tooLarge.status()).toBe(413);
+  const malformed = await request.post("/api/track", { data: "{", headers: { "content-type": "application/json" } });
+  expect(malformed.status()).toBe(400);
+  const unsupported = await request.post("/api/track", { data: "[]", headers: { "content-type": "application/json" } });
+  expect(unsupported.status()).toBe(400);
 });
 
 test("hub resume requires an armed outbound and a meaningful hidden interval", async ({ page }) => {

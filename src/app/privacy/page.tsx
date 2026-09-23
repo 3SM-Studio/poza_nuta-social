@@ -2,18 +2,18 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
-import { ConsentReset } from "@/components/consent-controls";
+import { ConsentPreferences } from "@/components/consent-controls";
 
 export const metadata: Metadata = {
   title: "Prywatność",
-  description: "Jak Poza Nutą mierzy anonimowy ruch i atrybucję kampanii na tej stronie.",
+  description: "Jak Poza Nutą mierzy ruch i atrybucję kampanii na tej stronie oraz zarządza zgodą analityczną.",
   alternates: { canonical: "/privacy" },
 };
 
 export default function PrivacyPage() {
   return (
     <main className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
-      <Link href="/" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+      <Link href="/" className={buttonVariants({ variant: "ghost" })}>
         <ArrowLeft aria-hidden="true" /> Wróć
       </Link>
       <article className="mt-10 space-y-8">
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
         </header>
         <section className="space-y-3 text-sm leading-7 text-muted-foreground">
           <h2 className="text-xl font-bold text-foreground">Co mierzymy</h2>
-          <p>Mierzymy anonimowe wejścia na stronę, źródło kampanii, kod linku lub QR oraz kliknięcie w wybraną oficjalną destynację Poza Nutą.</p>
+          <p>Mierzymy wejścia na stronę, źródło kampanii, kod linku lub QR oraz kliknięcie w wybrany oficjalny kanał Poza Nutą. Bez zgody pomiar pozostaje w obrębie krótkiej sesji; po zgodzie może używać losowego identyfikatora przeglądarki (pseudonimu) do rozpoznania jej powrotu.</p>
           <p>Przykład: możemy policzyć, że ktoś wszedł z konkretnego plakatu i później wybrał Instagram. Nie potrzebujemy do tego znać imienia tej osoby.</p>
         </section>
         <section className="space-y-3 text-sm leading-7 text-muted-foreground">
@@ -36,12 +36,12 @@ export default function PrivacyPage() {
         </section>
         <section className="space-y-3 text-sm leading-7 text-muted-foreground">
           <h2 className="text-xl font-bold text-foreground">Twoje ustawienie</h2>
-          <p>Wycofanie zgody zatrzymuje przyszłe łączenie sesji i zewnętrzną analitykę. Nie jest obietnicą automatycznego usunięcia wcześniej zagregowanych danych.</p>
-          <ConsentReset />
+          <p>Możesz włączyć analitykę lub wrócić do samych niezbędnych funkcji. Wycofanie zgody usuwa identyfikator przeglądarki i zatrzymuje przyszłe łączenie sesji; nie usuwa automatycznie wcześniej zagregowanych danych.</p>
+          <ConsentPreferences />
         </section>
         <section className="space-y-3 text-sm leading-7 text-muted-foreground">
           <h2 className="text-xl font-bold text-foreground">Urządzenie</h2>
-          <p>Jeżeli dane są potrzebne do analityki technicznej, zapisujemy jedynie szerokie kategorie, np. mobile/desktop, rodzina przeglądarki i systemu. Nie przechowujemy dokładnego modelu urządzenia ani pełnego profilu do fingerprintingu.</p>
+          <p>Jeżeli dane są potrzebne do analityki technicznej, zapisujemy jedynie szerokie kategorie, np. telefon/komputer, rodzina przeglądarki i systemu. Nie przechowujemy dokładnego modelu ani nie tworzymy odcisku urządzenia.</p>
         </section>
       </article>
     </main>

@@ -46,6 +46,7 @@ export async function listTeamAccess() {
   return {
     members: (membersResult.data || []) as AdminMember[],
     invitations: (invitationsResult.data || []) as AdminInvitation[],
+    referenceTime: new Date().toISOString(),
   };
 }
 

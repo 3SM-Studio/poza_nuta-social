@@ -8,20 +8,36 @@ import {
   InvitationReconciliationRequiredError,
   type InvitationRole,
 } from "@/lib/admin-invitation-workflow";
-import { inviteAdminMember, revokeAdminInvitation } from "@/lib/admin-invitations";
+import { inviteAdminMember, retryAdminInvitation, revokeAdminInvitation } from "@/lib/admin-invitations";
 import { transferAdminOwnership, updateAdminMember } from "@/lib/admin-team";
 
 export async function inviteMemberAction(formData: FormData) {
   const access = await requireAdminAccess();
   const email = String(formData.get("email") || "");
   const role = String(formData.get("role") || "") as InvitationRole;
-  let outcome: "sent" | "existing_user";
+  let outcome: "sent" | "existing_user" | "already_pending";
   try {
     outcome = (await inviteAdminMember(access, email, role)).outcome;
   } catch (error) {
     if (error instanceof InvitationDeliveryError) redirect("/admin/team?error=delivery-failed");
     if (error instanceof InvitationReconciliationRequiredError) redirect("/admin/team?error=reconciliation-required");
     redirect("/admin/team?error=invite-rejected");
+  }
+  revalidatePath("/admin/team");
+  redirect(`/admin/team?status=${outcome}`);
+}
+
+export async function retryInvitationAction(formData: FormData) {
+  const access = await requireAdminAccess();
+  const invitationId = String(formData.get("invitationId") || "");
+  if (!invitationId) redirect("/admin/team?error=invalid-request");
+  let outcome: "sent" | "existing_user" | "already_pending";
+  try {
+    outcome = (await retryAdminInvitation(access, invitationId)).outcome;
+  } catch (error) {
+    if (error instanceof InvitationDeliveryError) redirect("/admin/team?error=delivery-failed");
+    if (error instanceof InvitationReconciliationRequiredError) redirect("/admin/team?error=reconciliation-required");
+    redirect("/admin/team?error=retry-rejected");
   }
   revalidatePath("/admin/team");
   redirect(`/admin/team?status=${outcome}`);

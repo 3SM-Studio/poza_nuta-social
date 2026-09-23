@@ -4,6 +4,17 @@ import { createConsentToken } from "@/lib/tracking-context";
 
 export const runtime = "nodejs";
 
+export async function GET(request: NextRequest) {
+  const consent = await verifyAnalyticsToken<{ analytics: boolean; marketing: boolean; version: number; exp: number }>(
+    "consent",
+    request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value,
+  );
+  return NextResponse.json(
+    { choice: consent?.version === 1 ? { analytics: consent.analytics === true, marketing: consent.marketing === true } : null },
+    { headers: { "Cache-Control": "no-store" } },
+  );
+}
+
 export async function POST(request: NextRequest) {
   let body: Record<string, unknown>;
   try { body = await request.json(); } catch { return NextResponse.json({ error: "invalid-json" }, { status: 400 }); }

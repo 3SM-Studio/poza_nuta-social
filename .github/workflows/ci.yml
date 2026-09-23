@@ -15,6 +15,7 @@ jobs:
           node-version: 24
       - run: npm ci
       - run: npm run verify
+      - run: npm audit --audit-level=moderate
 
   public-e2e:
     runs-on: ubuntu-latest
@@ -39,6 +40,7 @@ jobs:
       - run: npx supabase start
       - run: npx supabase db reset --local
       - run: npx supabase db lint --local --schema public
+      - run: npx supabase db advisors --local --type all --level warn --fail-on error
       - run: npm run test:db
       - run: npm run test:admin:concurrency
       - run: npm run test:analytics:concurrency
