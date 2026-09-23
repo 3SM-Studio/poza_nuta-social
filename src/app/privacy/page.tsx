@@ -1,21 +1,17 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
+import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { ConsentPreferences } from "@/components/consent-controls";
+import { StructuredData } from "@/components/structured-data";
+import { publicMetadata, publicPageGraph } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Prywatność",
-  description: "Jak Poza Nutą mierzy ruch i atrybucję kampanii na tej stronie oraz zarządza zgodą analityczną.",
-  alternates: { canonical: "/privacy" },
-};
+const description = "Jak Poza Nutą mierzy ruch i atrybucję kampanii na tej stronie oraz zarządza zgodą analityczną.";
+export const metadata: Metadata = publicMetadata("/privacy", "Prywatność", description);
 
 export default function PrivacyPage() {
   return (
     <main className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
-      <Link href="/" className={buttonVariants({ variant: "ghost" })}>
-        <ArrowLeft aria-hidden="true" /> Wróć
-      </Link>
+      <StructuredData data={publicPageGraph("/privacy", "Prywatność bez kombinowania.", description)} />
+      <PublicBreadcrumb current="Prywatność bez kombinowania." />
       <article className="mt-10 space-y-8">
         <header>
           <p className="text-xs font-black uppercase tracking-[0.2em] text-accent">Poza Nutą</p>

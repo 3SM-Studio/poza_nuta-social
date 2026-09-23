@@ -2,6 +2,9 @@
 
 This repository is an independent application. Never import code, database tables, auth state or runtime assumptions from another Poza Nutą application.
 
+## User communication language
+All user-facing progress updates, explanations, questions, approval requests, warnings, blockers, tool-result summaries, sub-agent findings, and final reports must be in Polish. Keep code, identifiers, commands, file paths, API names, raw errors and logs, test and migration names, and repository terminology in their natural technical language; do not translate identifiers for consistency.
+
 ## Mandatory UI workflow
 1. Read `PRODUCT.md`, `DESIGN.md`, and `docs/PRODUCT_DECISIONS.md` before changing any UI.
 2. shadcn/ui is the only component system. Current base: `base-nova` + Base UI + `cn`.

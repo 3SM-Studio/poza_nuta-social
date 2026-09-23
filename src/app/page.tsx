@@ -1,38 +1,25 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ArrowRight, BriefcaseBusiness } from "lucide-react";
 import { SocialHub } from "@/components/social-hub";
+import { StructuredData } from "@/components/structured-data";
 import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
 import { getPublicDestinations } from "@/lib/destinations";
-import { getSiteUrl } from "@/lib/env";
+import { publicMetadata, publicPageGraph } from "@/lib/seo";
 import { cn } from "cn";
 
 export const revalidate = 60;
+const homeDescription = "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Znajdź oficjalne profile, kontakt i informacje o współpracy.";
+export const metadata: Metadata = publicMetadata("/", "Poza Nutą — karaoke i wydarzenia muzyczne w Trójmieście", homeDescription);
 
 export default async function HomePage() {
   const destinations = await getPublicDestinations();
-  const siteUrl = getSiteUrl();
-  const sameAs = destinations
-    .map((item) => item.url)
-    .filter((url) => url.startsWith("http://") || url.startsWith("https://"));
-
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "Organization",
-    name: "Poza Nutą",
-    url: siteUrl,
-    description: "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście.",
-    areaServed: "Trójmiasto",
-    sameAs,
-  };
 
   return (
     <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col px-5 py-7 sm:px-7 sm:py-10">
       <TrackPageView />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\u003c") }}
-      />
+      <StructuredData data={publicPageGraph("/", "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
 
       <section className="flex flex-1 flex-col justify-center py-10" aria-labelledby="hero-title">
         <div className="mb-9">
@@ -75,6 +62,10 @@ export default async function HomePage() {
           <p className="mt-3 text-sm leading-7 text-muted-foreground">
             Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Ta strona jest oficjalną wizytówką marki i prowadzi do naszych aktualnych kanałów oraz kontaktu biznesowego.
           </p>
+          <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold">
+            <Link className="text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/karaoke-trojmiasto">Karaoke w Trójmieście</Link>
+            <Link className="text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/dla-lokali">Współpraca z lokalami</Link>
+          </div>
         </section>
       </section>
 

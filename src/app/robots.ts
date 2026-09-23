@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 import { getSiteUrl } from "@/lib/env";
 
-const blocked = ["/admin/", "/api/", "/r/", "/go/", "/auth/"];
+const blocked = ["/admin", "/api", "/r/", "/go/", "/auth"];
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -12,6 +12,5 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: "GPTBot", disallow: "/" },
     ],
     sitemap: `${getSiteUrl()}/sitemap.xml`,
-    host: getSiteUrl(),
   };
 }

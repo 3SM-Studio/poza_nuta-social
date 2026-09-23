@@ -1,4 +1,4 @@
-# Poza Nutą — `social.pozanuta.pl`
+# Poza Nutą — public hub
 
 Standalone digital business card, official-links hub and first-party attribution analytics for Poza Nutą.
 
@@ -11,6 +11,7 @@ Read these before changing product/UI behavior:
 - `docs/PRODUCT_DECISIONS.md` — approved discovery decisions 1–82;
 - `docs/STACK_AUDIT.md` — current engineering/tooling audit;
 - `docs/RELEASE_CHECKLIST.md` — gates before production verification;
+- `docs/seo/SEO_GEO_PRODUCTION_HARDENING.md` — public routes, entity model, crawler policy and later webmaster setup;
 - `docs/analytics/ANALYTICS_ARCHITECTURE.md` — visitor/session/event and TrackingContext contract;
 - `docs/analytics/SCENARIO_MATRIX.md` — 74 acquisition, journey, identity, consent, failure, audit and history scenarios;
 - `docs/analytics/SCENARIO_TRACEABILITY.md` — critical scenario-to-test mapping;
@@ -40,7 +41,7 @@ npm run dev
 
 Create a fresh Supabase project dedicated to this application. For local development, start the local stack and use `npx supabase db reset --local`: it replays **every committed file** in `supabase/migrations/` in order, including Admin Platform V2 and subsequent hardening, then applies `supabase/seed.sql`. Do not select migrations from a hand-maintained list. For a dedicated remote project, verify the linked project ID and use the controlled Supabase CLI migration workflow to apply all pending committed migrations; never apply only the analytics migrations.
 
-Configure Supabase Auth redirect URLs for local development, previews and `https://social.pozanuta.pl/auth/callback`.
+Configure Supabase Auth redirect URLs for local development, previews and the approved production host's `/auth/callback`. The production host is still unresolved between `social.pozanuta.pl` and `socials.pozanuta.pl`.
 
 ## Verification
 

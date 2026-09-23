@@ -107,19 +107,20 @@ Do not label the application production-verified until the applicable checks bel
 - [ ] Configure and verify production SMTP delivery, hosted Auth templates and production redirect allowlists on the identified dedicated project.
 
 ## SEO / GEO
-- [ ] `/` canonical is correct on production host.
-- [ ] `/kontakt` canonical is correct.
-- [ ] sitemap returns only durable public pages.
+- [ ] Approve `social.pozanuta.pl` versus `socials.pozanuta.pl`, then set `NEXT_PUBLIC_SITE_URL` to that HTTPS origin in production.
+- [ ] Canonicals and Open Graph URLs for `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/privacy` match the chosen production origin; preview remains `noindex`.
+- [ ] sitemap returns only those durable public pages, with no invented `lastmod`, `priority`, or `changefreq`.
 - [ ] robots excludes `/admin`, `/api`, `/r`, `/go`, `/auth`.
 - [ ] OAI-SearchBot is allowed.
 - [ ] GPTBot remains blocked unless product owner explicitly changes that separate policy.
 - [ ] Organization JSON-LD validates and `sameAs` points only to real official profiles.
-- [ ] Search Console and Bing Webmaster can be connected after launch.
+- [ ] Verify Search Console and Bing Webmaster ownership only after the production domain is live; submit the production sitemap and inspect indexing/canonical reports.
+- [ ] Review Bing Webmaster AI Performance after data becomes available; assess IndexNow only if real content changes warrant it, with a key hosted on the chosen production host.
 
 ## Vercel / security / operations
 - [ ] Create a dedicated Vercel project.
 - [ ] Set Node 24.x and all env vars by environment.
-- [ ] Attach `social.pozanuta.pl` and verify HTTPS.
+- [ ] Attach the approved canonical domain and verify HTTPS.
 - [ ] Inspect response security headers on the deployment.
 - [ ] Review runtime errors/logs after a full E2E run.
 - [ ] Stage Vercel Firewall rate limits in log mode for abuse-sensitive POST/login paths, review traffic, then enforce appropriate limits.
