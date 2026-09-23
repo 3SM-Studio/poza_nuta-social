@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npm run verify
+
+  public-e2e:
+    runs-on: ubuntu-latest
+    needs: verify
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium webkit
+      - run: npm run test:e2e
+
+  database:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm ci
+      - run: npx supabase start
+      - run: npx supabase db reset --local
+      - run: npx supabase db lint --local --schema public
+      - run: npm run test:db
+      - run: npm run test:admin:concurrency
+      - run: npm run test:analytics:concurrency
+      - run: npm run test:scenario-matrix
+      - run: npx supabase db reset --local
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:local -- --project=desktop-chromium

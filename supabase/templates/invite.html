@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="pl">
+  <body style="margin:0;background:#f7f5f2;color:#1f1d1a;font-family:Arial,sans-serif">
+    <main style="max-width:560px;margin:0 auto;padding:40px 24px">
+      <p style="font-size:14px;font-weight:700;letter-spacing:.04em">Poza Nutą</p>
+      <h1 style="font-size:28px;line-height:1.2;margin:24px 0 12px">Zaproszenie do panelu</h1>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 24px">
+        Otrzymujesz dostęp do wewnętrznego panelu Poza Nutą. Link jest jednorazowy i ma ograniczony czas ważności.
+      </p>
+      <p style="margin:0 0 24px">
+        <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&amp;type=invite"
+          style="display:inline-block;background:#1f1d1a;color:#fff;text-decoration:none;border-radius:8px;padding:12px 18px;font-weight:700">
+          Przyjmij zaproszenie
+        </a>
+      </p>
+      <p style="font-size:13px;line-height:1.5;color:#69645d">
+        Jeśli nie oczekujesz tego zaproszenia, zignoruj tę wiadomość.
+      </p>
+    </main>
+  </body>
+</html>

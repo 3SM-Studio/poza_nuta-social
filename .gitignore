@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+.env*
+!.env.example
+.vercel
+coverage
+test-results
+playwright-report
+*.tsbuildinfo
+supabase/.temp
+supabase/.branches
+.impeccable
+*.log
+.DS_Store
