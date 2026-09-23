@@ -12,14 +12,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "Poza Nutą — Trójmiasto", template: "%s · Poza Nutą" },
   description: "Oficjalna wizytówka Poza Nutą: sociale, kontakt i współpraca. Karaoke i wydarzenia muzyczne w Trójmieście.",
-  alternates: { canonical: "/" },
-  openGraph: {
-    type: "website", locale: "pl_PL", url: "/", siteName: "Poza Nutą",
-    title: "Poza Nutą — Trójmiasto",
-    description: "Oficjalne profile, kontakt i współpraca z Poza Nutą w Trójmieście.",
-  },
-  twitter: { card: "summary_large_image", title: "Poza Nutą — Trójmiasto", description: "Oficjalne profile, kontakt i współpraca z Poza Nutą." },
-  robots: { index: true, follow: true },
+  ...(process.env.VERCEL_ENV === "preview" ? { robots: { index: false, follow: false } } : {}),
 };
 
 export const viewport: Viewport = { themeColor: "#0d0b0d", colorScheme: "dark" };
