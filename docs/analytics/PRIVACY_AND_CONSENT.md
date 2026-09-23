@@ -34,6 +34,8 @@ Future Meta, TikTok, or Google Ads adapters may run only for production external
 
 Withdrawal immediately expires the visitor token, stops future visitor linkage, and disables GA4/marketing eligibility. It does not fabricate deletion of already aggregated or lawfully retained records. A reviewed erasure/anonymization workflow is a production prerequisite if required.
 
+The first-party `/privacy` preference control reads the current signed choice and allows necessary-only → analytics ON and analytics ON → necessary-only. The initial banner is suppressed on that page so the two controls do not compete; elsewhere the banner uses the verified signed choice rather than mere cookie presence. Enabling creates a new pseudonymous browser token; withdrawing clears it, and re-enabling later creates a different token. The necessary short session remains available in either state. The page distinguishes session-only measurement without consent from pseudonymous returning-browser measurement with consent; it does not claim the latter is an identified person.
+
 ## Consent storage
 
 The consent token is server-issued, versioned, SameSite=Lax, Secure on HTTPS, and integrity-protected. UI copy must describe actual behavior and may not claim anonymity in an absolute sense.

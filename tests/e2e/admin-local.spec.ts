@@ -239,7 +239,7 @@ test("Team and Access reconciles existing and new Auth users, role changes, deac
   await loginWithMagicEmail(page, request, adminEmail!);
   await page.goto("/admin/team");
   await inviteFromTeamPage(page, existing.email, "viewer");
-  await expect(page.getByText(/ma już konto Auth/i)).toBeVisible();
+  await expect(page.getByText(/ma już konto i może użyć formularza logowania/i)).toBeVisible();
   const existingRow = page.getByRole("row").filter({ hasText: existing.email });
   await expect(existingRow).toContainText("Istniejące konto");
 
@@ -296,6 +296,53 @@ test("Team and Access reconciles existing and new Auth users, role changes, deac
   const { count: revokedMemberships } = await admin.from("admin_profiles").select("user_id", { count: "exact", head: true }).eq("user_id", revoked.id);
   expect(revokedMemberships).toBe(0);
   await revokedContext.close();
+});
+
+test("failed invitation retries and pending resends retain one invitation identity", async ({ page, request }, testInfo) => {
+  test.setTimeout(90_000);
+  test.skip(!adminEmail || !mailpitUrl || !supabaseUrl || !serviceKey || testInfo.project.name !== "desktop-chromium", "Requires the isolated local Supabase/Auth/Mailpit stack");
+  const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
+  const email = `retry-invite-${Date.now().toString(36)}@pozanuta.test`;
+  const { data: owner } = await admin.from("admin_profiles").select("user_id").eq("role", "owner").eq("status", "active").single();
+  const { data: seeded, error: seedError } = await admin.from("admin_invitations").insert({
+    email, role: "viewer", invited_by: owner!.user_id, status: "failed", delivery_status: "failed", attempt_count: 1, failure_code: "seeded_failure",
+  }).select("id").single();
+  expect(seedError).toBeNull();
+
+  await loginWithMagicEmail(page, request, adminEmail!);
+  await page.goto("/admin/team");
+  const row = page.getByRole("row").filter({ hasText: email });
+  await expect(row).toContainText("Nieudane · prób: 1");
+  await row.getByRole("button", { name: "Ponów wysyłkę" }).click();
+  await expect(page.getByText(/zaproszenie zapisano i wysłano/i)).toBeVisible();
+  await expect(page.getByRole("row").filter({ hasText: email })).toContainText("Wysłane · prób: 2");
+  const { data: retried } = await admin.from("admin_invitations").select("id,status,delivery_status,attempt_count").eq("email", email);
+  expect(retried).toEqual([{ id: seeded!.id, status: "pending", delivery_status: "sent", attempt_count: 2 }]);
+
+  await page.getByRole("row").filter({ hasText: email }).getByRole("button", { name: "Wyślij link ponownie" }).click();
+  await expect(page.getByText(/wysyłka tego zaproszenia już trwa/i)).toBeVisible();
+  const { data: duplicate } = await admin.from("admin_invitations").select("id,attempt_count").eq("email", email).single();
+  expect(duplicate).toEqual({ id: seeded!.id, attempt_count: 2 });
+
+  const { error: ageError } = await admin.from("admin_invitations").update({ last_attempt_at: new Date(Date.now() - 180_000).toISOString() }).eq("id", seeded!.id);
+  expect(ageError).toBeNull();
+  await page.getByRole("row").filter({ hasText: email }).getByRole("button", { name: "Wyślij link ponownie" }).click();
+  await expect(page.getByText(/zaproszenie zapisano i wysłano/i)).toBeVisible();
+  const { data: resent } = await admin.from("admin_invitations").select("id,attempt_count,delivery_status").eq("email", email);
+  expect(resent).toEqual([{ id: seeded!.id, attempt_count: 3, delivery_status: "sent" }]);
+  const { count: attempts } = await admin.from("audit_log").select("id", { count: "exact", head: true }).eq("entity_id", seeded!.id).eq("action", "admin.invitation.delivery_begin");
+  expect(attempts).toBe(2);
+
+  const rejectedEmail = `retry-${Date.now().toString(36)}@pozanuta..test`;
+  const { data: rejected, error: rejectedSeedError } = await admin.from("admin_invitations").insert({
+    email: rejectedEmail, role: "viewer", invited_by: owner!.user_id, status: "failed", delivery_status: "failed", attempt_count: 1, failure_code: "seeded_failure",
+  }).select("id").single();
+  expect(rejectedSeedError).toBeNull();
+  await page.goto("/admin/team");
+  await page.getByRole("row").filter({ hasText: rejectedEmail }).getByRole("button", { name: "Ponów wysyłkę" }).click();
+  await expect(page.getByText(/nie udało się wysłać zaproszenia/i)).toBeVisible();
+  const { data: failedAgain } = await admin.from("admin_invitations").select("id,status,delivery_status,attempt_count").eq("email", rejectedEmail);
+  expect(failedAgain).toEqual([{ id: rejected!.id, status: "failed", delivery_status: "failed", attempt_count: 2 }]);
 });
 
 test("referral attribution keeps browser-first Michał, session-two Dima, and ignores later-session Victor", async ({ browser, page, request }, testInfo) => {

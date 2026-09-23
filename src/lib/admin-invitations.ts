@@ -4,8 +4,10 @@ import type { User } from "@supabase/supabase-js";
 import type { AdminAccess } from "@/lib/admin";
 import {
   deliverAdminInvitation,
+  retryAdminInvitationDelivery,
   type InvitationActor,
   type InvitationRole,
+  type InvitationWorkflowDependencies,
   type PreparedInvitation,
 } from "@/lib/admin-invitation-workflow";
 import { getSiteUrl } from "@/lib/env";
@@ -22,7 +24,27 @@ export async function inviteAdminMember(
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("invalid_invitation_email");
   if (role !== "admin" && role !== "viewer") throw new Error("invalid_invitation_role");
 
-  return deliverAdminInvitation({ actor, email, role }, {
+  return deliverAdminInvitation({ actor, email, role }, invitationDependencies(admin));
+}
+
+export async function retryAdminInvitation(access: AdminAccess, invitationId: string) {
+  const admin = requiredAdminClient();
+  const actor = invitationActor(access);
+  const { data, error } = await admin.from("admin_invitations")
+    .select("id,email,role,status")
+    .eq("id", invitationId)
+    .maybeSingle();
+  if (error || !data) throw new Error(error?.message || "invitation_not_found");
+  return retryAdminInvitationDelivery(
+    { actor, invitation: data as PreparedInvitation },
+    invitationDependencies(admin),
+  );
+}
+
+function invitationDependencies(
+  admin: NonNullable<ReturnType<typeof createAdminClient>>,
+): InvitationWorkflowDependencies {
+  return {
     async prepare(input) {
       const { data, error } = await admin.rpc("admin_invitation_prepare_v1", {
         p_actor_user_id: input.actor.id,
@@ -36,12 +58,15 @@ export async function inviteAdminMember(
       return invitation;
     },
     async beginDelivery(input) {
-      const { error } = await admin.rpc("admin_invitation_begin_delivery_v1", {
+      const { data, error } = await admin.rpc("admin_invitation_begin_delivery_v1", {
         p_actor_user_id: input.actor.id,
         p_actor_email: input.actor.email,
         p_invitation_id: input.invitationId,
       });
       if (error) throw new Error(error.message);
+      const started = (data as { deliveryStarted?: unknown } | null)?.deliveryStarted;
+      if (typeof started !== "boolean") throw new Error("invalid_delivery_begin_response");
+      return { started };
     },
     findAuthUser: (candidateEmail) => findAuthUserByEmail(admin, candidateEmail),
     async inviteNewAuthUser(candidateEmail) {
@@ -63,7 +88,7 @@ export async function inviteAdminMember(
       if (error) throw new Error(error.message);
     },
     failureCode: authFailureCode,
-  });
+  };
 }
 
 export async function revokeAdminInvitation(access: AdminAccess, invitationId: string) {
@@ -87,7 +112,7 @@ async function findAuthUserByEmail(
     const { data, error } = await admin.auth.admin.listUsers({ page, perPage });
     if (error) throw error;
     const match = data.users.find((user) => user.email?.trim().toLowerCase() === email);
-    if (match) return { id: match.id };
+    if (match) return { id: match.id, confirmed: Boolean(match.email_confirmed_at) };
     if (data.users.length < perPage) return null;
   }
   throw new Error("auth_user_scan_limit");

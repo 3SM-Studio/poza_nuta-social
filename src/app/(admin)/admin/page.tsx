@@ -26,7 +26,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
       <header>
         <p className="text-xs font-black uppercase tracking-[0.16em] text-accent">{range.label}</p>
         <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Co naprawdę działa?</h1>
-        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">First-party wejścia, pozyskanie i kliknięcia Poza Nutą. Rankingi pozyskania przypisują każdą sesję dokładnie raz. Bez surowych IP i bez fingerprintingu.</p>
+        <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Własne pomiary wejść, pozyskania i kliknięć Poza Nutą. Rankingi pozyskania przypisują każdą sesję dokładnie raz. Bez surowych adresów IP i odcisku urządzenia.</p>
         <nav className="mt-4 flex flex-wrap gap-2" aria-label="Zakres analityki">
           {[{key:"today",label:"Dziś"},{key:"7",label:"7 dni"},{key:"30",label:"30 dni"},{key:"90",label:"90 dni"}].map((item) => (
             <Link key={item.key} href={`/admin?range=${item.key}`} className={cn(buttonVariants({variant: range.key === item.key ? "accent" : "outline", size:"sm"}))}>{item.label}</Link>

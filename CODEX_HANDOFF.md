@@ -56,15 +56,7 @@ Run actual rendered passes, not only source detection:
 Also run URL detection at mobile and desktop viewports after a local server/deployment is available.
 
 ## Supabase
-Create a new dedicated project. Apply:
-1. `001_initial.sql`
-2. `002_sessions_audit_dashboard.sql`
-3. `003_dashboard_ranges.sql`
-4. `20260919171044_harden_attribution_and_permissions.sql`
-5. `20260920120000_analytics_visitor_session_event_v1.sql`
-6. `20260922092419_analytics_v2_1_correctness_freeze.sql`
-7. `20260922102559_admin_platform_v2.sql`
-8. `seed.sql`
+Create a new dedicated project. Apply **all** committed `supabase/migrations/*.sql` files in filename order with the controlled Supabase CLI migration workflow, including `20260922102559_admin_platform_v2.sql` and `20260923080812_post_admin_v2_audit_hardening.sql`. For an isolated local project, `npx supabase db reset --local` is the canonical complete replay and also applies `supabase/seed.sql`. Verify the linked remote project ID before any future remote migration; this hardening slice performs no remote database change.
 
 Use the modern publishable key in `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; legacy anon-key fallback exists only for compatibility. Use `SUPABASE_SECRET_KEY` server-side only. `SUPABASE_SERVICE_ROLE_KEY` is a narrowly documented legacy fallback for local/older projects and must never be exposed through `NEXT_PUBLIC_*`. Normal login uses `shouldCreateUser: false`; new-user creation happens only through the server invitation service. Configure `BOOTSTRAP_OWNER_EMAIL` only for the first owner, and configure hosted invite templates/redirect allowlists to match the repository contract before production testing.
 
@@ -84,10 +76,10 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 12. prove the Michał → later-session Dima → same-session Victor referral fixture without double credit.
 
 ## Completed local evidence
-- Node 24 deterministic install, guards including secret scan, lint, types, 83 unit tests and production build pass.
+- Node 24 deterministic install, guards including secret scan, lint, types, 92 unit tests and production build pass.
 - The dependency audit reports zero vulnerabilities; shadcn reports the expected Next 16.3.5 / `base-nova` project with Chart installed.
 - Public and local integration Playwright passes at 360×800, 390×844, 720×450 zoom-equivalent and 1440×900 in Chromium plus desktop WebKit, including JS-disabled, consent lifecycle and accessibility/responsive invariants.
-- Isolated PostgreSQL 17 applied all seven migrations/seed from zero; the expanded 197 pgTAP assertions, schema lint, and seven Admin plus seven Analytics concurrency cases pass. The earlier six owner failures were caused by accumulated E2E fixture state and did not recur from clean state. V2 ingest is atomic/idempotent, acquisition rankings are exclusive, rate numerators are valid subsets, membership/invitation/referral mutations are atomic with audit history, all exposed tables have RLS, active RPCs are invoker functions with explicit grants, owner transactions preserve at least one active owner, visitor/session timestamps are monotonic, and event/audit history is append-only for normal secret-key/service-role behavior.
+- Isolated PostgreSQL 17 applied all eight migrations/seed from zero; the expanded 216 pgTAP assertions, schema lint/advisors, and seven Admin plus seven Analytics concurrency cases pass. The earlier six owner failures were caused by accumulated E2E fixture state and did not recur from clean state. V2 ingest is atomic/idempotent, acquisition rankings are exclusive, rate numerators are valid subsets, membership/invitation/referral mutations are atomic with audit history, all exposed tables have RLS, active RPCs are invoker functions with explicit grants, owner transactions preserve at least one active owner, visitor/session timestamps are monotonic, and event/audit history is append-only for normal secret-key/service-role behavior.
 - Seven real concurrency cases pass with 33 unique events, sequences through 20, same-ID deduplication, stable canonical acquisition, monotonic visitor/session timestamps and intact visitor/session/event relationships.
 - Real local Mailpit magic-link auth and campaign → tracking link → SVG QR → first/last attribution → outbound → audit-log flow pass.
 - Real local Mailpit covers new-user token-hash invitations, existing-user onboarding, revoke-before-accept, fresh role enforcement, ownership transfer and restore.
@@ -95,6 +87,13 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 - The installed shadcn Sidebar is persisted/collapsible on desktop and uses the accessible mobile sheet at 390px; 360/390/720/1440 overflow coverage is automated.
 - A stale owner-rendered form cannot mutate after the server-side role changes to viewer; signed test/internal classification and contact event uniqueness are browser-verified.
 - Rendered Impeccable audit/critique/harden/polish and final detector pass.
+
+## Post-Admin V2 audit hardening, 2026-09-23
+
+- Pending invitation role changes now write one atomic old/new role audit. Retry/resend claims the same invitation ID, records distinct attempts/outcomes, and suppresses duplicate pending submissions within two minutes. The application invitation deadline and shorter, independently configured Auth email-link validity are described separately.
+- `/privacy` now displays the signed current choice and permits both necessary-only → analytics and analytics → necessary-only. Withdrawal clears the pseudonymous visitor token; re-enabling creates a new one. Public wording distinguishes short-session measurement from consented returning-browser measurement.
+- Referral display labels use the latest historical acquisition snapshot by event time and event ID, never UUID order; participant identity and metric formulas are unchanged. `/api/track` reads at most 12,000 bytes of the body before parsing, including headerless streams.
+- README setup replays every committed migration; CI now includes local Supabase advisors and `npm audit --audit-level=moderate`. Final legal/controller/retention approval, production SMTP, firewall, remote Supabase/Vercel, canonical domain, and physical QR tests remain Production Readiness/SEO-GEO work.
 
 ## Remaining external release gates / unresolved product inputs
 - `social.pozanuta.pl` versus `socials.pozanuta.pl`, actual final slogan/copy;

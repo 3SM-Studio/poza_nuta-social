@@ -15,8 +15,8 @@ export type InvitationActor = {
 
 export type InvitationWorkflowDependencies = {
   prepare(input: { actor: InvitationActor; email: string; role: InvitationRole }): Promise<PreparedInvitation>;
-  beginDelivery(input: { actor: InvitationActor; invitationId: string }): Promise<void>;
-  findAuthUser(email: string): Promise<{ id: string } | null>;
+  beginDelivery(input: { actor: InvitationActor; invitationId: string }): Promise<{ started: boolean }>;
+  findAuthUser(email: string): Promise<{ id: string; confirmed: boolean } | null>;
   inviteNewAuthUser(email: string): Promise<{ id: string }>;
   recordDelivery(input: {
     actor: InvitationActor;
@@ -51,19 +51,35 @@ export async function deliverAdminInvitation(
   dependencies: InvitationWorkflowDependencies,
 ) {
   const prepared = await dependencies.prepare(input);
-  await dependencies.beginDelivery({ actor: input.actor, invitationId: prepared.id });
+  return deliverPreparedInvitation(input.actor, prepared, dependencies);
+}
+
+export async function retryAdminInvitationDelivery(
+  input: { actor: InvitationActor; invitation: PreparedInvitation },
+  dependencies: Omit<InvitationWorkflowDependencies, "prepare">,
+) {
+  return deliverPreparedInvitation(input.actor, input.invitation, dependencies);
+}
+
+async function deliverPreparedInvitation(
+  actor: InvitationActor,
+  prepared: PreparedInvitation,
+  dependencies: Omit<InvitationWorkflowDependencies, "prepare">,
+) {
+  const claim = await dependencies.beginDelivery({ actor, invitationId: prepared.id });
+  if (!claim.started) return { invitation: prepared, outcome: "already_pending" as const, authUserId: null };
 
   let authUser: { id: string };
   let outcome: Exclude<InvitationDeliveryOutcome, "failed">;
   try {
     const existing = await dependencies.findAuthUser(prepared.email);
-    authUser = existing || await dependencies.inviteNewAuthUser(prepared.email);
-    outcome = existing ? "existing_user" : "sent";
+    authUser = existing?.confirmed ? existing : await dependencies.inviteNewAuthUser(prepared.email);
+    outcome = existing?.confirmed ? "existing_user" : "sent";
   } catch (error) {
     const failureCode = dependencies.failureCode(error);
     try {
       await dependencies.recordDelivery({
-        actor: input.actor,
+        actor,
         invitationId: prepared.id,
         outcome: "failed",
         authUserId: null,
@@ -77,7 +93,7 @@ export async function deliverAdminInvitation(
 
   try {
     await dependencies.recordDelivery({
-      actor: input.actor,
+      actor,
       invitationId: prepared.id,
       outcome,
       authUserId: authUser.id,

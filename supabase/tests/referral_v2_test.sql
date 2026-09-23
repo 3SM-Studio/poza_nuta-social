@@ -1,6 +1,6 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(38);
 
 insert into auth.users (
   id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
@@ -261,6 +261,38 @@ select throws_ok(
   )$$,
   '22023','active_participant_required','inactive participant cannot receive a new referral link'
 );
+
+select public.admin_referral_participant_create_v1(
+  'c1000000-0000-4000-8000-000000000001','ref-owner-v2@pozanuta.test','Dima',null
+);
+select public.admin_referral_tracking_link_create_v1(
+  'c1000000-0000-4000-8000-000000000001','ref-owner-v2@pozanuta.test',
+  (select id from public.referral_participants where display_name='Dima'),
+  'RFDM22','Dima link','/'
+);
+select pg_temp.ingest_referral(
+  'd2000000-0000-4000-8000-000000000001','tracking_entry',
+  'f3000000-0000-4000-8000-000000000001',null,
+  (select id from public.referral_participants where display_name='Dima'),'Dima',
+  (select id from public.tracking_links where code='RFDM22')
+);
+select is((pg_temp.leaderboard_row((select id from public.referral_participants where display_name='Dima'))->>'participant'),'Dima','initial acquisition displays its historical Dima snapshot');
+select public.admin_referral_participant_update_v1(
+  'c1000000-0000-4000-8000-000000000001','ref-owner-v2@pozanuta.test',
+  (select id from public.referral_participants where display_name='Dima'),
+  'Dmytro','active',null
+);
+select pg_temp.ingest_referral(
+  'd2000000-0000-4000-8000-000000000002','tracking_entry',
+  'a3000000-0000-4000-8000-000000000001',null,
+  (select id from public.referral_participants where display_name='Dmytro'),'Dmytro',
+  (select id from public.tracking_links where code='RFDM22')
+);
+-- now() is transaction-stable here, so event sequence is the deterministic
+-- tie-breaker; the later session UUID deliberately sorts before the earlier one.
+select is((pg_temp.leaderboard_row((select id from public.referral_participants where display_name='Dmytro'))->>'participant'),'Dmytro','latest event snapshot wins timestamp tie despite lower later session UUID');
+select is((pg_temp.leaderboard_row((select id from public.referral_participants where display_name='Dmytro'))->>'acquiredSessions')::int,2,'rename keeps two sessions on one participant identity');
+select is((select count(*)::int from jsonb_array_elements(public.referral_leaderboard_v1(current_date,current_date + 1)) row_value where row_value->>'participantId' = (select id::text from public.referral_participants where display_name='Dmytro')),1,'rename does not split leaderboard identity');
 
 select * from finish();
 rollback;
