@@ -4,7 +4,6 @@ import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicPageMain } from "@/components/public-page-main";
 import { SocialHub } from "@/components/social-hub";
 import { StructuredData } from "@/components/structured-data";
-import { TrackPageView } from "@/components/track-page-view";
 import { getPublicDestinations } from "@/lib/destinations";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
 import { publicPage } from "@/lib/public-paths";
@@ -18,7 +17,6 @@ export default async function LinksPage() {
 
   return (
     <>
-      <TrackPageView />
       <StructuredData data={publicPageGraph(publicPage.links, title, description)} />
       <PublicPageMain width="links">
       <PublicBreadcrumb current={title} />

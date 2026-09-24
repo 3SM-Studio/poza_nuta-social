@@ -1,3 +1,6 @@
+import type { ClientEventPayloads } from "./analytics/contract";
+
+export const HUB_OUTBOUND_STATE_KEY = "pn_hub_outbound_v1";
 export const HUB_RESUME_MIN_MS = 2_000;
 export const HUB_RESUME_MAX_MS = 30 * 60_000;
 
@@ -24,10 +27,11 @@ export function hubResumeProperties(
   visibility: DocumentVisibilityState,
   signal: string,
   bfcache: boolean,
-) {
+): ClientEventPayloads["hub_resumed"] | null {
   if (
     visibility === "hidden" ||
     !state?.hidden ||
+    (signal !== "pageshow" && signal !== "visibilitychange") ||
     now - state.at < HUB_RESUME_MIN_MS ||
     now - state.at > HUB_RESUME_MAX_MS
   ) return null;

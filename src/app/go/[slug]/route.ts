@@ -1,5 +1,5 @@
 import { type NextRequest } from "next/server";
-import { trackEventBestEffort } from "@/lib/analytics";
+import { trackEventBestEffort } from "@/lib/analytics/server";
 import { effectiveAnalyticsMode } from "@/lib/analytics-mode";
 import { trackCookielessBestEffort } from "@/lib/cookieless-analytics";
 import { officialDestinationUrl } from "@/lib/analytics-taxonomy";

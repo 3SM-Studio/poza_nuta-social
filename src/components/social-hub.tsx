@@ -12,7 +12,7 @@ import {
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Destination } from "@/lib/types";
-import { HUB_OUTBOUND_STATE_KEY, analyticsAllowed } from "@/lib/analytics-client";
+import { recordOutboundChoice } from "@/lib/analytics";
 
 const icons = {
   instagram: Camera,
@@ -39,10 +39,7 @@ export function SocialHub({ destinations }: { destinations: Destination[] }) {
               "group w-full min-w-0 justify-between whitespace-normal text-left",
             )}
             aria-label={`Otwórz ${destination.label}`}
-            onClick={() => {
-              if (!analyticsAllowed()) return;
-              try { sessionStorage.setItem(HUB_OUTBOUND_STATE_KEY, JSON.stringify({ destination: destination.slug, at: Date.now(), hidden: false })); } catch { /* storage is optional */ }
-            }}
+            onClick={() => recordOutboundChoice(destination.slug)}
           >
             <span className="flex min-w-0 items-center gap-3">
               <Icon className="size-5 shrink-0" aria-hidden="true" />

@@ -1,7 +1,8 @@
 import { isPublicPath } from "./public-paths";
+import { CLIENT_EVENT_NAMES } from "./analytics/contract";
 
 export const CHANNEL_GROUPS = ["direct", "offline", "ai_referral", "organic_search", "organic_social", "referral", "email", "paid_social", "paid_search", "other"] as const;
-export const EVENT_NAMES = ["tracking_entry", "page_view", "outbound_click", "contact_view", "contact_click", "hub_resumed"] as const;
+export const EVENT_NAMES = ["tracking_entry", "outbound_click", ...CLIENT_EVENT_NAMES] as const;
 export const TRAFFIC_CLASSES = ["external", "internal", "test", "bot"] as const;
 export const ANALYTICS_ENVIRONMENTS = ["production", "staging", "preview", "development"] as const;
 

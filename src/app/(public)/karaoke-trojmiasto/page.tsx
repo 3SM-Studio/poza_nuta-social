@@ -4,7 +4,6 @@ import { ArrowRight } from "lucide-react";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicPageMain } from "@/components/public-page-main";
 import { StructuredData } from "@/components/structured-data";
-import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
 import { publicPage } from "@/lib/public-paths";
@@ -16,7 +15,6 @@ export const metadata: Metadata = publicMetadata(publicPage.karaoke, title, desc
 export default function KaraokePage() {
   return (
     <>
-      <TrackPageView />
       <StructuredData data={publicPageGraph(publicPage.karaoke, title, description)} />
       <PublicPageMain>
       <PublicBreadcrumb current={title} />

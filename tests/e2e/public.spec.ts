@@ -71,14 +71,14 @@ test("consent choice is explicit and does not create a visitor when denied", asy
   expect((await context.cookies()).filter((cookie) => cookie.name.startsWith("pn_")).map((cookie) => cookie.name)).toEqual(["pn_consent"]);
 });
 
-test("public navigation does not start analytics before consent", async ({ page, context }) => {
+test("public navigation uses cookieless analytics before consent", async ({ page, context }) => {
   const events: string[] = [];
-  page.on("request", (request) => { if (request.url().endsWith("/api/track")) events.push(request.url()); });
+  page.on("request", (request) => { if (request.url().endsWith("/api/track")) events.push(request.postDataJSON()?.eventName); });
   await page.goto("/");
   await page.goto("/linki");
   await page.goto("/kontakt");
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
-  expect(events).toEqual([]);
+  await expect.poll(() => events.includes("page_view") && events.includes("contact_view")).toBe(true);
   expect((await context.cookies()).some((cookie) => ["pn_session", "pn_visitor", "pn_acquisition"].includes(cookie.name))).toBe(false);
 });
 
@@ -132,7 +132,9 @@ test("privacy settings change consent in both directions and persist after reloa
   const firstVisitor = (await context.cookies()).find((cookie) => cookie.name === "pn_visitor");
   expect(firstVisitor?.value).toBeTruthy();
   expect(firstVisitor?.httpOnly).toBe(true);
+  const reloadedView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view");
   await page.reload();
+  await reloadedView;
   await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
   expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).toBe(firstVisitor?.value);
 
@@ -162,10 +164,10 @@ test("privacy settings change consent in both directions and persist after reloa
 
 test("privacy page offers the first choice without an overlapping banner", async ({ page, context }) => {
   await page.goto("/prywatnosc");
-  await expect(page.getByText("Nie wybrano jeszcze ustawienia analityki.")).toBeVisible();
+  await expect(page.getByText("Nie wybrano jeszcze ustawienia pełnej analityki.")).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toHaveCount(0);
   await page.getByRole("button", { name: "Włącz analitykę" }).click();
-  await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
+  await expect(page.getByText("Pełna analityka włączona dla tej przeglądarki.")).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(true);
 });
@@ -221,7 +223,7 @@ test("analytics endpoint is inert before consent and validates consented input",
   expect(new TextEncoder().encode(exact).byteLength).toBe(12_000);
   const atLimit = await request.post("/api/track", { data: exact, headers: { "content-type": "application/json" } });
   expect(atLimit.status()).toBe(400);
-  expect(await atLimit.json()).toEqual({ error: "invalid-event" });
+  expect(await atLimit.json()).toEqual({ error: "invalid-field" });
   const tooLarge = await request.post("/api/track", { data: `${exact}x`, headers: { "content-type": "application/json" } });
   expect(tooLarge.status()).toBe(413);
   const malformed = await request.post("/api/track", { data: "{", headers: { "content-type": "application/json" } });

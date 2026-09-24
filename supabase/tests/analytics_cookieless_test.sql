@@ -37,7 +37,9 @@ select throws_ok(
   $$select public.analytics_ingest_cookieless_v1(md5('bad-contact')::uuid,'poza_nuta','contact_click','development','external','/',null,null,null,null,null,null,null,null,null,null,null,null)$$,
   '23514', null, 'event-specific path enforced by storage'
 );
-select ok((select count(*) = 2 from public.analytics_cookieless_events where project_key='poza_nuta'), 'all stored rows have explicit project context');
+select ok((select count(*) = 2 from public.analytics_cookieless_events
+  where event_id in (md5('cookieless-one')::uuid, md5('cookieless-two')::uuid)
+    and project_key='poza_nuta'), 'test rows have explicit project context');
 
 select * from finish();
 rollback;

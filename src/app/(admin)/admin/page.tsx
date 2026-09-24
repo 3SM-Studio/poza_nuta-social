@@ -5,7 +5,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getDashboardRange } from "@/lib/analytics";
+import { getDashboardRange } from "@/lib/analytics/server";
 import { requireAdmin } from "@/lib/admin";
 import { comparisonNote, resolveDashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";

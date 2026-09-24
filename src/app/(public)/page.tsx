@@ -2,7 +2,6 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { StructuredData } from "@/components/structured-data";
-import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
 import { getPublicDestinations } from "@/lib/destinations";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -20,7 +19,6 @@ export default async function HomePage() {
 
   return (
     <>
-      <TrackPageView />
       <StructuredData data={publicPageGraph(publicPage.home, "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
       <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
         <section className="grid gap-12 border-b py-20 sm:py-28 lg:min-h-[39rem] lg:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] lg:items-end lg:gap-16 lg:py-28" aria-labelledby="hero-title">

@@ -1,6 +1,6 @@
 "use client";
 
-import { announceAnalyticsChoice, setAnalyticsAllowed } from "./analytics-client";
+import { announceAnalyticsChoice, setAnalyticsAllowed } from "./consent-analytics-gate";
 import { browserPendingAttemptId, localPreferenceCookie, readBrowserPreference, type LocalPreference } from "./consent-preference";
 
 export type ConsentState = "unknown" | "pending-accept" | "accepted" | "rejected";

@@ -104,6 +104,23 @@ test("cookieless UTM belongs only to the current page entry", async ({ page }, t
   }).toMatchObject({ utm_source: null, utm_medium: null, utm_campaign: null, referrer_host: null });
 });
 
+test("one Analytics owner sends one initial and one navigated page view", async ({ page }) => {
+  const entries: Array<Record<string, unknown>> = [];
+  page.on("request", (request) => {
+    if (request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "page_view") entries.push(request.postDataJSON());
+  });
+  const initial = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view" && response.request().postDataJSON()?.path === "/");
+  await page.goto("/?utm_source=instagram", { referer: "https://instagram.com/" });
+  await initial;
+  const next = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view" && response.request().postDataJSON()?.path === "/linki");
+  await page.getByRole("navigation", { name: "Nawigacja główna" }).getByRole("link", { name: "Linki" }).click();
+  await next;
+  expect(entries).toHaveLength(2);
+  expect(entries[0]).toMatchObject({ path: "/", utmSource: "instagram", referrer: "https://instagram.com/" });
+  expect(entries[1]).toMatchObject({ path: "/linki", utmSource: null, referrer: null });
+  expect(entries[0].eventId).not.toBe(entries[1].eventId);
+});
+
 test("redirect events persist cookieless and invalid links still redirect", async ({ context }, testInfo) => {
   test.skip(!local || testInfo.project.name !== "desktop-chromium", "local Supabase desktop proof");
   const code = "ZYWVC";

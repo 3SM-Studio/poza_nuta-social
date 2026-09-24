@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/legal-page";
 import { publicPage } from "@/lib/public-paths";
-import { TrackPageView } from "@/components/track-page-view";
 import { ConsentPreferences } from "@/components/consent-controls";
 import { StructuredData } from "@/components/structured-data";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -14,7 +13,6 @@ export const metadata: Metadata = publicMetadata(publicPage.cookies, "Cookies", 
 
 export default function CookiesPage() {
   return <>
-    <TrackPageView />
     <StructuredData data={publicPageGraph(publicPage.cookies, "Cookies", description)} />
     <LegalPage title="Cookies" heading="Cookies na tej stronie" intro="Niezbędny zapis pamięta Twój wybór. Pełniejsza analityka korzysta z cookies dopiero po potwierdzeniu zgody przez serwer.">
       <section><h2>Zmień wybór</h2><div className="not-typeset mt-5"><ConsentPreferences /></div><p>Odmowa i cofnięcie zgody nie ograniczają dostępu do strony. Po cofnięciu zgody usuwamy cookies analityczne z tej przeglądarki. Nadal możemy zapisać ograniczone zdarzenia bez cookies analitycznych, trwałego identyfikatora sesji lub przeglądarki, fingerprintingu i łączenia wizyt.</p></section>

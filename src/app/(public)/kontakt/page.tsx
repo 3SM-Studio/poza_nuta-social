@@ -3,7 +3,6 @@ import Link from "next/link";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicPageMain } from "@/components/public-page-main";
 import { getContactEmail } from "@/lib/env";
-import { TrackPageView } from "@/components/track-page-view";
 import { TrackedContactLink } from "@/components/tracked-contact-link";
 import { StructuredData } from "@/components/structured-data";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -16,7 +15,6 @@ export default function ContactPage() {
   const email = getContactEmail();
   return (
     <>
-      <TrackPageView contact />
       <StructuredData data={publicPageGraph(publicPage.contact, "Kontakt / współpraca", description)} />
       <PublicPageMain>
       <PublicBreadcrumb current="Kontakt / współpraca" />

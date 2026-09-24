@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { LegalPage } from "@/components/legal-page";
 import { publicPage } from "@/lib/public-paths";
-import { TrackPageView } from "@/components/track-page-view";
 import { ConsentPreferences } from "@/components/consent-controls";
 import { StructuredData } from "@/components/structured-data";
 import { privacyConfig } from "@/lib/privacy-config";
@@ -14,7 +13,6 @@ export const metadata: Metadata = publicMetadata(publicPage.privacy, "Prywatnoś
 export default function PrivacyPage() {
   const config = privacyConfig();
   return <>
-    <TrackPageView />
     <StructuredData data={publicPageGraph(publicPage.privacy, "Prywatność", description)} />
     <LegalPage title="Prywatność" heading="Prywatność" intro="Wyjaśniamy, co dzieje się z danymi przy korzystaniu z tej strony i jak zmienić wybór dotyczący analityki.">
       <section><h2>Ustawienia analityki</h2><div className="not-typeset mt-5"><ConsentPreferences /></div><p>Po wycofaniu zgody kończymy pomiar oparty na identyfikatorze sesji i przeglądarki oraz usuwamy cookies analityczne. Kolejne zdarzenia mogą być mierzone w ograniczonym trybie bez cookies analitycznych. Wcześniej zapisane dane wymagają osobnej obsługi zgodnie z obowiązującym okresem przechowywania i żądaniami dotyczącymi danych.</p></section>
