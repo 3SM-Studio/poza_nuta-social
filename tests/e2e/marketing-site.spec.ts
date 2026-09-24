@@ -6,7 +6,7 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page,
   await page.goto("/");
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Odrzuć analitykę" }).click();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
-  expect((await context.cookies()).some((cookie) => cookie.name === "pn_consent")).toBe(true);
+  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_consent"), { message: "server-confirmed denial writes the consent cookie" }).toBe(true);
 
   for (const route of routes) {
     const response = await page.goto(route);

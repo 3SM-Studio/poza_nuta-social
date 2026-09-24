@@ -125,11 +125,16 @@ test("keyboard focus is visible above authored fixed controls at narrow width", 
     await page.keyboard.press("Tab");
     const state = await page.evaluate(() => {
       const active = document.activeElement;
-      const bounds = active?.getBoundingClientRect();
-      const centerX = bounds ? Math.max(0, Math.min(innerWidth - 1, bounds.left + bounds.width / 2)) : 0;
-      const centerY = bounds ? Math.max(0, Math.min(innerHeight - 1, bounds.top + bounds.height / 2)) : 0;
-      const hit = document.elementFromPoint(centerX, centerY);
-      return { name: active?.getAttribute("aria-label") || active?.textContent?.trim() || "", visible: Boolean(bounds && bounds.bottom > 0 && bounds.top < innerHeight && (active === hit || active?.contains(hit))) };
+      // Inline links can wrap into multiple painted fragments; the center of
+      // their union rectangle may fall on the surrounding paragraph.
+      const visible = Array.from(active?.getClientRects() || []).some((rect) => {
+        if (rect.bottom <= 0 || rect.top >= innerHeight) return false;
+        const centerX = Math.max(0, Math.min(innerWidth - 1, rect.left + rect.width / 2));
+        const centerY = Math.max(0, Math.min(innerHeight - 1, rect.top + rect.height / 2));
+        const hit = document.elementFromPoint(centerX, centerY);
+        return active === hit || active?.contains(hit);
+      });
+      return { name: active?.getAttribute("aria-label") || active?.textContent?.trim() || "", visible };
     });
     if (!state.name) break;
     focusNames.push(state.name);

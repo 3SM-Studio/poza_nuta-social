@@ -8,6 +8,7 @@ import {
   Radio,
   ListFilter,
   FlaskConical,
+  GitBranch,
   Link2,
   LogOut,
   Megaphone,
@@ -44,6 +45,7 @@ const groups = [
     items: [
       { href: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
       { href: "/admin/acquisition", label: "Analiza pozyskania", icon: Megaphone },
+      { href: "/admin/funnels", label: "Funnele", icon: GitBranch },
       { href: "/admin/realtime", label: "Realtime", icon: Radio },
       { href: "/admin/data-quality", label: "Data Quality", icon: Activity },
       { href: "/admin/debug", label: "DebugView", icon: ListFilter },

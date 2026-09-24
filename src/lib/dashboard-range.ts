@@ -24,7 +24,7 @@ export function resolveDashboardRange(params: Record<string, string | string[] |
     }
   }
 
-  const days = key === "today" ? 1 : Number(key);
+  const days = key === "today" ? 1 : key === "custom" ? 30 : Number(key);
   const from = addDays(today, -(days - 1));
   return buildRange(from, today, key === "custom" ? "30" : key, key === "today" ? "Dziś" : `Ostatnie ${days} dni`);
 }
