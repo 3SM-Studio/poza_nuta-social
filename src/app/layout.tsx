@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Bebas_Neue, Space_Grotesk } from "next/font/google";
 import { getSiteUrl } from "@/lib/env";
 import { ConsentBanner } from "@/components/consent-controls";
+import { PublicSkipLink } from "@/components/public-skip-link";
 import "./globals.css";
 
 const display = Bebas_Neue({ weight: "400", subsets: ["latin", "latin-ext"], variable: "--font-display", display: "swap" });
@@ -18,5 +19,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#0d0b0d", colorScheme: "dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="pl" className={`${display.variable} ${body.variable}`}><body><ConsentBanner />{children}</body></html>;
+  return <html lang="pl" className={`${display.variable} ${body.variable}`}><body><PublicSkipLink /><ConsentBanner />{children}</body></html>;
 }

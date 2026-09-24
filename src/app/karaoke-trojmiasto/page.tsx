@@ -15,10 +15,11 @@ export const metadata: Metadata = publicMetadata("/karaoke-trojmiasto", title, d
 
 export default function KaraokePage() {
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col px-5 py-7 sm:px-7 sm:py-10">
+    <div className="mx-auto flex min-h-svh w-full max-w-xl flex-col px-5 py-7 sm:px-7 sm:py-10">
       <TrackPageView />
       <StructuredData data={publicPageGraph("/karaoke-trojmiasto", title, description)} />
       <PublicHeader />
+      <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
       <PublicBreadcrumb current={title} />
       <article className="flex-1 py-10 sm:py-14">
         <h1 className="font-display text-[clamp(3.4rem,12vw,5.5rem)] leading-[0.9] tracking-[-0.025em] text-foreground">Karaoke w Trójmieście</h1>
@@ -41,7 +42,8 @@ export default function KaraokePage() {
           </Link>
         </section>
       </article>
+      </main>
       <PublicFooter />
-    </main>
+    </div>
   );
 }

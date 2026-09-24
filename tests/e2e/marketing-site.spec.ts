@@ -11,6 +11,7 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page 
     expect(response?.status(), route).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Ustawienia prywatności" })).toBeVisible();
     if (route === "/privacy" || route === "/cookies") await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
     const dimensions = await page.evaluate(() => ({
       content: document.documentElement.scrollWidth,

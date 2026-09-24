@@ -13,11 +13,18 @@ export function ConsentBanner() {
   const [consentMissing, setConsentMissing] = useState<boolean | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const bannerRef = useRef<HTMLElement>(null);
+  const focusAfterChoiceRef = useRef(false);
   const [bannerSpace, setBannerSpace] = useState(0);
   const publicRoute = !pathname.startsWith("/admin") && !pathname.startsWith("/auth");
   const visible = consentMissing === true && publicRoute && pathname !== "/privacy" && pathname !== "/cookies";
+  useEffect(() => {
+    const open = () => setSettingsOpen(true);
+    window.addEventListener("pn-open-privacy-settings", open);
+    return () => window.removeEventListener("pn-open-privacy-settings", open);
+  }, []);
   useEffect(() => {
     if (!publicRoute) return;
     let active = true;
@@ -43,15 +50,25 @@ export function ConsentBanner() {
     return () => observer.disconnect();
   }, [visible]);
   useEffect(() => {
-    document.body.style.paddingBottom = visible ? `${bannerSpace}px` : consentMissing === false && publicRoute ? "3.5rem" : "";
-    return () => { document.body.style.paddingBottom = ""; };
+    const clearance = visible ? `${bannerSpace}px` : "";
+    document.body.style.paddingBottom = clearance;
+    document.documentElement.style.scrollPaddingBottom = clearance;
+    return () => { document.body.style.paddingBottom = ""; document.documentElement.style.scrollPaddingBottom = ""; };
   }, [visible, bannerSpace, consentMissing, publicRoute]);
+  useEffect(() => {
+    if (consentMissing === false && focusAfterChoiceRef.current) {
+      document.querySelector<HTMLAnchorElement>('a[href="#main-content"]')?.focus();
+      focusAfterChoiceRef.current = false;
+    }
+  }, [consentMissing]);
   async function choose(analytics: boolean) {
     setPending(true);
     setError(false);
     try {
       const response = await fetch("/api/consent", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ analytics, marketing: false }) });
       if (response.ok) {
+        focusAfterChoiceRef.current = true;
+        setStatusMessage(analytics ? "Analityka została włączona." : "Analityka została wyłączona.");
         setConsentMissing(false);
         announceAnalyticsChoice(analytics);
         window.dispatchEvent(new Event("pn-consent-changed"));
@@ -63,6 +80,7 @@ export function ConsentBanner() {
   if (!publicRoute) return null;
   return (
     <>
+      <p role="status" className="sr-only">{statusMessage}</p>
       {visible ? <>
         <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
           <p className="text-sm font-bold">Twoja prywatność</p>
@@ -74,9 +92,6 @@ export function ConsentBanner() {
           </div>
         </aside>
       </> : null}
-      {consentMissing === false ? <>
-        <Button type="button" variant="secondary" aria-label="Ustawienia prywatności" className="fixed bottom-3 left-3 z-40 h-11 px-3 text-xs shadow-lg sm:bottom-5 sm:left-5 sm:px-4 sm:text-sm" onClick={() => setSettingsOpen(true)}><Cookie className="size-4" aria-hidden="true" /><span className="sm:hidden">Prywatność</span><span className="hidden sm:inline">Ustawienia prywatności</span></Button>
-      </> : null}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader><DialogTitle>Ustawienia prywatności</DialogTitle><DialogDescription>Wybierz, czy Poza Nutą może mierzyć korzystanie ze strony. Odmowa nie ogranicza dostępu.</DialogDescription></DialogHeader>
@@ -84,7 +99,7 @@ export function ConsentBanner() {
             <div><p className="font-bold">Niezbędne <span className="font-normal text-muted-foreground">· zawsze aktywne</span></p><p className="text-muted-foreground">Działanie strony i zapamiętanie wyboru.</p></div>
             <div><p className="font-bold">Analityka <span className="font-normal text-muted-foreground">· Twój wybór</span></p><p className="text-muted-foreground">Pomiar odwiedzin, źródeł wejścia i wyboru oficjalnych linków.</p></div>
           </div>
-          <ConsentPreferences onSaved={() => setSettingsOpen(false)} />
+          <ConsentPreferences onSaved={(analytics) => { setStatusMessage(analytics ? "Analityka została włączona." : "Analityka została wyłączona."); setSettingsOpen(false); }} />
           <Link href="/cookies" onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Jakich cookies używamy?</Link>
         </DialogContent>
       </Dialog>
@@ -92,11 +107,20 @@ export function ConsentBanner() {
   );
 }
 
-export function ConsentPreferences({ onSaved }: { onSaved?: () => void } = {}) {
+export function ConsentPreferences({ onSaved }: { onSaved?: (analytics: boolean) => void } = {}) {
   const [choice, setChoice] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<"read" | "save" | null>(null);
+  const retryChoiceRef = useRef<boolean | null>(null);
+  const essentialButtonRef = useRef<HTMLButtonElement>(null);
+  const analyticsButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (error === "save" && !pending) {
+      (retryChoiceRef.current ? analyticsButtonRef : essentialButtonRef).current?.focus();
+    }
+  }, [error, pending]);
 
   useEffect(() => {
     let active = true;
@@ -116,6 +140,7 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void } = {}) {
   }
 
   async function choose(analytics: boolean) {
+    retryChoiceRef.current = analytics;
     setPending(true);
     setError(null);
     try {
@@ -124,7 +149,7 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void } = {}) {
       setChoice(analytics);
       announceAnalyticsChoice(analytics);
       window.dispatchEvent(new Event("pn-consent-changed"));
-      onSaved?.();
+      onSaved?.(analytics);
     } catch { setError("save"); }
     finally { setPending(false); }
   }
@@ -137,8 +162,8 @@ export function ConsentPreferences({ onSaved }: { onSaved?: () => void } = {}) {
       {error === "read" ? <Button type="button" variant="outline" disabled={loading} onClick={() => void refresh()}>Sprawdź ponownie</Button> : null}
       {error === "save" ? <p role="alert" className="text-destructive">Nie udało się zapisać ustawienia. Spróbuj ponownie.</p> : null}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button type="button" variant="outline" aria-pressed={choice === false} disabled={loading || pending} onClick={() => choose(false)}>Tylko niezbędne</Button>
-        <Button type="button" variant="outline" aria-pressed={choice === true} disabled={loading || pending} onClick={() => choose(true)}>Włącz analitykę</Button>
+        <Button ref={essentialButtonRef} type="button" variant="outline" aria-pressed={choice === false} disabled={loading || pending} onClick={() => choose(false)}>Tylko niezbędne</Button>
+        <Button ref={analyticsButtonRef} type="button" variant="outline" aria-pressed={choice === true} disabled={loading || pending} onClick={() => choose(true)}>Włącz analitykę</Button>
       </div>
     </div>
   );
@@ -149,4 +174,8 @@ async function readConsentChoice() {
   if (!response.ok) throw new Error("consent-unavailable");
   const result = await response.json() as { choice: { analytics: boolean } | null };
   return result.choice?.analytics ?? null;
+}
+
+export function PrivacySettingsControl() {
+  return <Button type="button" variant="secondary" aria-label="Ustawienia prywatności" className="h-11 px-3 text-xs sm:px-4 sm:text-sm" onClick={() => window.dispatchEvent(new Event("pn-open-privacy-settings"))}><Cookie className="size-4" aria-hidden="true" /><span className="sm:hidden">Prywatność</span><span className="hidden sm:inline">Ustawienia prywatności</span></Button>;
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PrivacySettingsControl } from "@/components/consent-controls";
 
 export function PublicFooter() {
   return (
@@ -10,6 +11,7 @@ export function PublicFooter() {
         <Link href="/privacy" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Prywatność</Link>
         <Link href="/cookies" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Cookies</Link>
       </div>
+      <PrivacySettingsControl />
     </footer>
   );
 }

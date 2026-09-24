@@ -25,7 +25,7 @@ const icons = {
 
 export function SocialHub({ destinations }: { destinations: Destination[] }) {
   return (
-    <div className="grid gap-3" aria-label="Oficjalne linki Poza Nutą">
+    <div className="grid min-w-0 grid-cols-1 gap-3" aria-label="Oficjalne linki Poza Nutą">
       {destinations.map((destination, index) => {
         const Icon = icons[destination.icon as keyof typeof icons] || ExternalLink;
         return (
@@ -36,7 +36,7 @@ export function SocialHub({ destinations }: { destinations: Destination[] }) {
             rel="noopener noreferrer"
             className={cn(
               buttonVariants({ variant: index === 0 ? "accent" : "secondary", size: "xl" }),
-              "group w-full justify-between text-left",
+              "group w-full min-w-0 justify-between whitespace-normal text-left",
             )}
             aria-label={`Otwórz ${destination.label}`}
             onClick={() => {
@@ -47,9 +47,9 @@ export function SocialHub({ destinations }: { destinations: Destination[] }) {
             <span className="flex min-w-0 items-center gap-3">
               <Icon className="size-5 shrink-0" aria-hidden="true" />
               <span className="min-w-0">
-                <span className="block truncate">{destination.label}</span>
+                <span className="block break-words">{destination.label}</span>
                 {destination.description ? (
-                  <span className="mt-0.5 block truncate text-xs font-medium opacity-70">
+                  <span className="mt-0.5 block break-words text-xs font-medium">
                     {destination.description}
                   </span>
                 ) : null}

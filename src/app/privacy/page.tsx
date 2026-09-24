@@ -13,9 +13,10 @@ export const metadata: Metadata = publicMetadata("/privacy", "Prywatność", des
 
 export default function PrivacyPage() {
   const config = privacyConfig();
-  return <main className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
+  return <div className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
     <StructuredData data={publicPageGraph("/privacy", "Prywatność", description)} />
     <PublicHeader />
+    <main id="main-content" tabIndex={-1}>
     <PublicBreadcrumb current="Prywatność" />
     <article className="mt-10 space-y-9 text-sm leading-7">
       <header><h1 className="text-4xl font-black tracking-tight sm:text-5xl">Prywatność</h1><p className="mt-4 text-muted-foreground">Wyjaśniamy, co dzieje się z danymi przy korzystaniu z tej strony i jak zmienić wybór dotyczący analityki.</p></header>
@@ -25,6 +26,7 @@ export default function PrivacyPage() {
       <section className="space-y-2"><h2 className="text-xl font-bold">Odbiorcy, transfery i czas przechowywania</h2><p>{config.recipients || "Kategorie odbiorców i dostawców infrastruktury zostaną potwierdzone przed publikacją."}</p><p>{config.transfers || "Informacja o ewentualnym przekazywaniu danych poza EOG zostanie potwierdzona przed publikacją."}</p><p>{config.retention || "Okresy przechowywania danych serwerowych zostaną zatwierdzone przed publikacją."}</p><p>Czasy ważności cookies podajemy osobno na stronie <Link href="/cookies" className="font-bold underline underline-offset-4">Cookies</Link>.</p></section>
       <section className="space-y-2"><h2 className="text-xl font-bold">Twoje prawa</h2><p>Możesz żądać dostępu do danych, ich sprostowania, usunięcia lub ograniczenia przetwarzania, a w odpowiednich przypadkach także przeniesienia danych i wnieść sprzeciw. Masz prawo wnieść skargę do Prezesa Urzędu Ochrony Danych Osobowych. Zgodę na analitykę możesz wycofać w każdej chwili; nie wpływa to na zgodność wcześniejszego przetwarzania ze zgodą.</p><p>Nie podejmujemy wobec odwiedzających decyzji wyłącznie automatycznie, które wywoływałyby skutki prawne lub podobnie istotnie na nich wpływały.</p></section>
     </article>
+    </main>
     <PublicFooter />
-  </main>;
+  </div>;
 }

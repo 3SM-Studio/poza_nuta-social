@@ -111,6 +111,7 @@ test("withdrawal clears analytics state in another open tab", async ({ browser }
   await second.evaluate(() => sessionStorage.setItem("pn_hub_outbound_v1", "temporary-test-state"));
   await first.getByRole("button", { name: "Ustawienia prywatności" }).click();
   await first.getByRole("dialog", { name: "Ustawienia prywatności" }).getByRole("button", { name: "Tylko niezbędne" }).click();
+  await expect(first.getByRole("dialog", { name: "Ustawienia prywatności" })).toBeHidden();
   await expect.poll(() => second.evaluate(() => sessionStorage.getItem("pn_hub_outbound_v1"))).toBeNull();
   expect((await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name))).toBe(false);
   await context.close();

@@ -12,9 +12,10 @@ const description = "Jak Poza Nutą używa cookies i pamięci przeglądarki oraz
 export const metadata: Metadata = publicMetadata("/cookies", "Cookies", description);
 
 export default function CookiesPage() {
-  return <main className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
+  return <div className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
     <StructuredData data={publicPageGraph("/cookies", "Cookies", description)} />
     <PublicHeader />
+    <main id="main-content" tabIndex={-1}>
     <PublicBreadcrumb current="Cookies" />
     <article className="mt-10 space-y-9 text-sm leading-7">
       <header><h1 className="text-4xl font-black tracking-tight sm:text-5xl">Cookies na tej stronie</h1><p className="mt-4 text-muted-foreground">Niezbędny zapis pamięta Twój wybór. Analitykę uruchamiamy dopiero po Twojej zgodzie.</p></header>
@@ -27,6 +28,7 @@ export default function CookiesPage() {
       </section>
       <section className="space-y-3"><h2 className="text-xl font-bold">Własne ustawienia przeglądarki</h2><p className="text-muted-foreground">Możesz także usuwać lub blokować cookies w ustawieniach przeglądarki. Zablokowanie mechanizmów niezbędnych może utrudnić zapamiętanie wyboru albo korzystanie z panelu administratora.</p><p>Więcej o przetwarzaniu danych znajdziesz na stronie <Link href="/privacy" className="font-bold underline underline-offset-4">Prywatność</Link>.</p></section>
     </article>
+    </main>
     <PublicFooter />
-  </main>;
+  </div>;
 }

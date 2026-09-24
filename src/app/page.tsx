@@ -18,10 +18,11 @@ export default async function HomePage() {
   const destinations = await getPublicDestinations();
 
   return (
-    <main className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-5 pt-5 sm:px-8 sm:pt-7 lg:px-10">
+    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-5 pt-5 sm:px-8 sm:pt-7 lg:px-10">
       <TrackPageView />
       <StructuredData data={publicPageGraph("/", "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
       <PublicHeader />
+      <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
 
       <section className="grid flex-1 gap-10 border-b py-16 sm:py-24 lg:grid-cols-[minmax(0,1.2fr)_minmax(19rem,0.8fr)] lg:items-end lg:gap-20 lg:py-32" aria-labelledby="hero-title">
         <div>
@@ -79,7 +80,8 @@ export default async function HomePage() {
           <Link href="/kontakt" className="inline-flex min-h-11 items-center gap-2 text-foreground underline decoration-accent underline-offset-4 hover:text-accent">Kontakt / współpraca <ArrowRight className="size-4" aria-hidden="true" /></Link>
         </div>
       </section>
+      </main>
       <PublicFooter />
-    </main>
+    </div>
   );
 }
