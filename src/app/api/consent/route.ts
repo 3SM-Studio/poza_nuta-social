@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { ANALYTICS_CONSENT_COOKIE, ANALYTICS_VISITOR_COOKIE, VISITOR_TTL_SECONDS, signAnalyticsToken, verifyAnalyticsToken } from "@/lib/analytics-token";
 import { createConsentToken } from "@/lib/tracking-context";
+import { readBoundedJson } from "@/lib/bounded-json";
 
 export const runtime = "nodejs";
 
@@ -16,8 +17,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  let body: Record<string, unknown>;
-  try { body = await request.json(); } catch { return NextResponse.json({ error: "invalid-json" }, { status: 400 }); }
+  const parsed = await readBoundedJson(request, 1_024);
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: parsed.error === "payload-too-large" ? 413 : 400 });
+  const body = parsed.value;
   const analytics = body.analytics === true;
   const marketing = body.marketing === true;
   if (marketing && body.analytics !== true && body.analytics !== false) return NextResponse.json({ error: "invalid-consent" }, { status: 400 });

@@ -1,5 +1,9 @@
 # Codex handoff — locally verified repository
 
+## Recovery direction, 2026-09-24
+
+The owner has changed the future main-site target to `https://pozanuta.pl`. The earlier `socials.pozanuta.pl` release checklist and open domain-choice notes below are historical. The present link hub, consent model and hosting configuration are not the final root-domain implementation. Continue with separate canonical/root-domain, EU privacy/cookie, WCAG 2.2 AA, hosting/cost and final readiness slices; see `docs/PRODUCT_DECISIONS.md`. Do not execute the older external release steps as part of local recovery.
+
 This repository contains approved decisions 1–82, the explicit analytics refinements, and the implemented Admin Platform V2 contract under `docs/admin/`. Read both document sets before changing access, identity, consent, taxonomy, metrics, or external sinks.
 
 ## Read first

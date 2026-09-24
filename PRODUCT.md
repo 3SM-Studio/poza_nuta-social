@@ -2,7 +2,10 @@
 # Poza Nutą — product truth
 
 ## Product
-`social.pozanuta.pl` is an independent Poza Nutą application. It is not a Stage module, not a shared dashboard module, and does not share database, authentication, deployment, or runtime dependencies with any other Poza Nutą product.
+This repository is an independent Poza Nutą application. It is not a Stage module, not a shared dashboard module, and does not share database, authentication, deployment, or runtime dependencies with any other Poza Nutą product.
+
+## Future direction — owner decision, 2026-09-24
+This codebase is planned to become the main Poza Nutą marketing site at `https://pozanuta.pl`. The current link-hub information architecture describes the existing implementation, not the final root-domain experience. The future role of `socials.pozanuta.pl` is undecided. Hosting, EU privacy and cookie compliance, and WCAG 2.2 AA work are separate slices. Do not treat the current consent flow as final legal approval or migrate hosting as part of routine readiness fixes.
 
 ## Overview
 The public surface is a digital business card and official-links hub for Poza Nutą. It serves two equally legitimate audiences:

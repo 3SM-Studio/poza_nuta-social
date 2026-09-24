@@ -28,12 +28,12 @@ export default function ContactPage() {
           <TrackedContactLink email={email} />
         ) : (
           <div className="mt-8 rounded-xl border bg-card p-5 text-sm text-muted-foreground">
-            Oficjalny adres kontaktowy jest właśnie konfigurowany. Skorzystaj na razie z jednego z oficjalnych profili na stronie głównej.
+            Oficjalny adres kontaktowy jest właśnie konfigurowany. Skorzystaj na razie z jednego z oficjalnych profili <Link href="/" className="font-bold text-foreground underline underline-offset-4">na stronie głównej</Link>.
           </div>
         )}
         <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold">
-          <Link className="text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/dla-lokali">Informacje dla lokali</Link>
-          <Link className="text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/karaoke-trojmiasto">O karaoke</Link>
+          <Link className="inline-flex min-h-11 items-center text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/dla-lokali">Informacje dla lokali</Link>
+          <Link className="inline-flex min-h-11 items-center text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/karaoke-trojmiasto">O karaoke</Link>
         </div>
       </div>
       <footer className="border-t py-5 text-xs text-muted-foreground">© {new Date().getFullYear()} Poza Nutą</footer>

@@ -1,5 +1,7 @@
 # SEO & GEO Production Hardening
 
+Historical note (2026-09-24): the owner subsequently selected `https://pozanuta.pl` as the future canonical origin of the main marketing site. This document describes the former hub slice and its production activation plan; it does not authorize attaching `socials.pozanuta.pl` as the canonical host of the future main site. Root-domain migration and the role of the subdomain remain separate work.
+
 Status: code and local verification only. No production deployment, ownership verification, or IndexNow submission belongs to this slice.
 
 ## Public information architecture

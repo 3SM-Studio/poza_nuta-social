@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ export function ConsentBanner() {
   const [consentMissing, setConsentMissing] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState(false);
+  const bannerRef = useRef<HTMLElement>(null);
+  const [bannerSpace, setBannerSpace] = useState(0);
+  const visible = consentMissing && !pathname.startsWith("/admin") && pathname !== "/privacy";
   useEffect(() => {
     if (pathname.startsWith("/admin") || pathname === "/privacy") return;
     let active = true;
@@ -22,7 +25,17 @@ export function ConsentBanner() {
       .catch(() => { if (active) setConsentMissing(true); });
     return () => { active = false; };
   }, [pathname]);
-  if (!consentMissing || pathname.startsWith("/admin") || pathname === "/privacy") return null;
+  useEffect(() => {
+    const banner = bannerRef.current;
+    if (!visible || !banner) return;
+    const observer = new ResizeObserver(() => {
+      const bottom = Number.parseFloat(getComputedStyle(banner).bottom) || 0;
+      setBannerSpace(Math.ceil(banner.getBoundingClientRect().height + bottom * 2));
+    });
+    observer.observe(banner);
+    return () => observer.disconnect();
+  }, [visible]);
+  if (!visible) return null;
   async function choose(analytics: boolean) {
     setPending(true);
     setError(false);
@@ -37,15 +50,18 @@ export function ConsentBanner() {
     finally { setPending(false); }
   }
   return (
-    <aside className="fixed inset-x-3 bottom-3 z-50 mx-auto max-w-2xl rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Ustawienia prywatności">
-      <p className="text-sm font-bold">Prywatność i pomiar</p>
-      <p className="mt-1 text-xs leading-5 text-muted-foreground">Krótka sesja utrzymuje spójność wejścia. Za zgodą możemy rozpoznać powrót tej samej przeglądarki. Nie tworzymy odcisku urządzenia ani nie zapisujemy surowego adresu IP.{" "}<Link href="/privacy" className="font-bold text-foreground underline underline-offset-4">Szczegóły</Link></p>
-      {error ? <p role="alert" className="mt-2 text-sm text-destructive">Nie udało się zapisać wyboru. Spróbuj ponownie.</p> : null}
-      <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button type="button" variant="outline" disabled={pending} onClick={() => choose(false)}>Tylko niezbędne</Button>
-        <Button type="button" variant="outline" disabled={pending} onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
-      </div>
-    </aside>
+    <>
+      <div aria-hidden="true" style={{ height: bannerSpace }} />
+      <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Ustawienia prywatności">
+        <p className="text-sm font-bold">Prywatność i pomiar</p>
+        <p className="mt-1 text-xs leading-5 text-muted-foreground">Krótka sesja utrzymuje spójność wejścia. Za zgodą możemy rozpoznać powrót tej samej przeglądarki. Nie tworzymy odcisku urządzenia ani nie zapisujemy surowego adresu IP.{" "}<Link href="/privacy" className="font-bold text-foreground underline underline-offset-4">Szczegóły</Link></p>
+        {error ? <p role="alert" className="mt-2 text-sm text-destructive">Nie udało się zapisać wyboru. Spróbuj ponownie.</p> : null}
+        <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button type="button" variant="outline" disabled={pending} onClick={() => choose(false)}>Tylko niezbędne</Button>
+          <Button type="button" variant="outline" disabled={pending} onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
+        </div>
+      </aside>
+    </>
   );
 }
 

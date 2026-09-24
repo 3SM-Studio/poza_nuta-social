@@ -1,5 +1,7 @@
 # Poza Nutą — design system
 
+This document describes the current implemented hub. The approved future `pozanuta.pl` marketing-site direction requires a separate design/architecture slice; current hub-specific layout rules are not a final design brief for that site.
+
 ## Overview
 The public experience is a compact digital business card, not a SaaS landing page and not a generic Linktree clone. The interface should feel authored, direct, nightlife-adjacent, and recognizably Poza Nutą while remaining highly legible for business visitors.
 

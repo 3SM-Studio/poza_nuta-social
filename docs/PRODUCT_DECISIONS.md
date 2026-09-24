@@ -1,5 +1,13 @@
 # Approved product decisions — discovery 1–82
 
+## Owner direction — 2026-09-24 (supersedes the earlier release target)
+
+- This codebase is planned to become the main Poza Nutą marketing site at `https://pozanuta.pl`. `socials.pozanuta.pl` is no longer the canonical target for the whole application; its eventual link-hub or redirect behavior is undecided.
+- The current privacy/consent implementation is interim. A separate EU Privacy & Cookie Compliance slice will decide the distinction between minimal cookieless/server-side measurement and consented analytics, a cookie policy, persistent privacy settings access, and final consent UX. None of those changes is approved as an implementation in the current recovery slice.
+- A separate accessibility slice targets WCAG 2.2 AA, axe automation, keyboard/focus/reflow/reduced-motion checks, and screen-reader smoke. The current recovery slice may fix the observed consent-banner overlap without claiming full compliance.
+- Production hosting is not yet chosen. Do not migrate between Vercel and another host as part of the local recovery checkpoint.
+- Sequence future work as canonical/root-domain migration, EU privacy and cookie compliance, accessibility, hosting/cost feasibility, then final Production Readiness.
+
 Status: **approved by product owner on 2026-09-19**. These are binding unless explicitly changed later.
 
 ## Public product and brand (1–30)

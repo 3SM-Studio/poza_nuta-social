@@ -63,8 +63,8 @@ export default async function HomePage() {
             Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Ta strona jest oficjalną wizytówką marki i prowadzi do naszych aktualnych kanałów oraz kontaktu biznesowego.
           </p>
           <div className="mt-5 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold">
-            <Link className="text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/karaoke-trojmiasto">Karaoke w Trójmieście</Link>
-            <Link className="text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/dla-lokali">Współpraca z lokalami</Link>
+            <Link className="inline-flex min-h-11 items-center text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/karaoke-trojmiasto">Karaoke w Trójmieście</Link>
+            <Link className="inline-flex min-h-11 items-center text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href="/dla-lokali">Współpraca z lokalami</Link>
           </div>
         </section>
       </section>
@@ -72,8 +72,8 @@ export default async function HomePage() {
       <footer className="flex items-center justify-between gap-4 border-t py-5 text-xs text-muted-foreground">
         <span>© {new Date().getFullYear()} Poza Nutą</span>
         <div className="flex items-center gap-4">
-          <Link className="font-bold text-foreground underline-offset-4 hover:underline" href="/kontakt">Kontakt</Link>
-          <Link className="font-bold text-foreground underline-offset-4 hover:underline" href="/privacy">Prywatność</Link>
+          <Link className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline" href="/kontakt">Kontakt</Link>
+          <Link className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline" href="/privacy">Prywatność</Link>
         </div>
       </footer>
     </main>
