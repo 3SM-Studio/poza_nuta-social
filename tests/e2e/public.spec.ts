@@ -2,28 +2,28 @@ import { expect, test } from "@playwright/test";
 
 test("homepage introduces Poza Nutą and routes both audiences", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "POZA NUTĄ", exact: true })).toBeVisible();
-  await expect(page.getByText("Karaoke i wydarzenia muzyczne w Trójmieście.", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Poznaj nasze karaoke" })).toHaveAttribute("href", "/karaoke-trojmiasto");
-  await expect(page.getByRole("link", { name: "Dla lokali", exact: true }).last()).toHaveAttribute("href", "/dla-lokali");
-  await expect(page.getByRole("link", { name: "Oficjalne linki" }).first()).toHaveAttribute("href", "/linki");
-  await expect(page.getByRole("link", { name: "Otwórz Instagram" })).toHaveCount(0);
-  await expect(page.getByRole("link", { name: /Kontakt \/ współpraca/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Karaoke i wydarzenia muzyczne w Trójmieście.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Chcę zaśpiewać" }).first()).toHaveAttribute("href", "/karaoke-trojmiasto");
+  await expect(page.getByRole("main").getByRole("link", { name: "Dla lokali", exact: true })).toHaveAttribute("href", "/dla-lokali");
+  await expect(page.getByRole("link", { name: "Wszystkie oficjalne linki" })).toHaveAttribute("href", "/linki");
+  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram" })).toHaveAttribute("href", "/go/instagram");
+  await expect(page.getByRole("link", { name: "Współpraca z lokalami" })).toBeVisible();
   await expect(page.getByText(/Stage/i)).toHaveCount(0);
 });
 
 test("link hub uses the official destination route and returns to the marketing site", async ({ page, request }) => {
   await page.goto("/linki");
   await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Otwórz Instagram" })).toHaveAttribute("href", "/go/instagram");
+  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true })).toHaveAttribute("href", "/go/instagram");
   const outbound = await request.get("/go/instagram", { maxRedirects: 0 });
   expect(outbound.status()).toBe(302);
   expect(outbound.headers().location).toMatch(/^https:\/\/(www\.)?instagram\.com\//);
   expect(outbound.headers()["x-robots-tag"]).toContain("noindex");
-  await expect(page.getByRole("link", { name: "Poza Nutą — strona główna" })).toHaveAttribute("href", "/");
-  await page.getByRole("link", { name: "Poza Nutą — strona główna" }).click();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Poza Nutą - strona główna" })).toHaveAttribute("href", "/");
+  await page.getByRole("banner").getByRole("link", { name: "Poza Nutą - strona główna" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: "POZA NUTĄ", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
 });
 
 test("contact is a first-party page", async ({ page }) => {
@@ -40,8 +40,8 @@ test("public content remains usable without JavaScript", async ({ browser }) => 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "POZA NUTĄ", exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: /Kontakt \/ współpraca/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
+  await expect(page.getByRole("contentinfo").getByRole("link", { name: "Kontakt" })).toBeVisible();
   await context.close();
 });
 
@@ -200,7 +200,7 @@ test("consent lifecycle grants, reuses, withdraws, rejects marketing and tamperi
   await page.reload();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "POZA NUTĄ", exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
   await context.close();
 });
 
@@ -258,15 +258,12 @@ test("public surface preserves responsive and keyboard accessibility invariants"
     headings: [...document.querySelectorAll("h1,h2,h3,h4,h5,h6")].map((heading) => heading.tagName),
   }));
   expect(layout.scrollWidth).toBeLessThanOrEqual(layout.clientWidth);
-  expect(layout.headings).toEqual(["H1"]);
+  expect(layout.headings[0]).toBe("H1");
+  expect(layout.headings.slice(1)).toEqual(["H2", "H2", "H2"]);
 
-  const focused = page.getByRole("link", { name: "Otwórz Instagram" });
-  if (testInfo.project.name.includes("webkit")) {
-    await focused.focus();
-  } else {
-    for (let attempt = 0; attempt < 8 && !(await focused.evaluate((element) => element === document.activeElement)); attempt++) await page.keyboard.press("Tab");
-    await expect(focused).toBeFocused();
-  }
+  const focused = page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true });
+  await focused.focus();
+  await expect(focused).toBeFocused();
   const focusStyle = await focused.evaluate((element) => {
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();

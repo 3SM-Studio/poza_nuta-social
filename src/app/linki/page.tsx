@@ -18,11 +18,11 @@ export default async function LinksPage() {
   const destinations = await getPublicDestinations();
 
   return (
-    <div className="mx-auto flex min-h-svh w-full max-w-xl flex-col px-5 pt-5 sm:px-7 sm:pt-7">
+    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-5 pt-2 sm:px-8 lg:px-10">
       <TrackPageView />
       <StructuredData data={publicPageGraph("/linki", title, description)} />
       <PublicHeader />
-      <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
+      <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-xl flex-1 flex-col">
       <PublicBreadcrumb current={title} />
       <section className="flex flex-1 flex-col justify-center py-14 sm:py-20" aria-labelledby="links-heading">
         <h1 id="links-heading" className="font-display text-[clamp(4rem,13vw,6rem)] leading-[0.85] tracking-[-0.025em]">Poza Nutą</h1>

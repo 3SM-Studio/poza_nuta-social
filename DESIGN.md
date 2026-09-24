@@ -28,7 +28,7 @@ Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component syst
 - Use spacing rhythm from the shadcn/Tailwind token system.
 - Homepage contains no photography.
 - Homepage sections introduce the offer and point to the existing karaoke, venue, contact, and links pages rather than repeating their full content.
-- Public pages share a simple text-based header and footer. The typographic wordmark is a fallback until a genuine brand asset exists.
+- Public pages share a responsive branded header and full footer. The supplied canonical SVG is the logo asset; its geometry is preserved verbatim and rendered in the shell through a color mask.
 - Admin navigation uses the shadcn Sidebar system: persistent/icon-collapsible on desktop and its off-canvas sheet on mobile. Only implemented destinations appear.
 
 ## Elevation & Depth

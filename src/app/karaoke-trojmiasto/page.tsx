@@ -9,17 +9,19 @@ import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
 
+export const revalidate = 60;
+
 const title = "Karaoke w Trójmieście";
 const description = "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Dowiedz się, gdzie szukać aktualnych informacji i jak zaprosić nas do lokalu.";
 export const metadata: Metadata = publicMetadata("/karaoke-trojmiasto", title, description);
 
 export default function KaraokePage() {
   return (
-    <div className="mx-auto flex min-h-svh w-full max-w-xl flex-col px-5 py-7 sm:px-7 sm:py-10">
+    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-5 pt-2 sm:px-8 lg:px-10">
       <TrackPageView />
       <StructuredData data={publicPageGraph("/karaoke-trojmiasto", title, description)} />
       <PublicHeader />
-      <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
+      <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
       <PublicBreadcrumb current={title} />
       <article className="flex-1 py-10 sm:py-14">
         <h1 className="font-display text-[clamp(3.4rem,12vw,5.5rem)] leading-[0.9] tracking-[-0.025em] text-foreground">Karaoke w Trójmieście</h1>

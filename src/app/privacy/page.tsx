@@ -8,15 +8,17 @@ import { StructuredData } from "@/components/structured-data";
 import { privacyConfig } from "@/lib/privacy-config";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
 
+export const revalidate = 60;
+
 const description = "Informacje o przetwarzaniu danych podczas korzystania ze strony Poza Nutą i o prawach odwiedzających.";
 export const metadata: Metadata = publicMetadata("/privacy", "Prywatność", description);
 
 export default function PrivacyPage() {
   const config = privacyConfig();
-  return <div className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
+  return <div className="mx-auto min-h-svh w-full max-w-6xl px-5 pt-2 sm:px-8 lg:px-10">
     <StructuredData data={publicPageGraph("/privacy", "Prywatność", description)} />
     <PublicHeader />
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl">
     <PublicBreadcrumb current="Prywatność" />
     <article className="mt-10 space-y-9 text-sm leading-7">
       <header><h1 className="text-4xl font-black tracking-tight sm:text-5xl">Prywatność</h1><p className="mt-4 text-muted-foreground">Wyjaśniamy, co dzieje się z danymi przy korzystaniu z tej strony i jak zmienić wybór dotyczący analityki.</p></header>

@@ -135,7 +135,7 @@ test("keyboard focus is visible above authored fixed controls at narrow width", 
     expect(state.visible, `Focus obscured: ${state.name}`).toBe(true);
   }
   expect(focusNames.some((name) => name.includes("Przejdź do treści"))).toBe(true);
-  expect(focusNames.some((name) => name.includes("Nawigacja") || name.includes("Karaoke"))).toBe(true);
+  expect(focusNames.some((name) => name.includes("Otwórz menu"))).toBe(true);
   expect(focusNames.some((name) => name.includes("Odrzuć analitykę"))).toBe(true);
 });
 
@@ -159,7 +159,7 @@ test("accessibility tree exposes navigation, destinations, and consent state", a
   const navTree = await page.getByRole("navigation", { name: "Nawigacja główna" }).ariaSnapshot();
   expect(navTree).toContain("Nawigacja główna");
   expect(navTree).toContain("Karaoke");
-  const destinationTree = await page.getByRole("link", { name: "Otwórz Instagram" }).ariaSnapshot();
+  const destinationTree = await page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true }).ariaSnapshot();
   expect(destinationTree).toContain("Otwórz Instagram");
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Odrzuć analitykę" }).click();
   await page.getByRole("button", { name: "Ustawienia prywatności" }).click();

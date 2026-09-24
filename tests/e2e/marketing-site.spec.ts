@@ -2,15 +2,21 @@ import { expect, test } from "@playwright/test";
 
 const routes = ["/", "/linki", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/privacy", "/cookies"] as const;
 
-test("marketing pages stay navigable and fit mobile and desktop", async ({ page }, testInfo) => {
+test("marketing pages stay navigable and fit mobile and desktop", async ({ page, context }, testInfo) => {
   await page.goto("/");
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Odrzuć analitykę" }).click();
+  await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
+  expect((await context.cookies()).some((cookie) => cookie.name === "pn_consent")).toBe(true);
 
   for (const route of routes) {
     const response = await page.goto(route);
     expect(response?.status(), route).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
+    if (testInfo.project.name.startsWith("mobile")) {
+      await page.getByRole("button", { name: "Otwórz menu" }).click();
+      await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
+      await page.keyboard.press("Escape");
+    } else await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Ustawienia prywatności" })).toBeVisible();
     if (route === "/privacy" || route === "/cookies") await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
     const dimensions = await page.evaluate(() => ({
@@ -23,9 +29,28 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page 
   }
 
   await page.goto("/");
-  await page.getByRole("link", { name: "Poznaj nasze karaoke" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Chcę zaśpiewać" }).first().click();
   await expect(page).toHaveURL(/\/karaoke-trojmiasto$/);
   await page.getByRole("link", { name: "Zobacz oficjalne profile" }).click();
   await expect(page).toHaveURL(/\/linki$/);
-  await expect(page.getByRole("link", { name: "Otwórz Instagram" })).toHaveAttribute("href", "/go/instagram");
+  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true })).toHaveAttribute("href", "/go/instagram");
+});
+
+test("mobile menu keeps link semantics, restores focus, and follows a route", async ({ page }, testInfo) => {
+  test.skip(!testInfo.project.name.startsWith("mobile"));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
+  const trigger = page.getByRole("button", { name: "Otwórz menu" });
+  await trigger.focus();
+  await page.keyboard.press("Enter");
+  const navigation = page.getByRole("navigation", { name: "Nawigacja główna" });
+  await expect(navigation).toBeVisible();
+  await expect(navigation.getByRole("link", { name: "Karaoke" })).toHaveAttribute("href", "/karaoke-trojmiasto");
+  await page.keyboard.press("Escape");
+  await expect(navigation).toBeHidden();
+  await expect(trigger).toBeFocused();
+  await trigger.click();
+  await navigation.getByRole("link", { name: "Dla lokali" }).click();
+  await expect(page).toHaveURL(/\/dla-lokali$/);
+  await expect(page.getByRole("heading", { name: "Współpraca z lokalami" })).toBeVisible();
 });

@@ -6,16 +6,18 @@ import { PublicHeader } from "@/components/public-header";
 import { ConsentPreferences } from "@/components/consent-controls";
 import { StructuredData } from "@/components/structured-data";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
+
+export const revalidate = 60;
 import { storageInventory } from "@/lib/storage-inventory";
 
 const description = "Jak Poza Nutą używa cookies i pamięci przeglądarki oraz jak zmienić wybór dotyczący analityki.";
 export const metadata: Metadata = publicMetadata("/cookies", "Cookies", description);
 
 export default function CookiesPage() {
-  return <div className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
+  return <div className="mx-auto min-h-svh w-full max-w-6xl px-5 pt-2 sm:px-8 lg:px-10">
     <StructuredData data={publicPageGraph("/cookies", "Cookies", description)} />
     <PublicHeader />
-    <main id="main-content" tabIndex={-1}>
+    <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl">
     <PublicBreadcrumb current="Cookies" />
     <article className="mt-10 space-y-9 text-sm leading-7">
       <header><h1 className="text-4xl font-black tracking-tight sm:text-5xl">Cookies na tej stronie</h1><p className="mt-4 text-muted-foreground">Niezbędny zapis pamięta Twój wybór. Analitykę uruchamiamy dopiero po Twojej zgodzie.</p></header>
