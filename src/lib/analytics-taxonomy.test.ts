@@ -56,7 +56,7 @@ describe("analytics taxonomy", () => {
     expect(officialDestinationUrl("instagram", "https://instagram.com.evil.example/phish")).toBeNull();
     expect(officialDestinationUrl("website", "javascript:alert(1)")).toBeNull();
   });
-  it.each(["/admin", "/api/track", "/auth/callback", "/go/instagram", "/r/ABCDE", "//evil.example", "/%2e%2e/admin", "/kontakt/../admin", "https://evil.example", "/karaoke-trojmiasto/", "/unknown", "/privacy?x=1"])("normalizes non-page path %s", (path) => {
+  it.each(["/admin", "/api/track", "/auth/callback", "/go/instagram", "/r/ABCDE", "//evil.example", "/%2e%2e/admin", "/kontakt/../admin", "https://evil.example", "/karaoke-trojmiasto/", "/unknown", "/privacy", "/prywatnosc?x=1"])("normalizes non-page path %s", (path) => {
     expect(sanitizePagePath(path)).toBe("/");
   });
   it.each(publicPaths)("preserves public page path %s", (path) => {
@@ -65,7 +65,7 @@ describe("analytics taxonomy", () => {
   it.each(["/", "/kontakt"])("preserves referral landing path %s", (path) => {
     expect(sanitizeReferralLandingPath(path)).toBe(path);
   });
-  it.each(["/karaoke-trojmiasto", "/dla-lokali", "/linki", "/privacy", "/cookies", "/go/instagram", "/admin"])("does not expand referral landing path to %s", (path) => {
+  it.each(["/karaoke-trojmiasto", "/dla-lokali", "/linki", "/prywatnosc", "/privacy", "/cookies", "/go/instagram", "/admin"])("does not expand referral landing path to %s", (path) => {
     expect(sanitizeReferralLandingPath(path)).toBe("/");
   });
 });

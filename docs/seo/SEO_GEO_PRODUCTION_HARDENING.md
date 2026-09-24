@@ -12,7 +12,7 @@ Status: code and local verification only. No production deployment, ownership ve
 | `/karaoke-trojmiasto` | Understand Poza Nutą karaoke and where to find current information | Karaoke in Trójmiasto; current announcements live on official channels; venue collaboration path |
 | `/dla-lokali` | Ask about karaoke or music-event collaboration in a venue | Collaboration with venues in Trójmiasto; information useful in an initial message; first-party contact path |
 | `/kontakt` | Contact the team | Configured business email when available, otherwise a link back to official channels |
-| `/privacy` | Understand tracking and consent | Existing privacy explanation and consent controls |
+| `/prywatnosc` | Understand tracking and consent | Existing privacy explanation and consent controls |
 
 `/o-nas` would duplicate the home business card without new verified facts. `/wydarzenia` and individual event pages remain absent until an authoritative, maintained source provides real upcoming dates and places. There are no city-keyword doorway pages.
 

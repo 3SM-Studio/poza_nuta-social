@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-const routes = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy", "/cookies"] as const;
+const routes = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/prywatnosc", "/cookies"] as const;
 const wcagTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"];
 
 for (const route of routes) {

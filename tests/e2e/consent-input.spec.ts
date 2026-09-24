@@ -30,7 +30,7 @@ test("privacy banner leaves footer reachable before a choice, including save fai
   expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
   await page.screenshot({ path: testInfo.outputPath("consent-banner-footer.png") });
   await page.locator("footer").getByRole("link", { name: "Prywatność" }).click();
-  await expect(page).toHaveURL(/\/privacy$/);
+  await expect(page).toHaveURL(/\/prywatnosc$/);
   await expect(banner).toHaveCount(0);
 });
 

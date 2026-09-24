@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const routes = ["/", "/linki", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/privacy", "/cookies"] as const;
+const routes = ["/", "/linki", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/prywatnosc", "/cookies"] as const;
 
 test("marketing pages stay navigable and fit mobile and desktop", async ({ page, context }, testInfo) => {
   await page.goto("/");
@@ -24,7 +24,7 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page,
       await page.keyboard.press("Escape");
     } else await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
     await expect(page.getByRole("button", { name: "Ustawienia prywatności" })).toBeVisible();
-    if (route === "/privacy" || route === "/cookies") await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
+    if (route === "/prywatnosc" || route === "/cookies") await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
     const dimensions = await page.evaluate(() => ({
       content: document.documentElement.scrollWidth,
       viewport: document.documentElement.clientWidth,

@@ -6,7 +6,7 @@ const publicRoutes = [
   { path: "/dla-lokali", heading: "Współpraca z lokalami" },
   { path: "/kontakt", heading: "Kontakt / współpraca" },
   { path: "/linki", heading: "Poza Nutą" },
-  { path: "/privacy", heading: "Prywatność" },
+  { path: "/prywatnosc", heading: "Prywatność" },
   { path: "/cookies", heading: "Cookies na tej stronie" },
 ];
 const canonicalOrigin = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
@@ -74,6 +74,8 @@ test("robots, sitemap, redirects and noindex boundaries follow the public surfac
   const sitemap = await (await request.get("/sitemap.xml")).text();
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
   expect(locations).toEqual(publicRoutes.map(({ path }) => `${canonicalOrigin}${path === "/" ? "" : path}`));
+  expect(locations).toContain(`${canonicalOrigin}/prywatnosc`);
+  expect(locations).not.toContain(`${canonicalOrigin}/privacy`);
   expect(sitemap).not.toMatch(/<lastmod>|<priority>|<changefreq>/);
 
   for (const path of ["/admin/login", "/api/track", "/auth/callback", "/go/nonexistent", "/r/ZZZZZ"]) {
@@ -90,4 +92,30 @@ test("robots, sitemap, redirects and noindex boundaries follow the public surfac
   const missing = await request.get("/nie-ma-takiej-strony");
   expect(missing.status()).toBe(404);
   expect(await missing.text()).toContain('name="robots" content="noindex"');
+});
+
+test("legacy privacy URL permanently redirects to the canonical Polish page", async ({ request }) => {
+  const response = await request.get("/privacy", { maxRedirects: 0 });
+  expect(response.status()).toBe(308);
+  expect(new URL(response.headers().location, canonicalOrigin).pathname).toBe("/prywatnosc");
+});
+
+test("legal pages keep semantic reading structure and direct privacy links", async ({ page }, testInfo) => {
+  for (const route of ["/prywatnosc", "/cookies"]) {
+    await page.goto(route);
+    const article = page.locator("main article.typeset.typeset-legal");
+    await expect(article).toBeVisible();
+    await expect(article.locator("h1")).toHaveCount(1);
+    await expect(article.locator("h2").first()).toBeVisible();
+    await expect(article.locator("p").first()).toBeVisible();
+    await expect(article.locator("a").first()).toBeVisible();
+    await expect(page.locator("footer").getByRole("link", { name: "Prywatność" })).toHaveAttribute("href", "/prywatnosc");
+    await expect(page.getByRole("navigation", { name: "Ścieżka" })).toBeVisible();
+    await page.screenshot({ path: testInfo.outputPath(`${route.slice(1)}.png`), fullPage: true });
+  }
+  await expect(page.locator("main article h3").first()).toBeVisible();
+  await expect(page.locator("main article h4").first()).toBeVisible();
+  await expect(page.locator("main article a[href='/prywatnosc']")).toBeVisible();
+  await page.goto("/");
+  await expect(page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("link", { name: "O prywatności" })).toHaveAttribute("href", "/prywatnosc");
 });

@@ -110,7 +110,7 @@ Do not label the application production-verified until the applicable checks bel
 
 ## SEO / GEO
 - [ ] Approve `social.pozanuta.pl` versus `socials.pozanuta.pl`, then set `NEXT_PUBLIC_SITE_URL` to that HTTPS origin in production.
-- [ ] Canonicals and Open Graph URLs for `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/privacy` match the chosen production origin; preview remains `noindex`.
+- [ ] Canonicals and Open Graph URLs for `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/prywatnosc` match the chosen production origin; preview remains `noindex`.
 - [ ] sitemap returns only those durable public pages, with no invented `lastmod`, `priority`, or `changefreq`.
 - [ ] robots excludes `/admin`, `/api`, `/r`, `/go`, `/auth`.
 - [ ] OAI-SearchBot is allowed.

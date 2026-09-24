@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-const routes = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy", "/cookies"] as const;
+const routes = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/prywatnosc", "/cookies"] as const;
 
 test("consented public page views retain their path after API validation and database persistence", async ({ page }, testInfo) => {
   test.setTimeout(90_000);

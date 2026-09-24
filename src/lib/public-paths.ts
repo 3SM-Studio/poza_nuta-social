@@ -6,7 +6,7 @@ export const publicPage = {
   venues: "/dla-lokali",
   contact: "/kontakt",
   links: "/linki",
-  privacy: "/privacy",
+  privacy: "/prywatnosc",
   cookies: "/cookies",
 } as const;
 

@@ -33,7 +33,7 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 3. `/dla-lokali`: collaboration information for venues and organizers.
 4. `/kontakt`: one first-party contact route.
 5. `/linki`: compact official destinations from the existing destination model, with Instagram first and TikTok second when active.
-6. `/privacy`: privacy information and consent controls, with deployment-specific facts guarded before publication.
+6. `/prywatnosc`: privacy information and consent controls, with deployment-specific facts guarded before publication.
 7. `/cookies`: canonical browser storage inventory and consent controls.
 
 ## Visual constraints

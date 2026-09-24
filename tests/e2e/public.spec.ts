@@ -113,7 +113,7 @@ test("withdrawal clears analytics state in another open tab", async ({ browser }
   await first.getByRole("dialog", { name: "Ustawienia prywatności" }).getByRole("button", { name: "Tylko niezbędne" }).click();
   await expect(first.getByRole("dialog", { name: "Ustawienia prywatności" })).toBeHidden();
   await expect.poll(() => second.evaluate(() => sessionStorage.getItem("pn_hub_outbound_v1"))).toBeNull();
-  expect((await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name))).toBe(false);
+  await expect.poll(async () => (await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name))).toBe(false);
   await context.close();
 });
 
@@ -122,7 +122,7 @@ test("privacy settings change consent in both directions and persist after reloa
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Odrzuć analitykę" }).click();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
-  await page.goto("/privacy");
+  await page.goto("/prywatnosc");
   await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
 
@@ -137,7 +137,7 @@ test("privacy settings change consent in both directions and persist after reloa
 
   await page.getByRole("button", { name: "Tylko niezbędne" }).click();
   await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
-  expect((await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name) && cookie.value)).toBe(false);
+  await expect.poll(async () => (await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name) && cookie.value)).toBe(false);
   await page.reload();
   await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
   await page.getByRole("button", { name: "Włącz analitykę" }).click();
@@ -155,12 +155,12 @@ test("privacy settings change consent in both directions and persist after reloa
     expect(width, `privacy page should not overflow at ${viewport.width}px`).toBeLessThanOrEqual(0);
     await expect(page.getByRole("button", { name: "Włącz analitykę" })).toBeVisible();
     await testInfo.attach(`privacy-${viewport.width}x${viewport.height}`, { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
-    if (testInfo.project.name === "desktop-chromium") await page.screenshot({ path: `test-results/privacy-${viewport.width}x${viewport.height}.png`, fullPage: true });
+    if (testInfo.project.name === "desktop-chromium") await page.screenshot({ path: `test-results/prywatnosc-${viewport.width}x${viewport.height}.png`, fullPage: true });
   }
 });
 
 test("privacy page offers the first choice without an overlapping banner", async ({ page, context }) => {
-  await page.goto("/privacy");
+  await page.goto("/prywatnosc");
   await expect(page.getByText("Nie wybrano jeszcze ustawienia analityki.")).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toHaveCount(0);
   await page.getByRole("button", { name: "Włącz analitykę" }).click();

@@ -9,7 +9,7 @@ This Poza Nutą application is independent and prepared for the future canonical
 - `/dla-lokali` — collaboration information for venues and organizers.
 - `/linki` — compact official destination hub using the same records as `/go/[slug]`.
 - `/kontakt` — first-party business/collaboration contact surface.
-- `/privacy` — privacy information.
+- `/prywatnosc` — privacy information.
 - `/cookies` — actual browser storage inventory and consent controls.
 - `/r/[code]` — campaign/QR entry route, `noindex`, no-store.
 - `/go/[slug]` — tracked outbound redirect, `noindex`, no-store.

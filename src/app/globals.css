@@ -1,4 +1,14 @@
 @import "tailwindcss";
+@import "./typeset.css";
+
+@layer components {
+  .typeset-legal {
+    --typeset-font-heading: inherit;
+    --typeset-size: 1rem;
+    --typeset-leading: 1.75;
+    --typeset-flow: 1.25em;
+  }
+}
 
 @custom-variant dark (&:is(.dark *));
 

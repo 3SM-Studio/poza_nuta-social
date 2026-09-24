@@ -8,7 +8,7 @@ function destination(slug: string, url: string, active = true): Destination {
 
 describe("public SEO model", () => {
   it("publishes only the durable public routes", () => {
-    expect(publicPaths).toEqual(["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy", "/cookies"]);
+    expect(publicPaths).toEqual(["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/prywatnosc", "/cookies"]);
   });
 
   it("uses the configured root origin for all public routes", () => {

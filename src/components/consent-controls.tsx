@@ -7,6 +7,7 @@ import { Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { announceAnalyticsChoice } from "@/lib/analytics-client";
+import { publicPage } from "@/lib/public-paths";
 
 export function ConsentBanner() {
   const pathname = usePathname();
@@ -19,7 +20,7 @@ export function ConsentBanner() {
   const focusAfterChoiceRef = useRef(false);
   const [bannerSpace, setBannerSpace] = useState(0);
   const publicRoute = !pathname.startsWith("/admin") && !pathname.startsWith("/auth");
-  const visible = consentMissing === true && publicRoute && pathname !== "/privacy" && pathname !== "/cookies";
+  const visible = consentMissing === true && publicRoute && pathname !== publicPage.privacy && pathname !== publicPage.cookies;
   useEffect(() => {
     const open = () => setSettingsOpen(true);
     window.addEventListener("pn-open-privacy-settings", open);
@@ -84,7 +85,7 @@ export function ConsentBanner() {
       {visible ? <>
         <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
           <p className="text-sm font-bold">Twoja prywatność</p>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">Za Twoją zgodą mierzymy odwiedziny i wybór oficjalnych linków. Możesz odmówić bez utraty dostępu do strony. Wybór zmienisz w każdej chwili.{" "}<Link href="/cookies" className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Za Twoją zgodą mierzymy odwiedziny i wybór oficjalnych linków. Możesz odmówić bez utraty dostępu do strony. Wybór zmienisz w każdej chwili.{" "}<Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
           {error ? <p role="alert" className="mt-2 text-sm text-destructive">Nie udało się zapisać wyboru. Spróbuj ponownie.</p> : null}
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button type="button" variant="outline" disabled={pending} onClick={() => choose(false)}>Odrzuć analitykę</Button>
@@ -93,14 +94,15 @@ export function ConsentBanner() {
         </aside>
       </> : null}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" finalFocus={() => document.querySelector<HTMLButtonElement>("[data-privacy-settings-trigger]")}>
           <DialogHeader><DialogTitle>Ustawienia prywatności</DialogTitle><DialogDescription>Wybierz, czy Poza Nutą może mierzyć korzystanie ze strony. Odmowa nie ogranicza dostępu.</DialogDescription></DialogHeader>
           <div className="space-y-3 border-y py-4 text-sm">
             <div><p className="font-bold">Niezbędne <span className="font-normal text-muted-foreground">· zawsze aktywne</span></p><p className="text-muted-foreground">Działanie strony i zapamiętanie wyboru.</p></div>
             <div><p className="font-bold">Analityka <span className="font-normal text-muted-foreground">· Twój wybór</span></p><p className="text-muted-foreground">Pomiar odwiedzin, źródeł wejścia i wyboru oficjalnych linków.</p></div>
           </div>
           <ConsentPreferences onSaved={(analytics) => { setStatusMessage(analytics ? "Analityka została włączona." : "Analityka została wyłączona."); setSettingsOpen(false); }} />
-          <Link href="/cookies" onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Jakich cookies używamy?</Link>
+          <Link href={publicPage.privacy} onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Informacje o prywatności</Link>
+          <Link href={publicPage.cookies} onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Jakich cookies używamy?</Link>
         </DialogContent>
       </Dialog>
     </>
@@ -124,11 +126,13 @@ export function ConsentPreferences({ onSaved }: { onSaved?: (analytics: boolean)
 
   useEffect(() => {
     let active = true;
-    readConsentChoice()
+    const sync = () => readConsentChoice()
       .then((value) => { if (active) setChoice(value); })
       .catch(() => { if (active) setError("read"); })
       .finally(() => { if (active) setLoading(false); });
-    return () => { active = false; };
+    void sync();
+    window.addEventListener("pn-consent-changed", sync);
+    return () => { active = false; window.removeEventListener("pn-consent-changed", sync); };
   }, []);
 
   async function refresh() {
@@ -177,5 +181,5 @@ async function readConsentChoice() {
 }
 
 export function PrivacySettingsControl() {
-  return <Button type="button" variant="secondary" aria-label="Ustawienia prywatności" className="h-11 px-3 text-xs sm:px-4 sm:text-sm" onClick={() => window.dispatchEvent(new Event("pn-open-privacy-settings"))}><Cookie className="size-4" aria-hidden="true" /><span className="sm:hidden">Prywatność</span><span className="hidden sm:inline">Ustawienia prywatności</span></Button>;
+  return <Button type="button" variant="secondary" data-privacy-settings-trigger aria-label="Ustawienia prywatności" className="h-11 px-3 text-xs sm:px-4 sm:text-sm" onClick={() => window.dispatchEvent(new Event("pn-open-privacy-settings"))}><Cookie className="size-4" aria-hidden="true" /><span className="sm:hidden">Prywatność</span><span className="hidden sm:inline">Ustawienia prywatności</span></Button>;
 }
