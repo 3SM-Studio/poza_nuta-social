@@ -3,6 +3,7 @@ import { settleWithin } from "@/lib/async";
 import { trackingAcquisition, type AcquisitionContext, type AnalyticsEventName } from "@/lib/analytics-taxonomy";
 import type { TrackingContext } from "@/lib/tracking-context";
 import type { AnalyticsDashboard, Destination, TrackingLink } from "@/lib/types";
+import { recordQualityException, type QualitySurface } from "@/lib/analytics/data-quality";
 
 export type TrackEventInput = {
   eventId: string;
@@ -13,6 +14,7 @@ export type TrackEventInput = {
   destination?: Destination | null;
   metadata?: Record<string, unknown>;
   snapshots?: Record<string, unknown>;
+  qualitySurface: QualitySurface;
 };
 
 export async function trackEvent(input: TrackEventInput) {
@@ -75,8 +77,13 @@ export async function trackEvent(input: TrackEventInput) {
     p_metadata: input.metadata || {},
   });
   if (error) {
-    console.error("analytics ingest failed", error.message);
+    console.error("analytics ingest failed", { surface: input.qualitySurface, reason: "primary_rpc_failure" });
     return { stored: false as const, reason: "ingest-failed" };
+  }
+  if (data && typeof data === "object" && "duplicate" in data && data.duplicate === true) {
+    try {
+      await recordQualityException({ surface: input.qualitySurface, mode: "consented", eventName: input.eventName, outcome: "duplicate", reason: "idempotent_retry" });
+    } catch { /* Quality telemetry must not alter the primary result. */ }
   }
   return { stored: true as const, result: data };
 }

@@ -6,6 +6,7 @@ import { ANALYTICS_PROJECT_KEY } from "./analytics-project";
 import { getSiteUrl } from "./env";
 import { createAdminClient } from "./supabase/admin";
 import type { Destination, TrackingLink } from "./types";
+import { recordQualityException, type QualitySurface } from "./analytics/data-quality";
 
 export type CookielessEventName = Extract<AnalyticsEventName, "page_view" | "contact_view" | "contact_click" | "tracking_entry" | "outbound_click">;
 export type CookielessEventInput = {
@@ -16,13 +17,14 @@ export type CookielessEventInput = {
   entry?: { referrer?: string | null; utmSource?: string | null; utmMedium?: string | null; utmCampaign?: string | null; utmContent?: string | null; utmTerm?: string | null };
   trackingLink?: TrackingLink;
   destination?: Destination;
+  qualitySurface: QualitySurface;
 };
 
 export async function trackCookielessBestEffort(input: CookielessEventInput) {
   try {
     return await settleWithin(ingest(input), 900, false);
-  } catch (error) {
-    console.error("cookieless analytics failed", error);
+  } catch {
+    console.error("cookieless analytics failed", { surface: input.qualitySurface, reason: "primary_ingest_failure" });
     return false;
   }
 }
@@ -35,7 +37,7 @@ async function ingest(input: CookielessEventInput) {
   const referrerHost = normalizedHost(entry?.referrer || input.request.headers.get("referer"));
   const ownHost = new URL(getSiteUrl()).hostname;
   // Only the current request/page entry is observed. No acquisition cookie is read.
-  const { error } = await admin.rpc("analytics_ingest_cookieless_v1", {
+  const { data, error } = await admin.rpc("analytics_ingest_cookieless_v1", {
     p_event_id: input.eventId,
     p_project_key: ANALYTICS_PROJECT_KEY,
     p_event_name: input.eventName,
@@ -55,6 +57,11 @@ async function ingest(input: CookielessEventInput) {
     p_destination_id: input.destination?.id || null,
     p_destination_slug: input.destination?.slug || null,
   });
-  if (error) { console.error("cookieless ingest failed", error.message); return false; }
+  if (error) { console.error("cookieless ingest failed", { surface: input.qualitySurface, reason: "primary_rpc_failure" }); return false; }
+  if (data === false) {
+    try {
+      await recordQualityException({ surface: input.qualitySurface, mode: "cookieless", eventName: input.eventName, outcome: "duplicate", reason: "idempotent_retry" });
+    } catch { /* Quality telemetry must not alter the primary result. */ }
+  }
   return true;
 }

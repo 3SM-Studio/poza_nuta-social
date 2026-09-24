@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  Activity,
   FlaskConical,
   Link2,
   LogOut,
@@ -38,7 +39,10 @@ import {
 const groups = [
   {
     label: "Analityka",
-    items: [{ href: "/admin", label: "Dashboard", icon: BarChart3, exact: true }],
+    items: [
+      { href: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
+      { href: "/admin/data-quality", label: "Data Quality", icon: Activity },
+    ],
   },
   {
     label: "Pozyskanie",
@@ -59,7 +63,7 @@ const groups = [
 
 export function AdminSidebar({ email, role }: { email: string; role: AdminRole }) {
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" role="navigation" aria-label="Nawigacja panelu">
       <SidebarHeader className="border-b border-sidebar-border p-3 max-md:pr-14">
         <SidebarMenu>
           <SidebarMenuItem>

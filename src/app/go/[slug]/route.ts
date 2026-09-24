@@ -15,8 +15,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   if (!destination || !target) return noIndexRedirect(new URL("/", request.url));
   if ((await effectiveAnalyticsMode(request)) === "cookieless") {
     try {
-      await trackCookielessBestEffort({ eventId: crypto.randomUUID(), eventName: "outbound_click", path: `/go/${destination.slug}`, request, destination });
-    } catch (error) { console.error("cookieless outbound failed", error); }
+      await trackCookielessBestEffort({ eventId: crypto.randomUUID(), eventName: "outbound_click", path: `/go/${destination.slug}`, request, destination, qualitySurface: "outbound_redirect" });
+    } catch { console.error("cookieless outbound failed", { surface: "outbound_redirect", reason: "primary_ingest_failure" }); }
     return noIndexRedirect(new URL(target));
   }
 
@@ -24,10 +24,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   try {
     await trackEventBestEffort({
       eventId: crypto.randomUUID(), eventName: "outbound_click", path: `/go/${destination.slug}`,
-      context, destination,
+      context, destination, qualitySurface: "outbound_redirect",
     });
-  } catch (error) {
-    console.error("tracking outbound failed", error);
+  } catch {
+    console.error("tracking outbound failed", { surface: "outbound_redirect", reason: "primary_ingest_failure" });
   }
 
   const response = noIndexRedirect(new URL(target));
