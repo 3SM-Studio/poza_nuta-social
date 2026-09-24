@@ -19,9 +19,11 @@ import {
 } from "./analytics-taxonomy";
 import { deviceCategory } from "./attribution";
 import { getSiteUrl } from "./env";
+import { CONSENT_PREFERENCE_COOKIE, parseLocalPreference } from "./consent-preference";
+import { CONSENT_VERSION } from "./consent-version";
 
 type IdentityToken = { id: string; exp: number };
-export const CONSENT_VERSION = 2;
+export { CONSENT_VERSION } from "./consent-version";
 type ConsentToken = { analytics: boolean; marketing: boolean; version: number; exp: number };
 type FlagToken = { enabled: true; exp: number };
 type AcquisitionToken = { acquisition: AcquisitionContext; exp: number };
@@ -80,6 +82,11 @@ export async function buildTrackingContext(request: NextRequest, observedOverrid
 }
 
 export async function readConsentChoice(request: NextRequest): Promise<boolean | null> {
+  if (parseLocalPreference(request.cookies.get(CONSENT_PREFERENCE_COOKIE)?.value)) return false;
+  return readSignedConsentChoice(request);
+}
+
+export async function readSignedConsentChoice(request: NextRequest): Promise<boolean | null> {
   const token = await verifyAnalyticsToken<ConsentToken>("consent", request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value);
   return token?.version === CONSENT_VERSION && typeof token.analytics === "boolean" ? token.analytics : null;
 }

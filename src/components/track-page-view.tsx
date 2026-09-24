@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { HUB_OUTBOUND_STATE_KEY, analyticsAllowed, sendAnalyticsEvent, setAnalyticsAllowed } from "@/lib/analytics-client";
+import { HUB_OUTBOUND_STATE_KEY, analyticsAllowed, sendAnalyticsEvent } from "@/lib/analytics-client";
+import { listenForConsentChanges, readConsentState, retryPendingAccept } from "@/lib/consent-state";
 import { hubResumeProperties, parseHubOutboundState, type HubOutboundState } from "@/lib/hub-lifecycle";
 
 export function TrackPageView({ contact = false }: { contact?: boolean }) {
@@ -16,19 +17,16 @@ export function TrackPageView({ contact = false }: { contact?: boolean }) {
       utmContent: url.searchParams.get("utm_content"),
     };
     const syncConsent = async () => {
-      try {
-        const response = await fetch("/api/consent", { cache: "no-store" });
-        if (!response.ok) throw new Error("consent-unavailable");
-        const data = await response.json() as { choice: { analytics: boolean } | null };
-        setAnalyticsAllowed(data.choice?.analytics === true);
-      } catch { setAnalyticsAllowed(false); }
+      const consent = await readConsentState();
+      if (consent !== "accepted") started.current = false;
       if (analyticsAllowed() && !started.current) {
         started.current = true;
         post("page_view", { navigationType: navigationType() }, common);
         if (contact) post("contact_view", { navigationType: navigationType() }, common);
       }
     };
-    void syncConsent();
+    void syncConsent().then(retryPendingAccept);
+    const onFocus = () => { retryPendingAccept(); void syncConsent(); };
 
     const markHidden = () => {
       if (document.visibilityState !== "hidden" || !analyticsAllowed()) return;
@@ -51,16 +49,16 @@ export function TrackPageView({ contact = false }: { contact?: boolean }) {
     document.addEventListener("visibilitychange", markHidden);
     document.addEventListener("visibilitychange", resume);
     window.addEventListener("pageshow", resume);
-    window.addEventListener("pn-consent-changed", syncConsent);
-    window.addEventListener("focus", syncConsent);
+    const stopConsentListener = listenForConsentChanges(() => { void syncConsent(); });
+    window.addEventListener("focus", onFocus);
     document.documentElement.dataset.trackingLifecycle = "ready";
     return () => {
       delete document.documentElement.dataset.trackingLifecycle;
       document.removeEventListener("visibilitychange", markHidden);
       document.removeEventListener("visibilitychange", resume);
       window.removeEventListener("pageshow", resume);
-      window.removeEventListener("pn-consent-changed", syncConsent);
-      window.removeEventListener("focus", syncConsent);
+      stopConsentListener();
+      window.removeEventListener("focus", onFocus);
     };
   }, [contact]);
   return null;

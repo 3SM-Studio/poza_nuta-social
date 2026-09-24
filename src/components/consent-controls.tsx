@@ -6,14 +6,12 @@ import Link from "next/link";
 import { Cookie } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { announceAnalyticsChoice } from "@/lib/analytics-client";
+import { chooseConsent, currentConsentState, listenForConsentChanges, readConsentState, type ConsentState } from "@/lib/consent-state";
 import { publicPage } from "@/lib/public-paths";
 
 export function ConsentBanner() {
   const pathname = usePathname();
   const [consentMissing, setConsentMissing] = useState<boolean | null>(null);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const bannerRef = useRef<HTMLElement>(null);
@@ -29,16 +27,13 @@ export function ConsentBanner() {
   useEffect(() => {
     if (!publicRoute) return;
     let active = true;
-    const sync = () => fetch("/api/consent", { cache: "no-store" })
-      .then(async (response) => {
-        if (!response.ok) throw new Error("consent-unavailable");
-        return response.json() as Promise<{ choice: { analytics: boolean } | null }>;
-      })
-      .then((result) => { if (active) setConsentMissing(result.choice === null); })
-      .catch(() => { if (active) setConsentMissing(true); });
+    const sync = () => {
+      setConsentMissing(currentConsentState() === "unknown");
+      void readConsentState().then((value) => { if (active) setConsentMissing(value === "unknown"); });
+    };
     void sync();
-    window.addEventListener("pn-consent-changed", sync);
-    return () => { active = false; window.removeEventListener("pn-consent-changed", sync); };
+    const stop = listenForConsentChanges(sync);
+    return () => { active = false; stop(); };
   }, [pathname, publicRoute]);
   useEffect(() => {
     const banner = bannerRef.current;
@@ -62,21 +57,11 @@ export function ConsentBanner() {
       focusAfterChoiceRef.current = false;
     }
   }, [consentMissing]);
-  async function choose(analytics: boolean) {
-    setPending(true);
-    setError(false);
-    try {
-      const response = await fetch("/api/consent", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ analytics, marketing: false }) });
-      if (response.ok) {
-        focusAfterChoiceRef.current = true;
-        setStatusMessage(analytics ? "Analityka została włączona." : "Analityka została wyłączona.");
-        setConsentMissing(false);
-        announceAnalyticsChoice(analytics);
-        window.dispatchEvent(new Event("pn-consent-changed"));
-      }
-      else setError(true);
-    } catch { setError(true); }
-    finally { setPending(false); }
+  function choose(analytics: boolean) {
+    focusAfterChoiceRef.current = true;
+    chooseConsent(analytics);
+    setStatusMessage(analytics ? "Wybór zapisany. Analityka włączy się po potwierdzeniu serwera." : "Analityka została wyłączona.");
+    setConsentMissing(false);
   }
   if (!publicRoute) return null;
   return (
@@ -86,10 +71,9 @@ export function ConsentBanner() {
         <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
           <p className="text-sm font-bold">Twoja prywatność</p>
           <p className="mt-1 text-sm leading-6 text-muted-foreground">Za Twoją zgodą mierzymy odwiedziny i wybór oficjalnych linków. Możesz odmówić bez utraty dostępu do strony. Wybór zmienisz w każdej chwili.{" "}<Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
-          {error ? <p role="alert" className="mt-2 text-sm text-destructive">Nie udało się zapisać wyboru. Spróbuj ponownie.</p> : null}
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <Button type="button" variant="outline" disabled={pending} onClick={() => choose(false)}>Odrzuć analitykę</Button>
-            <Button type="button" variant="outline" disabled={pending} onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
+            <Button type="button" variant="outline" onClick={() => choose(false)}>Odrzuć analitykę</Button>
+            <Button type="button" variant="outline" onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
           </div>
         </aside>
       </> : null}
@@ -100,7 +84,7 @@ export function ConsentBanner() {
             <div><p className="font-bold">Niezbędne <span className="font-normal text-muted-foreground">· zawsze aktywne</span></p><p className="text-muted-foreground">Działanie strony i zapamiętanie wyboru.</p></div>
             <div><p className="font-bold">Analityka <span className="font-normal text-muted-foreground">· Twój wybór</span></p><p className="text-muted-foreground">Pomiar odwiedzin, źródeł wejścia i wyboru oficjalnych linków.</p></div>
           </div>
-          <ConsentPreferences onSaved={(analytics) => { setStatusMessage(analytics ? "Analityka została włączona." : "Analityka została wyłączona."); setSettingsOpen(false); }} />
+          <ConsentPreferences onSaved={(analytics) => { setStatusMessage(analytics ? "Wybór zapisany. Analityka włączy się po potwierdzeniu serwera." : "Analityka została wyłączona."); setSettingsOpen(false); }} />
           <Link href={publicPage.privacy} onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Informacje o prywatności</Link>
           <Link href={publicPage.cookies} onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Jakich cookies używamy?</Link>
         </DialogContent>
@@ -110,74 +94,37 @@ export function ConsentBanner() {
 }
 
 export function ConsentPreferences({ onSaved }: { onSaved?: (analytics: boolean) => void } = {}) {
-  const [choice, setChoice] = useState<boolean | null>(null);
+  const [choice, setChoice] = useState<ConsentState>("unknown");
   const [loading, setLoading] = useState(true);
-  const [pending, setPending] = useState(false);
-  const [error, setError] = useState<"read" | "save" | null>(null);
-  const retryChoiceRef = useRef<boolean | null>(null);
-  const essentialButtonRef = useRef<HTMLButtonElement>(null);
-  const analyticsButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    if (error === "save" && !pending) {
-      (retryChoiceRef.current ? analyticsButtonRef : essentialButtonRef).current?.focus();
-    }
-  }, [error, pending]);
 
   useEffect(() => {
     let active = true;
-    const sync = () => readConsentChoice()
-      .then((value) => { if (active) setChoice(value); })
-      .catch(() => { if (active) setError("read"); })
-      .finally(() => { if (active) setLoading(false); });
+    const sync = () => {
+      setChoice(currentConsentState());
+      void readConsentState().then((value) => { if (active) { setChoice(value); setLoading(false); } });
+    };
     void sync();
-    window.addEventListener("pn-consent-changed", sync);
-    return () => { active = false; window.removeEventListener("pn-consent-changed", sync); };
+    const stop = listenForConsentChanges(sync);
+    return () => { active = false; stop(); };
   }, []);
 
-  async function refresh() {
-    setLoading(true);
-    setError(null);
-    try { setChoice(await readConsentChoice()); }
-    catch { setError("read"); }
-    finally { setLoading(false); }
-  }
-
-  async function choose(analytics: boolean) {
-    retryChoiceRef.current = analytics;
-    setPending(true);
-    setError(null);
-    try {
-      const response = await fetch("/api/consent", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ analytics }) });
-      if (!response.ok) throw new Error("consent-unavailable");
-      setChoice(analytics);
-      announceAnalyticsChoice(analytics);
-      window.dispatchEvent(new Event("pn-consent-changed"));
-      onSaved?.(analytics);
-    } catch { setError("save"); }
-    finally { setPending(false); }
+  function choose(analytics: boolean) {
+    setChoice(chooseConsent(analytics));
+    setLoading(false);
+    onSaved?.(analytics);
   }
 
   return (
     <div className="space-y-3">
       <p role="status" className="font-medium text-foreground">
-        {loading ? "Sprawdzamy aktualne ustawienie…" : error === "read" ? "Nie udało się sprawdzić aktualnego ustawienia." : choice === null ? "Nie wybrano jeszcze ustawienia analityki." : choice ? "Analityka włączona dla tej przeglądarki." : "Analityka wyłączona dla tej przeglądarki."}
+        {loading ? "Sprawdzamy aktualne ustawienie…" : choice === "unknown" ? "Nie wybrano jeszcze ustawienia analityki." : choice === "pending-accept" ? "Zgoda zapisana w tej przeglądarce. Analityka pozostaje wyłączona do potwierdzenia serwera." : choice === "accepted" ? "Analityka włączona dla tej przeglądarki." : "Analityka wyłączona dla tej przeglądarki."}
       </p>
-      {error === "read" ? <Button type="button" variant="outline" disabled={loading} onClick={() => void refresh()}>Sprawdź ponownie</Button> : null}
-      {error === "save" ? <p role="alert" className="text-destructive">Nie udało się zapisać ustawienia. Spróbuj ponownie.</p> : null}
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button ref={essentialButtonRef} type="button" variant="outline" aria-pressed={choice === false} disabled={loading || pending} onClick={() => choose(false)}>Tylko niezbędne</Button>
-        <Button ref={analyticsButtonRef} type="button" variant="outline" aria-pressed={choice === true} disabled={loading || pending} onClick={() => choose(true)}>Włącz analitykę</Button>
+        <Button type="button" variant="outline" aria-pressed={choice === "rejected"} onClick={() => choose(false)}>Tylko niezbędne</Button>
+        <Button type="button" variant="outline" aria-pressed={choice === "accepted" || choice === "pending-accept"} onClick={() => choose(true)}>Włącz analitykę</Button>
       </div>
     </div>
   );
-}
-
-async function readConsentChoice() {
-  const response = await fetch("/api/consent", { cache: "no-store" });
-  if (!response.ok) throw new Error("consent-unavailable");
-  const result = await response.json() as { choice: { analytics: boolean } | null };
-  return result.choice?.analytics ?? null;
 }
 
 export function PrivacySettingsControl() {

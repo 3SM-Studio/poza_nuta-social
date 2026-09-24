@@ -40,4 +40,17 @@ describe("traffic classification", () => {
     const request = new NextRequest("http://localhost/", { headers: { cookie: `pn_consent=${old}` } });
     expect(await readConsentChoice(request)).toBeNull();
   });
+
+  it("lets unsigned local state only reduce a signed grant", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 60;
+    const grant = await signAnalyticsToken("consent", { analytics: true, marketing: false, version: 2, exp });
+    for (const override of ["2.deny", "2.pending-accept.96a887d4-e9c8-4fa2-a123-934cedd056c0", "2.accepted", "1.deny"]) {
+      const request = new NextRequest("http://localhost/", { headers: { cookie: `pn_consent=${grant}; pn_consent_preference=${override}` } });
+      const allowed = override === "2.accepted" || override === "1.deny";
+      expect(await readConsentChoice(request)).toBe(allowed);
+      expect((await buildTrackingContext(request)).context.consent.analytics).toBe(allowed);
+    }
+    const forged = new NextRequest("http://localhost/", { headers: { cookie: "pn_consent_preference=2.accepted" } });
+    expect(await readConsentChoice(forged)).toBeNull();
+  });
 });

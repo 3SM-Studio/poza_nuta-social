@@ -44,7 +44,9 @@ export async function proxy(request: NextRequest) {
   const secure = request.nextUrl.protocol === "https:";
   if (sessionToken) response.cookies.set(ANALYTICS_SESSION_COOKIE, sessionToken, { httpOnly: true, sameSite: "lax", secure, maxAge: SESSION_TTL_SECONDS, path: "/" });
   if (acquisitionToken) response.cookies.set(ANALYTICS_ACQUISITION_COOKIE, acquisitionToken, { httpOnly: true, sameSite: "lax", secure, maxAge: SESSION_TTL_SECONDS, path: "/" });
-  if (!consented) {
+  // The consent POST owns its response cookies. Other responses clear stale HttpOnly
+  // identifiers as soon as they encounter a local deny or pending grant.
+  if (!consented && !(request.nextUrl.pathname === "/api/consent" && request.method === "POST")) {
     for (const name of [ANALYTICS_SESSION_COOKIE, ANALYTICS_ACQUISITION_COOKIE, ANALYTICS_VISITOR_COOKIE]) {
       if (request.cookies.has(name)) response.cookies.set(name, "", { httpOnly: true, sameSite: "lax", secure, maxAge: 0, path: "/" });
     }

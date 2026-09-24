@@ -59,6 +59,7 @@ test("consent choice is explicit and does not create a visitor when denied", asy
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
   await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
+  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_consent")).toBe(true);
   const cookies = await context.cookies();
   expect(cookies.some((cookie) => cookie.name === "pn_consent")).toBe(true);
   expect(cookies.some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);

@@ -87,8 +87,9 @@ test("consent banner and privacy dialog expose meaningful keyboard states", asyn
   await enableAnalytics.focus();
   await expect(enableAnalytics).toBeFocused();
   await page.keyboard.press("Space");
-  await expect(dialog.getByRole("alert")).toContainText("Nie udało się zapisać ustawienia");
-  await expect(enableAnalytics).toBeFocused();
+  await expect(dialog).toBeHidden();
+  await page.getByRole("button", { name: "Ustawienia prywatności" }).click();
+  await expect(page.getByText(/Zgoda zapisana w tej przeglądarce/)).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(privacyControl).toBeFocused();
 });
