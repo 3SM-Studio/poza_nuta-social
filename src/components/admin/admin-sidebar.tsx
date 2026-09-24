@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Activity,
+  Radio,
   ListFilter,
   FlaskConical,
   Link2,
@@ -42,6 +43,7 @@ const groups = [
     label: "Analityka",
     items: [
       { href: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
+      { href: "/admin/realtime", label: "Realtime", icon: Radio },
       { href: "/admin/data-quality", label: "Data Quality", icon: Activity },
       { href: "/admin/debug", label: "DebugView", icon: ListFilter },
     ],
