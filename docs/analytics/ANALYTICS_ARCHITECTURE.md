@@ -4,7 +4,7 @@ Status: implementation contract, 2026-09-20.
 
 ## Purpose and boundary
 
-Postgres is the primary source of truth. The model is `anonymous_visitor -> analytics_session -> analytics_event`. It measures pseudonymous browser contexts, not people. The public experience stays server-first and usable when analytics is unavailable.
+Postgres is the primary source of truth. After server-confirmed consent, the model is `anonymous_visitor -> analytics_session -> analytics_event`. Before confirmation, eligible events use separate identity-free `analytics_cookieless_events` storage. The full model measures pseudonymous browser contexts, not people. The public experience stays server-first and usable when analytics is unavailable.
 
 The system never stores raw IP addresses, fingerprints, precise location, exact device model, or a service-role credential in the browser. Analytics failure is observable but never intentionally blocks `/r` or `/go` navigation.
 

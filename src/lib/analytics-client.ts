@@ -37,13 +37,13 @@ export function announceAnalyticsChoice() {
 }
 
 export function sendAnalyticsEvent(eventName: ClientEventName, properties: Record<string, unknown> = {}) {
-  if (!analyticsAllowed()) return;
+  if (eventName === "hub_resumed" && !analyticsAllowed()) return;
   const payload = JSON.stringify({ eventId: crypto.randomUUID(), eventName, path: window.location.pathname, properties });
   if (navigator.sendBeacon) {
     const sent = navigator.sendBeacon("/api/track", new Blob([payload], { type: "application/json" }));
     if (sent) return;
   }
-  void fetch("/api/track", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true });
+  void fetch("/api/track", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
 }
 
 export const HUB_OUTBOUND_STATE_KEY = "pn_hub_outbound_v1";

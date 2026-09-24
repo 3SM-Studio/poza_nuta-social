@@ -2,7 +2,7 @@
 
 Status: proposed technical defaults; final periods require product/privacy/legal approval before production automation is enabled.
 
-The EU privacy slice disables new event ingestion without analytics consent. It adds `analytics_consent_evidence` with an `expires_at` marker at 180 days; deletion is **not automatic**. A production purge process and confirmed periods remain release prerequisites. The client-side `pn_consent` preference lasts 180 days; consented analytics cookies last 30 minutes (`pn_session`, `pn_acquisition`) or 180 days (`pn_visitor`). These cookie lifetimes do not delete server data.
+The cookieless foundation permits limited identity-free events without analytics consent. `analytics_cookieless_events` is raw event storage under the proposed raw-event category below; no automatic purge is installed. The earlier EU privacy slice added `analytics_consent_evidence` with an `expires_at` marker at 180 days; deletion is **not automatic**. A production purge process and confirmed periods remain release prerequisites. The client-side `pn_consent` preference lasts 180 days; consented analytics cookies last 30 minutes (`pn_session`, `pn_acquisition`) or 180 days (`pn_visitor`). These cookie lifetimes do not delete server data.
 
 | Category | Proposed default | End-of-life action |
 | --- | --- | --- |

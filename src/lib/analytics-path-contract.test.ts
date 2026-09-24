@@ -18,5 +18,8 @@ describe("analytics path contract parity", () => {
     expect(sql).toContain("id <= %s");
     expect(ingestionMigration).toContain("if not public.analytics_valid_event_path_v1(p_path) then raise exception 'invalid_path'");
     expect(sql).not.toContain("alter table public.tracking_links");
+    const cookielessSql = readFileSync(join(migrations, readdirSync(migrations).find((name) => name.endsWith("_cookieless_analytics.sql"))!), "utf8");
+    const cookielessPaths = cookielessSql.match(/event_name <> 'page_view' or path in \(([^)]+)\)/)?.[1];
+    expect([...cookielessPaths!.matchAll(/'([^']+)'/g)].map((match) => match[1])).toEqual([...publicPaths]);
   });
 });

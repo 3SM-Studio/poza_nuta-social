@@ -5,24 +5,29 @@ import { HUB_OUTBOUND_STATE_KEY, analyticsAllowed, sendAnalyticsEvent } from "@/
 import { listenForConsentChanges, readConsentState, retryPendingAccept } from "@/lib/consent-state";
 import { hubResumeProperties, parseHubOutboundState, type HubOutboundState } from "@/lib/hub-lifecycle";
 
+let lastDocumentPath: string | null = null;
+
 export function TrackPageView({ contact = false }: { contact?: boolean }) {
   const started = useRef(false);
   useEffect(() => {
     const url = new URL(window.location.href);
+    const initialDocumentEntry = lastDocumentPath === null;
+    lastDocumentPath = url.pathname;
     const common = {
-      referrer: document.referrer || null,
+      // document.referrer survives client navigation; never carry it to a later page.
+      referrer: initialDocumentEntry ? document.referrer || null : null,
       utmSource: url.searchParams.get("utm_source"),
       utmMedium: url.searchParams.get("utm_medium"),
       utmCampaign: url.searchParams.get("utm_campaign"),
       utmContent: url.searchParams.get("utm_content"),
+      utmTerm: url.searchParams.get("utm_term"),
     };
     const syncConsent = async () => {
-      const consent = await readConsentState();
-      if (consent !== "accepted") started.current = false;
-      if (analyticsAllowed() && !started.current) {
+      await readConsentState();
+      if (!started.current) {
         started.current = true;
-        post("page_view", { navigationType: navigationType() }, common);
-        if (contact) post("contact_view", { navigationType: navigationType() }, common);
+        post("page_view", common);
+        if (contact) post("contact_view", common);
       }
     };
     void syncConsent().then(retryPendingAccept);
@@ -34,6 +39,7 @@ export function TrackPageView({ contact = false }: { contact?: boolean }) {
       if (state) writeOutboundState({ ...state, hidden: true });
     };
     const resume = (event: Event) => {
+      if (!analyticsAllowed()) return;
       const state = readOutboundState();
       const properties = hubResumeProperties(
         state,
@@ -64,11 +70,9 @@ export function TrackPageView({ contact = false }: { contact?: boolean }) {
   return null;
 }
 
-function post(eventName: "page_view" | "contact_view", properties: Record<string, unknown>, context: Record<string, unknown>) {
-  if (!analyticsAllowed()) return;
-  const payload = JSON.stringify({ eventId: crypto.randomUUID(), eventName, path: window.location.pathname, properties, ...context });
-  void fetch("/api/track", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true });
+function post(eventName: "page_view" | "contact_view", context: Record<string, unknown>) {
+  const payload = JSON.stringify({ eventId: crypto.randomUUID(), eventName, path: window.location.pathname, ...context });
+  void fetch("/api/track", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
 }
-function navigationType() { const entry = performance.getEntriesByType("navigation")[0]; return entry instanceof PerformanceNavigationTiming ? entry.type : "navigate"; }
 function readOutboundState() { return parseHubOutboundState(sessionStorage.getItem(HUB_OUTBOUND_STATE_KEY)); }
 function writeOutboundState(value: HubOutboundState) { try { sessionStorage.setItem(HUB_OUTBOUND_STATE_KEY, JSON.stringify(value)); } catch { /* optional */ } }

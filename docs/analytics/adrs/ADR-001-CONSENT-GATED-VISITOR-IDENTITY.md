@@ -2,7 +2,7 @@
 
 Date: 2026-09-20. Status: accepted for implementation; production retention/legal wording pending review.
 
-Superseded for pre-consent behavior by the 2026-09-24 EU privacy slice: the short analytics session and first-party event ingestion now also require analytics consent. See `../PRIVACY_AND_CONSENT.md`. The consent-gated visitor identity decision still applies after grant.
+Superseded for pre-consent behavior by the 2026-09-24 EU privacy slice and later cookieless foundation: the short analytics session and visitor identity require consent, while limited identity-free event ingestion may occur before it. See `../PRIVACY_AND_CONSENT.md`. The consent-gated visitor identity decision still applies after grant.
 
 ## Decision
 

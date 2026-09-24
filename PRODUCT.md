@@ -47,6 +47,8 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 
 ## Tracking truth
 The analytics system is first-party and privacy-first:
+- before server-confirmed consent, limited cookieless events are stored without visitor/session/acquisition identity or cross-visit correlation;
+- after server-confirmed consent, the existing visitor/session/acquisition model applies only to new events;
 - every outbound public destination uses `/go/[slug]`;
 - important offline placements can use individual `/r/[code]` links;
 - hierarchy is `campaign → asset → placement`;

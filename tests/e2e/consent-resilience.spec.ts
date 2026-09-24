@@ -23,7 +23,7 @@ test("GET and POST outage: reject is immediate and persists across navigation", 
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(false);
 });
 
-test("GET and evidence outage: accept stays pending without visitor or events", async ({ page, context }) => {
+test("GET and evidence outage: accept stays pending without visitor identity", async ({ page, context }) => {
   const events: string[] = [];
   page.on("request", (request) => { if (request.url().endsWith("/api/track")) events.push(request.url()); });
   await outage(page);
@@ -34,7 +34,7 @@ test("GET and evidence outage: accept stays pending without visitor or events", 
   await expect(page.getByText(pendingText)).toBeVisible();
   expect((await context.cookies()).find((cookie) => cookie.name === "pn_consent_preference")?.value).toMatch(/^2\.pending-accept\.[0-9a-f-]{36}$/);
   await page.goto("/kontakt");
-  expect(events).toEqual([]);
+  await expect.poll(() => events.length).toBeGreaterThan(0);
   expect((await context.cookies()).some((cookie) => ["pn_visitor", "pn_session"].includes(cookie.name))).toBe(false);
 });
 
@@ -92,14 +92,14 @@ test("withdrawal during outage disables both tabs and cleans HttpOnly cookies on
   await context.close();
 });
 
-test("pending accept synchronizes after recovery before analytics starts", async ({ page, context }) => {
+test("pending accept synchronizes after recovery before full analytics starts", async ({ page, context }) => {
   const events: string[] = [];
   page.on("request", (request) => { if (request.url().endsWith("/api/track")) events.push(request.postDataJSON()?.eventName); });
   await outage(page);
   await page.goto("/");
   await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
   await expect(page.getByRole("complementary", { name: bannerName })).toBeHidden();
-  expect(events).toEqual([]);
+  await expect.poll(() => events.includes("page_view")).toBe(true);
   await page.unroute("**/api/consent");
   await page.reload();
   await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
@@ -113,7 +113,7 @@ test("forged local accept cannot grant analytics and replayed deny can only supp
   page.on("request", (request) => { if (request.url().endsWith("/api/track")) events.push(request.url()); });
   await page.goto("/");
   await expect(page.getByRole("complementary", { name: bannerName })).toBeVisible();
-  expect(events).toEqual([]);
+  await expect.poll(() => events.length).toBeGreaterThan(0);
   await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
   await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
   await context.addCookies([{ name: "pn_consent_preference", value: "2.deny", url: "http://localhost:3000" }]);
@@ -132,7 +132,7 @@ test("a later consent GET outage does not reopen the banner after confirmed acce
     else await route.continue();
   });
   await page.getByRole("button", { name: "Ustawienia prywatności" }).click();
-  await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
+  await expect(page.getByText("Pełna analityka włączona dla tej przeglądarki.")).toBeVisible();
   await page.getByRole("dialog", { name: "Ustawienia prywatności" }).getByRole("button", { name: "Włącz analitykę" }).click();
   await expect(page.getByRole("complementary", { name: bannerName })).toBeHidden();
 });
@@ -148,7 +148,9 @@ test("retrying one pending grant writes evidence once and reuses its visitor", a
   expect(firstVisitor).toBeTruthy();
   const retry = await context.request.post("/api/consent", { data: { analytics: true } });
   expect(retry.status()).toBe(200);
-  expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).toBe(firstVisitor);
+  const retryVisitor = (await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value;
+  const visitorId = (token: string) => JSON.parse(Buffer.from(token.split(".")[0], "base64url").toString("utf8")).id as string;
+  expect(visitorId(retryVisitor!)).toBe(visitorId(firstVisitor!));
   const admin = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SECRET_KEY!, { auth: { persistSession: false } });
   const { count, error } = await admin.from("analytics_consent_evidence").select("id", { count: "exact", head: true }).eq("id", attemptId);
   expect(error).toBeNull();

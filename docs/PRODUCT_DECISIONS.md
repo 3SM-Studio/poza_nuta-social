@@ -129,3 +129,7 @@ This refinement implements decisions 66–75 without declaring new numbered prod
 Application invitations and Supabase Auth delivery are separate, repairable states. New Auth users receive the invite-token flow; existing confirmed users accept the pending application invitation through their own magic-link login. Roles are always read from locked application state, never query strings or user metadata.
 
 Referral participants are a separate internal attribution dimension with optional account linkage. Their stable `/r/[code]` links reuse Analytics V2.1 canonical acquisition. Competitive referral metrics include production/external traffic only, count consented pseudonymous browsers rather than guaranteed people, and never derive acquisition credit from non-exclusive raw event touchpoints.
+
+## Cookieless analytics foundation — 2026-09-24
+
+The owner-authorized cookieless slice supersedes the earlier statement that no product event is stored before analytics consent. Without server-confirmed consent, public page views, contact views/clicks, tracking-link entries and outbound choices may be measured as independent, identity-free events. This mode creates no visitor, session or acquisition state and never joins earlier events to a later consented visitor. Server-confirmed consent enables the existing full visitor/session/acquisition model for new events. The current application owns the `poza_nuta` project key; Trójmiasto remains a service area, not a global event location.

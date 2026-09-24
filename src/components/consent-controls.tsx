@@ -60,7 +60,7 @@ export function ConsentBanner() {
   function choose(analytics: boolean) {
     focusAfterChoiceRef.current = true;
     chooseConsent(analytics);
-    setStatusMessage(analytics ? "Wybór zapisany. Analityka włączy się po potwierdzeniu serwera." : "Analityka została wyłączona.");
+    setStatusMessage(analytics ? "Wybór zapisany. Pełna analityka włączy się po potwierdzeniu serwera." : "Pełna analityka została wyłączona.");
     setConsentMissing(false);
   }
   if (!publicRoute) return null;
@@ -70,7 +70,7 @@ export function ConsentBanner() {
       {visible ? <>
         <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
           <p className="text-sm font-bold">Twoja prywatność</p>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">Za Twoją zgodą mierzymy odwiedziny i wybór oficjalnych linków. Możesz odmówić bez utraty dostępu do strony. Wybór zmienisz w każdej chwili.{" "}<Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
+          <p className="mt-1 text-sm leading-6 text-muted-foreground">Bez zgody mierzymy ograniczone zdarzenia bez cookies analitycznych i bez łączenia wizyt. Za Twoją zgodą możemy mierzyć również sesje i powroty tej przeglądarki. Wybór zmienisz w każdej chwili.{" "}<Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
           <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
             <Button type="button" variant="outline" onClick={() => choose(false)}>Odrzuć analitykę</Button>
             <Button type="button" variant="outline" onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
@@ -79,12 +79,12 @@ export function ConsentBanner() {
       </> : null}
       <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
         <DialogContent className="sm:max-w-md" finalFocus={() => document.querySelector<HTMLButtonElement>("[data-privacy-settings-trigger]")}>
-          <DialogHeader><DialogTitle>Ustawienia prywatności</DialogTitle><DialogDescription>Wybierz, czy Poza Nutą może mierzyć korzystanie ze strony. Odmowa nie ogranicza dostępu.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>Ustawienia prywatności</DialogTitle><DialogDescription>Wybierz, czy Poza Nutą może łączyć zdarzenia w sesje i rozpoznawać powroty tej przeglądarki. Odmowa nie ogranicza dostępu.</DialogDescription></DialogHeader>
           <div className="space-y-3 border-y py-4 text-sm">
             <div><p className="font-bold">Niezbędne <span className="font-normal text-muted-foreground">· zawsze aktywne</span></p><p className="text-muted-foreground">Działanie strony i zapamiętanie wyboru.</p></div>
-            <div><p className="font-bold">Analityka <span className="font-normal text-muted-foreground">· Twój wybór</span></p><p className="text-muted-foreground">Pomiar odwiedzin, źródeł wejścia i wyboru oficjalnych linków.</p></div>
+            <div><p className="font-bold">Pełna analityka <span className="font-normal text-muted-foreground">· Twój wybór</span></p><p className="text-muted-foreground">Łączenie zdarzeń w sesje i rozpoznawanie powrotów tej przeglądarki.</p></div>
           </div>
-          <ConsentPreferences onSaved={(analytics) => { setStatusMessage(analytics ? "Wybór zapisany. Analityka włączy się po potwierdzeniu serwera." : "Analityka została wyłączona."); setSettingsOpen(false); }} />
+          <ConsentPreferences onSaved={(analytics) => { setStatusMessage(analytics ? "Wybór zapisany. Pełna analityka włączy się po potwierdzeniu serwera." : "Pełna analityka została wyłączona."); setSettingsOpen(false); }} />
           <Link href={publicPage.privacy} onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Informacje o prywatności</Link>
           <Link href={publicPage.cookies} onClick={() => setSettingsOpen(false)} className="text-sm font-bold underline underline-offset-4">Jakich cookies używamy?</Link>
         </DialogContent>
@@ -117,7 +117,7 @@ export function ConsentPreferences({ onSaved }: { onSaved?: (analytics: boolean)
   return (
     <div className="space-y-3">
       <p role="status" className="font-medium text-foreground">
-        {loading ? "Sprawdzamy aktualne ustawienie…" : choice === "unknown" ? "Nie wybrano jeszcze ustawienia analityki." : choice === "pending-accept" ? "Zgoda zapisana w tej przeglądarce. Analityka pozostaje wyłączona do potwierdzenia serwera." : choice === "accepted" ? "Analityka włączona dla tej przeglądarki." : "Analityka wyłączona dla tej przeglądarki."}
+        {loading ? "Sprawdzamy aktualne ustawienie…" : choice === "unknown" ? "Nie wybrano jeszcze ustawienia pełnej analityki." : choice === "pending-accept" ? "Zgoda zapisana w tej przeglądarce. Pełna analityka pozostaje wyłączona do potwierdzenia serwera." : choice === "accepted" ? "Pełna analityka włączona dla tej przeglądarki." : "Pełna analityka wyłączona dla tej przeglądarki."}
       </p>
       <div className="flex flex-col gap-2 sm:flex-row">
         <Button type="button" variant="outline" aria-pressed={choice === "rejected"} onClick={() => choose(false)}>Tylko niezbędne</Button>
