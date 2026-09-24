@@ -1,4 +1,5 @@
 import type { AnalyticsEventName } from "@/lib/analytics-taxonomy";
+import { REPORTING_SCOPE_LABELS, type ReportingScope } from "./reporting-scope";
 
 export const REALTIME_WINDOWS = [5, 30, 60] as const;
 export type RealtimeWindow = typeof REALTIME_WINDOWS[number];
@@ -42,7 +43,12 @@ export const REALTIME_METRICS = {
   },
 } as const;
 
+export function realtimeMetricPopulation(key: keyof typeof REALTIME_METRICS, scope: ReportingScope): string {
+  return `${REALTIME_METRICS[key].population}; ${REPORTING_SCOPE_LABELS[scope].toLowerCase()} w wybranym oknie`;
+}
+
 export type RealtimeReport = {
+  scope: ReportingScope;
   windowStart: string;
   windowEnd: string;
   refreshedAt: string;

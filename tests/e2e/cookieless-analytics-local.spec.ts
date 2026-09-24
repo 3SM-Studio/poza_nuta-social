@@ -15,7 +15,7 @@ async function pageEvent(page: Page, path: string, eventName = "page_view") {
 }
 
 async function stored(table: string, eventId: string) {
-  const { data, error } = await admin!.from(table).select(table === "analytics_cookieless_events" ? "event_id,event_name,path,project_key" : "event_id,event_name,path").eq("event_id", eventId).maybeSingle();
+  const { data, error } = await admin!.from(table).select(table === "analytics_cookieless_events" ? "event_id,event_name,path,project_key,environment,traffic_class" : "event_id,event_name,path,environment,traffic_class").eq("event_id", eventId).maybeSingle();
   expect(error).toBeNull();
   return data;
 }
@@ -23,7 +23,7 @@ async function stored(table: string, eventId: string) {
 test("unknown, rejected and pending page views stay cookieless; later consent never backfills", async ({ page, context }, testInfo) => {
   test.skip(!local || testInfo.project.name !== "desktop-chromium", "local Supabase desktop proof");
   const unknown = await pageEvent(page, "/");
-  await expect.poll(() => stored("analytics_cookieless_events", unknown)).toMatchObject({ event_name: "page_view", path: "/", project_key: "poza_nuta" });
+  await expect.poll(() => stored("analytics_cookieless_events", unknown)).toMatchObject({ event_name: "page_view", path: "/", project_key: "poza_nuta", environment: "preview", traffic_class: "external" });
   expect(await stored("analytics_events_v2", unknown)).toBeNull();
   expect((await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name))).toBe(false);
 
@@ -47,7 +47,7 @@ test("unknown, rejected and pending page views stay cookieless; later consent ne
   await page.reload();
   await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
   const consented = await pageEvent(page, "/prywatnosc");
-  await expect.poll(() => stored("analytics_events_v2", consented)).toMatchObject({ path: "/prywatnosc" });
+  await expect.poll(() => stored("analytics_events_v2", consented)).toMatchObject({ path: "/prywatnosc", environment: "preview", traffic_class: "external" });
   expect(await stored("analytics_cookieless_events", consented)).toBeNull();
   expect(await stored("analytics_events_v2", unknown)).toBeNull();
   const consentedContact = await pageEvent(page, "/kontakt", "contact_view");

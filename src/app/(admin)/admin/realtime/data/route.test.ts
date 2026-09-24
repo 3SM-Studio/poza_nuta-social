@@ -21,16 +21,23 @@ describe("admin Realtime polling endpoint", () => {
     mocks.report.mockResolvedValue({ totalEvents: 0 });
     const response = await GET(new Request("http://localhost/admin/realtime/data?window=30"));
     expect(response.status).toBe(200);
-    expect(mocks.report).toHaveBeenCalledWith(30);
+    expect(mocks.report).toHaveBeenCalledWith(30, "business");
     expect(response.headers.get("Cache-Control")).toContain("no-store");
   });
 
   it("rejects arbitrary filters, duplicate windows and unsupported values", async () => {
     mocks.access.mockResolvedValue({ role: "viewer" });
-    for (const query of ["window=1440", "window=30&window=5", "window=30&project_key=other", "window=30&filter=bot"]) {
+    for (const query of ["window=1440", "window=30&window=5", "window=30&project_key=other", "window=30&filter=bot", "window=30&scope=production", "window=30&scope=business&scope=diagnostic"]) {
       expect((await GET(new Request(`http://localhost/admin/realtime/data?${query}`))).status).toBe(400);
     }
     expect(mocks.report).not.toHaveBeenCalled();
+  });
+
+  it("allows only the diagnostic scope as an explicit second population", async () => {
+    mocks.access.mockResolvedValue({ role: "viewer" });
+    mocks.report.mockResolvedValue({ scope: "diagnostic", totalEvents: 0 });
+    expect((await GET(new Request("http://localhost/admin/realtime/data?window=30&scope=diagnostic"))).status).toBe(200);
+    expect(mocks.report).toHaveBeenCalledWith(30, "diagnostic");
   });
 
   it("returns an explicit unavailable state after storage failure", async () => {

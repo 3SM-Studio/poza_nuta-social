@@ -411,7 +411,7 @@ test("referral attribution keeps browser-first Michał, session-two Dima, and ig
   expect(visitor?.first_acquisition?.referralParticipantId).toBe(referralRows[0].id);
   const { data: eligibleEvents } = await admin.from("analytics_events_v2").select("environment,traffic_class").in("session_id", [firstSessionId, secondSessionId]);
   expect(eligibleEvents?.length).toBeGreaterThan(0);
-  expect(eligibleEvents?.every((event) => event.environment === "production" && event.traffic_class === "external")).toBe(true);
+  expect(eligibleEvents?.every((event) => event.environment === "preview" && event.traffic_class === "external")).toBe(true);
   await publicContext.close();
 
   const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Warsaw", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
@@ -421,16 +421,16 @@ test("referral attribution keeps browser-first Michał, session-two Dima, and ig
   const { data: leaderboard, error: leaderboardError } = await admin.rpc("referral_leaderboard_v1", { p_from_date: today, p_to_date_exclusive: tomorrowDate });
   expect(leaderboardError).toBeNull();
   const byParticipant = new Map((leaderboard as Array<Record<string, unknown>>).map((row) => [row.participantId, row]));
-  expect(byParticipant.get(referralRows[0].id)).toMatchObject({ newVisitors: 1, acquiredSessions: 1 });
-  expect(byParticipant.get(referralRows[1].id)).toMatchObject({ newVisitors: 0, acquiredSessions: 1 });
+  expect(byParticipant.get(referralRows[0].id)).toMatchObject({ newVisitors: 0, acquiredSessions: 0 });
+  expect(byParticipant.get(referralRows[1].id)).toMatchObject({ newVisitors: 0, acquiredSessions: 0 });
   expect(byParticipant.get(referralRows[2].id)).toMatchObject({ newVisitors: 0, acquiredSessions: 0 });
 
   await page.reload();
   const michalLeaderboardRow = page.getByRole("row").filter({ hasText: referralRows[0].name }).first();
   const dimaLeaderboardRow = page.getByRole("row").filter({ hasText: referralRows[1].name }).first();
   const victorLeaderboardRow = page.getByRole("row").filter({ hasText: referralRows[2].name }).first();
-  await expect(michalLeaderboardRow).toContainText("1");
-  await expect(dimaLeaderboardRow).toContainText("1");
+  await expect(michalLeaderboardRow).toContainText("0");
+  await expect(dimaLeaderboardRow).toContainText("0");
   await expect(victorLeaderboardRow).toContainText("0");
 });
 

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { REALTIME_METRICS, parseRealtimeWindow, realtimeMetricValue, realtimeModeShare, type RealtimeReport } from "./realtime-contract";
+import { REALTIME_METRICS, parseRealtimeWindow, realtimeMetricValue, realtimeModeShare, realtimeMetricPopulation, type RealtimeReport } from "./realtime-contract";
+import { parseReportingScope } from "./reporting-scope";
 
 const zero: RealtimeReport = {
+  scope: "business",
   windowStart: "2031-01-10T12:00:00Z", windowEnd: "2031-01-10T12:30:00Z", refreshedAt: "2031-01-10T12:30:00Z",
   totalEvents: 0, cookielessEvents: 0, consentedEvents: 0, consentedSessionsWithActivity: 0,
   eventCounts: {}, topPages: [], observedSources: [], topCampaigns: [], topTrackingLinks: [], topDestinations: [], qualityExceptions: 0,
@@ -12,6 +14,8 @@ describe("Realtime metric contract", () => {
     expect(Object.values(REALTIME_METRICS).every((metric) => metric.key && metric.label && metric.population && metric.source && metric.explanation)).toBe(true);
     expect(REALTIME_METRICS.consentedSessionsWithActivity.population).toBe("Wyłącznie consented");
     expect(REALTIME_METRICS.consentedSessionsWithActivity.explanation).not.toMatch(/osoby online/i);
+    expect(realtimeMetricPopulation("events", "business")).toContain("ruch biznesowy");
+    expect(realtimeMetricPopulation("events", "diagnostic")).toContain("diagnostyka");
   });
 
   it("returns zero safely without a fake 0/0 percentage", () => {
@@ -22,5 +26,11 @@ describe("Realtime metric contract", () => {
   it("accepts only short rolling windows", () => {
     expect(["5", "30", "60"].map(parseRealtimeWindow)).toEqual([5, 30, 60]);
     for (const invalid of [null, "0", "1440", "30.0", "030", "custom"]) expect(parseRealtimeWindow(invalid)).toBeNull();
+  });
+
+  it("accepts only the two reporting populations", () => {
+    expect(parseReportingScope("business")).toBe("business");
+    expect(parseReportingScope("diagnostic")).toBe("diagnostic");
+    for (const invalid of [null, "", "all", "production", "test", "Business"]) expect(parseReportingScope(invalid)).toBeNull();
   });
 });

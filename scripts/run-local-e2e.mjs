@@ -36,7 +36,9 @@ const env = {
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: local.PUBLISHABLE_KEY,
   SUPABASE_SECRET_KEY: secretKey,
   ANALYTICS_SIGNING_SECRET: "local-e2e-analytics-signing-key-32-characters",
-  VERCEL_ENV: "production",
+  // Local browser traffic must remain outside Business reporting, even when
+  // a test exercises a public route without a signed test marker.
+  VERCEL_ENV: "preview",
   BOOTSTRAP_OWNER_EMAIL: email,
   CONTACT_EMAIL: "kontakt@pozanuta.test",
   LOCAL_ADMIN_E2E_EMAIL: email,

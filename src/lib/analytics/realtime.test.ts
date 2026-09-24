@@ -9,11 +9,11 @@ import { getRealtimeReport } from "./realtime";
 
 describe("server-owned Realtime read", () => {
   it("passes only canonical project, closed window and exact timestamp to the RPC", async () => {
-    const report = { totalEvents: 1 };
+    const report = { scope: "business", totalEvents: 1 };
     mocks.rpc.mockResolvedValueOnce({ data: report, error: null });
-    await expect(getRealtimeReport(30, new Date("2031-01-10T12:30:00Z"))).resolves.toBe(report);
-    expect(mocks.rpc).toHaveBeenCalledWith("analytics_realtime_v1", {
-      p_project_key: ANALYTICS_PROJECT_KEY, p_minutes: 30, p_now: "2031-01-10T12:30:00.000Z",
+    await expect(getRealtimeReport(30, "business", new Date("2031-01-10T12:30:00Z"))).resolves.toBe(report);
+    expect(mocks.rpc).toHaveBeenCalledWith("analytics_realtime_v2", {
+      p_project_key: ANALYTICS_PROJECT_KEY, p_minutes: 30, p_now: "2031-01-10T12:30:00.000Z", p_scope: "business",
     });
   });
 
