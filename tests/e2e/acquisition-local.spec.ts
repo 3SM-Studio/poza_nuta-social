@@ -97,7 +97,7 @@ test("Acquisition is guarded, scoped, readable and responsive", async ({ page, r
     await expect(page.getByText("Diagnostyka: wszystkie przyjęte zdarzenia").first()).toBeVisible();
     await expect(page.getByRole("heading", { name: "Plakat A" })).toBeVisible();
     await page.goto(`/admin/acquisition/${emptyCampaignId}?${range}`);
-    await expect(page.getByText(/nie ma jeszcze materiałów ani linków/)).toBeVisible();
+    await expect(page.getByRole("main").getByText(/nie ma jeszcze materiałów ani linków/)).toBeVisible();
     await page.goto(`/admin/acquisition?${range}`);
     await page.setViewportSize({ width: 320, height: 800 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

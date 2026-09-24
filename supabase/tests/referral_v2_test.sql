@@ -80,7 +80,10 @@ language sql
 stable
 as $$
   select row_value
-  from jsonb_array_elements(public.referral_leaderboard_v1(current_date,current_date + 1)) row_value
+  from jsonb_array_elements(public.referral_leaderboard_v1(
+    (now() at time zone 'Europe/Warsaw')::date,
+    (now() at time zone 'Europe/Warsaw')::date + 1
+  )) row_value
   where row_value->>'participantId' = p_participant_id::text
 $$;
 
@@ -292,7 +295,10 @@ select pg_temp.ingest_referral(
 -- tie-breaker; the later session UUID deliberately sorts before the earlier one.
 select is((pg_temp.leaderboard_row((select id from public.referral_participants where display_name='Dmytro'))->>'participant'),'Dmytro','latest event snapshot wins timestamp tie despite lower later session UUID');
 select is((pg_temp.leaderboard_row((select id from public.referral_participants where display_name='Dmytro'))->>'acquiredSessions')::int,2,'rename keeps two sessions on one participant identity');
-select is((select count(*)::int from jsonb_array_elements(public.referral_leaderboard_v1(current_date,current_date + 1)) row_value where row_value->>'participantId' = (select id::text from public.referral_participants where display_name='Dmytro')),1,'rename does not split leaderboard identity');
+select is((select count(*)::int from jsonb_array_elements(public.referral_leaderboard_v1(
+  (now() at time zone 'Europe/Warsaw')::date,
+  (now() at time zone 'Europe/Warsaw')::date + 1
+)) row_value where row_value->>'participantId' = (select id::text from public.referral_participants where display_name='Dmytro')),1,'rename does not split leaderboard identity');
 
 select * from finish();
 rollback;
