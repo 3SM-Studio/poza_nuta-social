@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { findTrackingLinkByCode, trackEventBestEffort } from "@/lib/analytics";
 import { trackingAcquisition } from "@/lib/analytics-taxonomy";
 import { getSiteUrl } from "@/lib/env";
-import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
+import { applyTrackingCookies, buildTrackingContext, readAnalyticsConsent } from "@/lib/tracking-context";
 
 export const runtime = "nodejs";
 
@@ -10,6 +10,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const { code } = await params;
   const trackingLink = await findTrackingLinkByCode(code);
   if (!trackingLink) return noIndexRedirect(new URL("/", getSiteUrl()));
+  const target = new URL(trackingLink.landing_path === "/kontakt" ? "/kontakt" : "/", getSiteUrl());
+  if (!(await readAnalyticsConsent(request))) return noIndexRedirect(target);
   const observed = trackingAcquisition({
     channelGroup: trackingLink.channel_group, source: trackingLink.source, medium: trackingLink.medium,
     campaign: trackingLink.campaign?.slug, trackingLinkId: trackingLink.id, campaignId: trackingLink.campaign_id,
@@ -22,7 +24,6 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   } catch (error) {
     console.error("tracking entry failed", error);
   }
-  const target = new URL(trackingLink.landing_path === "/kontakt" ? "/kontakt" : "/", getSiteUrl());
   const response = noIndexRedirect(target);
   applyTrackingCookies(response, cookies, request.nextUrl.protocol === "https:");
   return response;

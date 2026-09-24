@@ -6,7 +6,8 @@ const publicRoutes = [
   { path: "/dla-lokali", heading: "Współpraca z lokalami" },
   { path: "/kontakt", heading: "Kontakt / współpraca" },
   { path: "/linki", heading: "Poza Nutą" },
-  { path: "/privacy", heading: "Prywatność bez kombinowania." },
+  { path: "/privacy", heading: "Prywatność" },
+  { path: "/cookies", heading: "Cookies na tej stronie" },
 ];
 const canonicalOrigin = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
 
@@ -54,7 +55,9 @@ test("new routes remain readable without JavaScript and expose internal links", 
   await context.close();
 });
 
-test("new routes keep existing page-view tracking flow", async ({ page }) => {
+test("new routes keep consented page-view tracking flow", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
   const view = page.waitForRequest((request) => request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "page_view" && request.postDataJSON()?.path === "/dla-lokali");
   await page.goto("/dla-lokali");
   const request = await view;

@@ -3,13 +3,14 @@ import { trackEventBestEffort } from "@/lib/analytics";
 import { acquisitionFromRequest, EVENT_NAMES, sanitizePath, type AnalyticsEventName } from "@/lib/analytics-taxonomy";
 import { getSiteUrl } from "@/lib/env";
 import { validVisitId } from "@/lib/attribution";
-import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
+import { applyTrackingCookies, buildTrackingContext, readAnalyticsConsent } from "@/lib/tracking-context";
 import { readBoundedJson } from "@/lib/bounded-json";
 
 export const runtime = "nodejs";
 const clientEvents = new Set<AnalyticsEventName>(["page_view", "contact_view", "contact_click", "hub_resumed"]);
 
 export async function POST(request: NextRequest) {
+  if (!(await readAnalyticsConsent(request))) return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
   const parsed = await readBoundedJson(request, 12_000);
   if (!parsed.ok) return reply({ error: parsed.error }, parsed.error === "payload-too-large" ? 413 : 400);
   const body = parsed.value;

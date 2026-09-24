@@ -5,7 +5,7 @@
 This repository is an independent Poza Nutą application. It is not a Stage module, not a shared dashboard module, and does not share database, authentication, deployment, or runtime dependencies with any other Poza Nutą product.
 
 ## Root-domain direction — owner decision, 2026-09-24
-This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. `/linki` holds the compact official-links hub; the homepage introduces the brand, karaoke, and collaboration. The future role of `socials.pozanuta.pl` is undecided. Domain deployment, hosting, EU privacy and cookie compliance, and WCAG 2.2 AA remain separate slices. Do not treat the current consent flow as final legal approval.
+This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. `/linki` holds the compact official-links hub; the homepage introduces the brand, karaoke, and collaboration. The future role of `socials.pozanuta.pl` is undecided. The local EU privacy slice gates public analytics on versioned consent and adds `/cookies`; controller, deployment and retention facts still require confirmation before production. Domain deployment, hosting, legal sign-off and WCAG 2.2 AA remain separate work.
 
 ## Overview
 The public surface is the main marketing site for Poza Nutą. It serves two equally legitimate audiences:
@@ -33,7 +33,8 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 3. `/dla-lokali`: collaboration information for venues and organizers.
 4. `/kontakt`: one first-party contact route.
 5. `/linki`: compact official destinations from the existing destination model, with Instagram first and TikTok second when active.
-6. `/privacy`: current privacy information and consent controls, pending a separate compliance slice.
+6. `/privacy`: privacy information and consent controls, with deployment-specific facts guarded before publication.
+7. `/cookies`: canonical browser storage inventory and consent controls.
 
 ## Visual constraints
 - Mobile-first, with an editorial desktop homepage and a deliberately narrow `/linki` layout.

@@ -85,6 +85,7 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
   await expect(page.getByText("website", { exact: true })).toBeVisible();
 
   const publicContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  expect((await publicContext.request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   const publicPage = await publicContext.newPage();
   const firstPageView = publicPage.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().method() === "POST");
   await publicPage.goto(`/r/${trackingCode}`);
@@ -100,6 +101,7 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
   await page.goto("/admin");
   await page.getByRole("button", { name: "Tryb testowy (2 h)" }).click();
   await expect.poll(async () => (await page.context().cookies()).some((cookie) => cookie.name === "pn_analytics_test" && cookie.httpOnly)).toBe(true);
+  expect((await page.context().request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   const testPageView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view");
   await page.goto("/");
   await testPageView;
@@ -521,12 +523,15 @@ test("ownership transfer is atomic in the UI and the new owner can transfer it b
   await successorContext.close();
 });
 
-test("local analytics preserves immediate acquisition and consent-gated returning visitor identity", async ({ browser }, testInfo) => {
+test("local analytics preserves consented acquisition and returning visitor identity", async ({ browser }, testInfo) => {
   test.skip(!supabaseUrl || !serviceKey || testInfo.project.name !== "desktop-chromium", "Requires the isolated local Supabase stack");
   const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
 
   const immediate = await browser.newContext({ javaScriptEnabled: false });
   const landing = await immediate.newPage();
+  await landing.goto("/?utm_source=chatgpt&utm_medium=referral&utm_campaign=instant-race");
+  expect((await immediate.cookies()).some((cookie) => cookie.name === "pn_session")).toBe(false);
+  expect((await immediate.request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   await landing.goto("/?utm_source=chatgpt&utm_medium=referral&utm_campaign=instant-race");
   const sessionCookie = (await immediate.cookies()).find((cookie) => cookie.name === "pn_session");
   expect(sessionCookie).toBeTruthy();
@@ -593,6 +598,7 @@ test("local contact journey emits one view and one click with preserved attribut
   const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
   const context = await browser.newContext();
   const page = await context.newPage();
+  expect((await context.request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   const contactView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "contact_view");
   await page.goto("/kontakt?utm_source=chatgpt&utm_medium=referral&utm_campaign=contact-test");
   await contactView;

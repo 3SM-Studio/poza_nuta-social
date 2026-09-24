@@ -4,7 +4,7 @@
 
 - This codebase is planned to become the main Poza Nutą marketing site at `https://pozanuta.pl`. `socials.pozanuta.pl` is no longer the canonical target for the whole application; its eventual link-hub or redirect behavior is undecided.
 - The root-domain marketing-site slice supersedes the earlier homepage-as-link-hub hierarchy: `/` introduces the brand, karaoke, and collaboration; `/linki` holds official destinations using the existing authoritative model. Earlier numbered hub-layout choices remain historical context for `/linki`, not homepage requirements.
-- The current privacy/consent implementation is interim. A separate EU Privacy & Cookie Compliance slice will decide the distinction between minimal cookieless/server-side measurement and consented analytics, a cookie policy, persistent privacy settings access, and final consent UX. None of those changes is approved as an implementation in the current recovery slice.
+- The EU Privacy & Cookie slice is now authorized separately from the root-domain marketing checkpoint. It disables pre-consent product analytics, adds versioned choice, a persistent settings control and `/cookies`. Legal identity, infrastructure facts, retention and final approval remain release gates.
 - A separate accessibility slice targets WCAG 2.2 AA, axe automation, keyboard/focus/reflow/reduced-motion checks, and screen-reader smoke. The current recovery slice may fix the observed consent-banner overlap without claiming full compliance.
 - Production hosting is not yet chosen. Do not migrate between Vercel and another host as part of the local recovery checkpoint.
 - Sequence future work as canonical/root-domain migration, EU privacy and cookie compliance, accessibility, hosting/cost feasibility, then final Production Readiness.
@@ -110,7 +110,7 @@ Status: **approved by product owner on 2026-09-19**. These are binding unless ex
 
 ## Superseding analytics decision — 2026-09-20
 
-The analytics architecture continuation explicitly supersedes decision 34 only: a persistent pseudonymous browser identifier may exist across sessions **only after analytics consent**. Without that consent, analytics remains session-scoped. This is not person identity, fingerprinting, or permission to store raw IP, precise location, or exact device model. The rationale, limitations, withdrawal behavior, and unresolved legal/retention review are recorded in `docs/analytics/IDENTITY_MODEL.md`, `PRIVACY_AND_CONSENT.md`, and ADR-001.
+The analytics architecture continuation explicitly superseded decision 34: a persistent pseudonymous browser identifier may exist across sessions **only after analytics consent**. The later 2026-09-24 EU privacy slice also requires consent for the short public analytics session and product event ingestion; before consent there is no product measurement. This is not person identity, fingerprinting, or permission to store raw IP, precise location, or exact device model. The rationale, limitations, withdrawal behavior, and unresolved legal/retention review are recorded in `docs/analytics/IDENTITY_MODEL.md`, `PRIVACY_AND_CONSENT.md`, and ADR-001.
 
 It also refines decisions 49 and 78 without changing the public product: campaign attribution uses controlled `channel_group/source/medium/campaign/asset/placement`, QR is a transport medium rather than an automatic source, and the primary conversion percentage becomes outbound sessions divided by eligible sessions. Legacy click/page-view CTR remains a compatibility metric only and must not be labeled as the sole outbound rate.
 

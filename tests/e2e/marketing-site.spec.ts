@@ -1,16 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-const routes = ["/", "/linki", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/privacy"] as const;
+const routes = ["/", "/linki", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/privacy", "/cookies"] as const;
 
 test("marketing pages stay navigable and fit mobile and desktop", async ({ page }, testInfo) => {
   await page.goto("/");
-  await page.getByRole("complementary", { name: "Ustawienia prywatności" }).getByRole("button", { name: "Tylko niezbędne" }).click();
+  await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Odrzuć analitykę" }).click();
 
   for (const route of routes) {
     const response = await page.goto(route);
     expect(response?.status(), route).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
+    if (route === "/privacy" || route === "/cookies") await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
     const dimensions = await page.evaluate(() => ({
       content: document.documentElement.scrollWidth,
       viewport: document.documentElement.clientWidth,

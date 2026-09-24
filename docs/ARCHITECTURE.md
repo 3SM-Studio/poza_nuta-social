@@ -10,20 +10,21 @@ This Poza Nutą application is independent and prepared for the future canonical
 - `/linki` — compact official destination hub using the same records as `/go/[slug]`.
 - `/kontakt` — first-party business/collaboration contact surface.
 - `/privacy` — privacy information.
+- `/cookies` — actual browser storage inventory and consent controls.
 - `/r/[code]` — campaign/QR entry route, `noindex`, no-store.
 - `/go/[slug]` — tracked outbound redirect, `noindex`, no-store.
 
 ## Direct / organic flow
 1. Visitor opens `/`.
 2. The server-rendered page is useful before client analytics runs.
-3. `TrackPageView` sends a minimal `page_view` to `/api/track` after hydration.
-4. The server establishes a signed 30-minute session before hydration; analytics consent may additionally link a pseudonymous visitor across sessions.
+3. Before analytics consent, no product analytics event or analytics identity is created. Infrastructure request handling is separate.
+4. Once versioned analytics consent is granted, the server establishes a signed 30-minute session and a pseudonymous browser visitor. `TrackPageView` then sends a `page_view` to `/api/track`.
 5. External referrer/UTM is normalized. Same-site referrers are ignored as acquisition sources.
-6. `/go/[slug]` records an outbound click, inherits the session's current attribution and redirects. Database lookups and analytics writes have bounded best-effort deadlines so an outage cannot indefinitely hold navigation.
+6. `/go/[slug]` redirects without tracking before consent. With consent it records an outbound click and inherits the session's current attribution. Database lookups and analytics writes have bounded best-effort deadlines so an outage cannot indefinitely hold navigation.
 
 ## QR / owned campaign flow
 1. After root-domain migration, programmatic SVG contains a stable URL such as `https://pozanuta.pl/r/ABC123`.
-2. `/r/[code]` resolves an active tracking link and records a `tracking_entry` if analytics is available.
+2. `/r/[code]` resolves an active tracking link and records a `tracking_entry` only with valid analytics consent.
 3. The anonymous session stores canonical acquisition (first eligible non-direct with direct fallback) and current/last-touch attribution server-side.
 4. Visitor is redirected to a clean landing path, currently `/` or `/kontakt`. The current database contract does not allow `/linki` as a tracked QR landing path.
 5. Later external UTM/referrer can update last-touch while canonical session acquisition remains unchanged after its first eligible non-direct value. A server-resolved owned link may replace weaker client-observed acquisition evidence.
@@ -40,6 +41,7 @@ There is no raw IP storage and no fingerprint identifier. The detailed v1 contra
 - `analytics_visitors` — optional consent-gated pseudonymous browser context.
 - `analytics_sessions_v2` — short-lived session acquisition/current context, optionally linked to a visitor.
 - `analytics_events_v2` — append-only, idempotent, ordered events with observed/attributed context and historical snapshots.
+- `analytics_consent_evidence` — append-only minimal grant/withdrawal evidence, without IP or user-agent.
 - `analytics_assets`, `analytics_placements` — reusable campaign taxonomy entities.
 - Legacy `analytics_sessions` and `analytics_events` remain during the compatibility window.
 - `admin_profiles` — active/inactive `owner/admin/viewer` membership and steady-state admin authority.
@@ -52,4 +54,4 @@ Supabase Auth Admin is server-only. Invitation intent is persisted before delive
 Referral links remain ordinary `tracking_links` served by `/r/[code]`. Stable participant ID enters canonical session and visitor-first acquisition; participant label is snapshotted on events so later rename/deactivation preserves historical interpretation. The leaderboard reads canonical session/visitor acquisition and filters to production/external evidence.
 
 ## Privacy boundary
-The product question is answered primarily at session/campaign level. With analytics consent, a random browser-context visitor may link later sessions; it is not a person identifier. Without consent, no cross-session identity is created. Exact device model, precise location, raw IP and fingerprinting remain explicitly out of scope.
+The product question is answered at consented session/campaign level. A random browser-context visitor may link later consented sessions; it is not a person identifier. Without consent, no product analytics identity or event is created. Exact device model, precise location, raw IP and fingerprinting remain explicitly out of scope. Server-side retention periods and deletion require approval before production.

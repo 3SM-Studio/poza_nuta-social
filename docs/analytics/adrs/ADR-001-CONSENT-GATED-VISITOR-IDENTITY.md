@@ -2,10 +2,12 @@
 
 Date: 2026-09-20. Status: accepted for implementation; production retention/legal wording pending review.
 
+Superseded for pre-consent behavior by the 2026-09-24 EU privacy slice: the short analytics session and first-party event ingestion now also require analytics consent. See `../PRIVACY_AND_CONSENT.md`. The consent-gated visitor identity decision still applies after grant.
+
 ## Decision
 
 Keep the 30-minute session for all eligible first-party journeys. Add an optional long-lived random visitor only after analytics consent. Never backfill visitors from legacy sessions.
 
 ## Rationale and consequences
 
-This enables returning-browser analysis without fingerprinting and preserves useful session-only measurement when analytics consent is absent. It supersedes product decision 34 and the matching AGENTS/architecture wording only to the extent described here. It does not identify people, and deletion/incognito/multi-device/shared-browser limitations are explicit. Withdrawal expires the token and stops future linkage.
+This enables returning-browser analysis without fingerprinting. The earlier session-only measurement without analytics consent was superseded by the EU privacy slice noted above. It does not identify people, and deletion/incognito/multi-device/shared-browser limitations are explicit. Withdrawal expires the token and stops future linkage.

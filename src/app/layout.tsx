@@ -18,5 +18,5 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: "#0d0b0d", colorScheme: "dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="pl" className={`${display.variable} ${body.variable}`}><body>{children}<ConsentBanner /></body></html>;
+  return <html lang="pl" className={`${display.variable} ${body.variable}`}><body><ConsentBanner />{children}</body></html>;
 }

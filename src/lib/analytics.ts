@@ -16,6 +16,7 @@ export type TrackEventInput = {
 };
 
 export async function trackEvent(input: TrackEventInput) {
+  if (!input.context.consent.analytics) return { stored: false as const, reason: "consent-required" };
   const admin = createAdminClient();
   if (!admin) return { stored: false as const, reason: "analytics-not-configured" };
   const link = input.trackingLink;

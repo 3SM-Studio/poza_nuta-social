@@ -13,6 +13,8 @@ const nonPublicHeaders = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noar
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // The public consent UI intentionally occupies the lower corners in development.
+  devIndicators: false,
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },

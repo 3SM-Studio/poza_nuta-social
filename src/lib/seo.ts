@@ -3,7 +3,7 @@ import { officialDestinationUrl } from "./analytics-taxonomy";
 import type { Destination } from "./types";
 import { getSiteUrl } from "./env";
 
-export const publicPaths = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy"] as const;
+export const publicPaths = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy", "/cookies"] as const;
 
 export function publicUrl(path: string) {
   if (path === "/") return getSiteUrl();

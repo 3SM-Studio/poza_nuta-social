@@ -1,41 +1,19 @@
-# Privacy and consent
+# Privacy and consent implementation
 
-This is a technical policy, not a legal conclusion. Final wording, legal basis, controller details, retention, processors, and withdrawal/deletion handling require human privacy/legal review before production.
+Status: local technical checkpoint. Controller identity, contact, recipients, transfers and server-side retention periods require confirmed publication values and privacy/legal review before production. The production environment guard rejects missing values. No production schema or data was changed in this slice.
 
-## Consent categories
+## Public behavior
 
-- Necessary: site delivery, security, redirect integrity, and a short-lived signed session needed to keep one journey coherent. Always on.
-- Analytics: permits a long-lived pseudonymous visitor token, returning-browser analysis, GA4 eligibility, and first-party visitor linkage.
-- Marketing: permits future advertising-pixel/server-event eligibility. No marketing sink is active.
+- Before a version 2 affirmative choice, no public analytics session, acquisition or visitor cookie is issued, no first-party analytics event is stored, and no hub lifecycle state is written to `sessionStorage`. `/go/[slug]` and `/r/[code]` still redirect.
+- `pn_consent` is a signed, HttpOnly, SameSite=Lax preference cookie with a 180-day browser lifetime. It is the only product cookie created by a denial. Older consent versions are invalid and trigger a new choice.
+- Consent to first-party analytics permits `pn_session` (30 minutes), `pn_acquisition` (30 minutes when eligible), and `pn_visitor` (180 days). No external GA4 or marketing sink is active.
+- Denial or withdrawal expires all three analytics cookies. Future analytics calls return no event. An old anonymous browser identifier is not reused after withdrawal and a later new grant.
+- Admin authentication and UI-preference cookies remain necessary for panel users and are separate from public analytics.
 
-Analytics and marketing default to denied until an explicit saved choice. Marketing never implies analytics; each flag is evaluated independently by the central context.
+## Evidence
 
-## Without analytics consent
+An affirmative grant is accepted only after an append-only record is inserted into `analytics_consent_evidence`: random record ID, visitor ID, affirmative choice, consent version and timestamp. Withdrawal attempts a corresponding record but must revoke browser consent even if evidence storage is temporarily unavailable. No IP, user-agent or referrer is stored in evidence. Denials do not create a visitor identifier or evidence row. The table has a 180-day expiry marker, but **no automatic purge job is installed yet**; production retention must be approved and enforced before release. A current signed cookie alone cannot prove historical consent after cookie deletion, so server evidence is necessary.
 
-- No `pn_visitor` token and no cross-session linkage.
-- First-party Postgres may store minimized session/event facts with the 30-minute necessary session ID, broad device categories, consent state, and coarse attribution.
-- No GA4 event is sent.
-- No marketing event is sent.
-- No raw IP, fingerprint, precise location, exact device model, or full referrer URL is stored.
+## Data minimization and limitations
 
-This cookieless/session-only first-party measurement still requires final legal review; if review rejects it, the sink can be disabled centrally without changing route behavior.
-
-## With analytics consent
-
-- A random signed `pn_visitor` is created or reused.
-- Sessions may link to that visitor and returning-browser metrics become available.
-- Eligible production/external events may be mirrored to GA4 with low-cardinality, non-internal properties.
-
-## With marketing consent
-
-Future Meta, TikTok, or Google Ads adapters may run only for production external traffic. They remain disabled until a concrete campaign, reviewed event mapping, CSP change, vendor configuration, and explicit authorization exist.
-
-## Withdrawal
-
-Withdrawal immediately expires the visitor token, stops future visitor linkage, and disables GA4/marketing eligibility. It does not fabricate deletion of already aggregated or lawfully retained records. A reviewed erasure/anonymization workflow is a production prerequisite if required.
-
-The first-party `/privacy` preference control reads the current signed choice and allows necessary-only → analytics ON and analytics ON → necessary-only. The initial banner is suppressed on that page so the two controls do not compete; elsewhere the banner uses the verified signed choice rather than mere cookie presence. Enabling creates a new pseudonymous browser token; withdrawing clears it, and re-enabling later creates a different token. The necessary short session remains available in either state. The page distinguishes session-only measurement without consent from pseudonymous returning-browser measurement with consent; it does not claim the latter is an identified person.
-
-## Consent storage
-
-The consent token is server-issued, versioned, SameSite=Lax, Secure on HTTPS, and integrity-protected. UI copy must describe actual behavior and may not claim anonymity in an absolute sense.
+Analytic events after consent still use broad device/browser/OS families, controlled attribution fields and the existing analytics V2.1 model. Infrastructure may independently log requests; its providers and retention require deployment-specific disclosure. Previously collected analytics data is not automatically erased by withdrawal; subject requests and data lifecycle need an approved process. The technical implementation is not a legal sign-off.

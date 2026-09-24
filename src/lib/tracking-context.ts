@@ -21,7 +21,8 @@ import { deviceCategory } from "./attribution";
 import { getSiteUrl } from "./env";
 
 type IdentityToken = { id: string; exp: number };
-type ConsentToken = { analytics: boolean; marketing: boolean; version: 1; exp: number };
+export const CONSENT_VERSION = 2;
+type ConsentToken = { analytics: boolean; marketing: boolean; version: number; exp: number };
 type FlagToken = { enabled: true; exp: number };
 type AcquisitionToken = { acquisition: AcquisitionContext; exp: number };
 
@@ -39,16 +40,16 @@ export type TrackingCookie = { name: string; value: string; maxAge: number; http
 
 export async function buildTrackingContext(request: NextRequest, observedOverride?: AcquisitionContext) {
   const now = Math.floor(Date.now() / 1000);
-  const consent = await verifyAnalyticsToken<ConsentToken>("consent", request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value);
+  const consent = await readAnalyticsConsent(request);
   const session = await verifyAnalyticsToken<IdentityToken>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
-  const visitor = consent?.analytics
+  const visitor = consent
     ? await verifyAnalyticsToken<IdentityToken>("visitor", request.cookies.get(ANALYTICS_VISITOR_COOKIE)?.value)
     : null;
   const internal = await verifyAnalyticsToken<FlagToken>("internal", request.cookies.get(ANALYTICS_INTERNAL_COOKIE)?.value);
   const test = await verifyAnalyticsToken<FlagToken>("test", request.cookies.get(ANALYTICS_TEST_COOKIE)?.value);
   const bootstrap = await verifyAnalyticsToken<AcquisitionToken>("acquisition", request.cookies.get(ANALYTICS_ACQUISITION_COOKIE)?.value);
   const sessionId = session?.id || crypto.randomUUID();
-  const visitorId = consent?.analytics ? visitor?.id || null : null;
+  const visitorId = consent ? visitor?.id || null : null;
   const ownHost = new URL(getSiteUrl()).hostname;
   const observed = observedOverride || acquisitionFromRequest({
     ownHost,
@@ -61,7 +62,7 @@ export async function buildTrackingContext(request: NextRequest, observedOverrid
   const context: TrackingContext = {
     environment: analyticsEnvironment(request),
     trafficClass: test ? "test" : internal ? "internal" : isConservativeBot(request.headers.get("user-agent")) ? "bot" : "external",
-    consent: { analytics: Boolean(consent?.analytics), marketing: Boolean(consent?.marketing) },
+    consent: { analytics: consent, marketing: false },
     identity: { visitorId, sessionId },
     observed,
     attributionCandidate: observed.source === "direct" && bootstrap?.acquisition ? bootstrap.acquisition : observed,
@@ -69,20 +70,29 @@ export async function buildTrackingContext(request: NextRequest, observedOverrid
   };
 
   const cookies: TrackingCookie[] = [];
-  const sessionToken = await signAnalyticsToken("session", { id: sessionId, exp: now + SESSION_TTL_SECONDS });
+  const sessionToken = consent ? await signAnalyticsToken("session", { id: sessionId, exp: now + SESSION_TTL_SECONDS }) : null;
   if (sessionToken) cookies.push({ name: ANALYTICS_SESSION_COOKIE, value: sessionToken, maxAge: SESSION_TTL_SECONDS, httpOnly: true });
-  if (observed.source !== "direct") {
+  if (consent && observed.source !== "direct") {
     const acquisitionToken = await signAnalyticsToken("acquisition", { acquisition: observed, exp: now + SESSION_TTL_SECONDS });
     if (acquisitionToken) cookies.push({ name: ANALYTICS_ACQUISITION_COOKIE, value: acquisitionToken, maxAge: SESSION_TTL_SECONDS, httpOnly: true });
   }
   return { context, cookies };
 }
 
-export async function createConsentToken(analytics: boolean, marketing: boolean) {
+export async function readConsentChoice(request: NextRequest): Promise<boolean | null> {
+  const token = await verifyAnalyticsToken<ConsentToken>("consent", request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value);
+  return token?.version === CONSENT_VERSION && typeof token.analytics === "boolean" ? token.analytics : null;
+}
+
+export async function readAnalyticsConsent(request: NextRequest): Promise<boolean> {
+  return (await readConsentChoice(request)) === true;
+}
+
+export async function createConsentToken(analytics: boolean) {
   return signAnalyticsToken("consent", {
     analytics,
-    marketing,
-    version: 1 as const,
+    marketing: false,
+    version: CONSENT_VERSION,
     exp: Math.floor(Date.now() / 1000) + VISITOR_TTL_SECONDS,
   });
 }

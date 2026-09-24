@@ -2,7 +2,7 @@ import { type NextRequest } from "next/server";
 import { trackEventBestEffort } from "@/lib/analytics";
 import { officialDestinationUrl } from "@/lib/analytics-taxonomy";
 import { getPublicDestinations } from "@/lib/destinations";
-import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
+import { applyTrackingCookies, buildTrackingContext, readAnalyticsConsent } from "@/lib/tracking-context";
 
 export const runtime = "nodejs";
 
@@ -11,6 +11,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const destination = (await getPublicDestinations()).find((item) => item.slug === slug) || null;
   const target = destination ? officialDestinationUrl(destination.slug, destination.url) : null;
   if (!destination || !target) return noIndexRedirect(new URL("/", request.url));
+  if (!(await readAnalyticsConsent(request))) return noIndexRedirect(new URL(target));
 
   const { context, cookies } = await buildTrackingContext(request);
   try {

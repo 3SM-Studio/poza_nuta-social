@@ -8,6 +8,7 @@ export function PublicFooter() {
         <Link href="/linki" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Oficjalne linki</Link>
         <Link href="/kontakt" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Kontakt</Link>
         <Link href="/privacy" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Prywatność</Link>
+        <Link href="/cookies" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Cookies</Link>
       </div>
     </footer>
   );

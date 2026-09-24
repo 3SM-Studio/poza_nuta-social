@@ -5,16 +5,20 @@ test("privacy banner leaves footer reachable before a choice, including save fai
     await route.fulfill({ status: route.request().method() === "POST" ? 503 : 200, contentType: "application/json", body: JSON.stringify(route.request().method() === "POST" ? { error: "unavailable" } : { choice: null }) });
   });
   await page.goto("/");
-  const banner = page.getByRole("complementary", { name: "Ustawienia prywatności" });
+  const banner = page.getByRole("complementary", { name: "Wybór analityki" });
   await expect(banner).toBeVisible();
-  const necessary = banner.getByRole("button", { name: "Tylko niezbędne" });
+  const necessary = banner.getByRole("button", { name: "Odrzuć analitykę" });
   const analytics = banner.getByRole("button", { name: "Zgadzam się na analitykę" });
   await expect(necessary).toBeVisible();
   await expect(analytics).toBeVisible();
+  const firstChoice = await necessary.boundingBox();
+  const secondChoice = await analytics.boundingBox();
+  if (testInfo.project.name.startsWith("mobile")) expect(firstChoice!.y).toBeLessThan(secondChoice!.y);
   await necessary.focus();
   await expect(necessary).toBeFocused();
   await page.keyboard.press("Tab");
   await expect(analytics).toBeFocused();
+  await expect(analytics).toHaveCSS("outline-style", "solid");
   await necessary.click();
   await expect(banner.getByRole("alert")).toBeVisible();
   await expect.poll(async () => {

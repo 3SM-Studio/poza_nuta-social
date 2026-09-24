@@ -4,12 +4,12 @@ Schema version: `1`. Only names in this document may be emitted.
 
 | Event | Exact trigger | Required properties | Optional properties | Analytics consent | Deduplication and attribution |
 | --- | --- | --- | --- | --- | --- |
-| `tracking_entry` | active `/r/[code]` resolved | tracking link ID/code snapshot, landing path | campaign/asset/placement snapshots | not required for session-only first-party measurement; visitor link requires consent | route event UUID; owned observed context becomes session acquisition/current touch |
-| `page_view` | public `/` or `/kontakt` becomes visible after navigation | path | title, navigation type | same as above | client event UUID; direct follow-up inherits session attribution |
-| `outbound_click` | active `/go/[slug]` is requested | destination ID/slug/label/domain snapshots | outbound ordinal | same as above | route event UUID; inherits session attribution |
-| `contact_view` | `/kontakt` becomes visible once per document navigation | path=`/kontakt` | navigation type | same as above | stable event UUID for that mount; inherits session attribution |
-| `contact_click` | configured contact action is activated | contact type (`email`) | channel label | same as above | click UUID; means intent only, never message sent |
-| `hub_resumed` | hub was visible, an outbound was initiated, document became hidden, then becomes visible/pageshow after >=2 seconds | prior destination slug, resume signal | elapsed bucket, BFCache flag | same as above | one per outbound state; inherits session attribution |
+| `tracking_entry` | active `/r/[code]` resolved | tracking link ID/code snapshot, landing path | campaign/asset/placement snapshots | valid analytics consent required | route event UUID; owned observed context becomes session acquisition/current touch |
+| `page_view` | public page becomes visible after navigation | path | title, navigation type | valid analytics consent required | client event UUID; direct follow-up inherits session attribution |
+| `outbound_click` | active `/go/[slug]` is requested | destination ID/slug/label/domain snapshots | outbound ordinal | valid analytics consent required | route event UUID; inherits session attribution |
+| `contact_view` | `/kontakt` becomes visible once per document navigation | path=`/kontakt` | navigation type | valid analytics consent required | stable event UUID for that mount; inherits session attribution |
+| `contact_click` | configured contact action is activated | contact type (`email`) | channel label | valid analytics consent required | click UUID; means intent only, never message sent |
+| `hub_resumed` | hub was visible, an outbound was initiated, document became hidden, then becomes visible/pageshow after >=2 seconds | prior destination slug, resume signal | elapsed bucket, BFCache flag | valid analytics consent required | one per outbound state; inherits session attribution |
 
 Event attributed context is the non-exclusive touchpoint/journey record. Acquisition reports do not aggregate these rows; they read the exclusive canonical session acquisition.
 

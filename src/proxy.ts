@@ -3,21 +3,26 @@ import {
   ANALYTICS_INTERNAL_COOKIE,
   ANALYTICS_ACQUISITION_COOKIE,
   ANALYTICS_SESSION_COOKIE,
+  ANALYTICS_VISITOR_COOKIE,
   SESSION_TTL_SECONDS,
   signAnalyticsToken,
   verifyAnalyticsToken,
 } from "@/lib/analytics-token";
 import { acquisitionFromRequest } from "@/lib/analytics-taxonomy";
+import { readAnalyticsConsent } from "@/lib/tracking-context";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
   const now = Math.floor(Date.now() / 1000);
-  const existing = await verifyAnalyticsToken<{ id: string; exp: number }>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
-  const sessionId = existing?.id || crypto.randomUUID();
-  const sessionToken = await signAnalyticsToken("session", { id: sessionId, exp: now + SESSION_TTL_SECONDS });
-  if (sessionToken) request.cookies.set(ANALYTICS_SESSION_COOKIE, sessionToken);
+  const consented = await readAnalyticsConsent(request);
+  let sessionToken: string | null = null;
   let acquisitionToken: string | null = null;
-  if (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/kontakt") {
+  if (consented && request.nextUrl.pathname !== "/api/consent") {
+    const existing = await verifyAnalyticsToken<{ id: string; exp: number }>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
+    sessionToken = await signAnalyticsToken("session", { id: existing?.id || crypto.randomUUID(), exp: now + SESSION_TTL_SECONDS });
+    if (sessionToken) request.cookies.set(ANALYTICS_SESSION_COOKIE, sessionToken);
+  }
+  if (consented && (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/kontakt")) {
     const acquisition = acquisitionFromRequest({
       ownHost: request.nextUrl.hostname,
       referrer: request.headers.get("referer"),
@@ -39,6 +44,11 @@ export async function proxy(request: NextRequest) {
   const secure = request.nextUrl.protocol === "https:";
   if (sessionToken) response.cookies.set(ANALYTICS_SESSION_COOKIE, sessionToken, { httpOnly: true, sameSite: "lax", secure, maxAge: SESSION_TTL_SECONDS, path: "/" });
   if (acquisitionToken) response.cookies.set(ANALYTICS_ACQUISITION_COOKIE, acquisitionToken, { httpOnly: true, sameSite: "lax", secure, maxAge: SESSION_TTL_SECONDS, path: "/" });
+  if (!consented) {
+    for (const name of [ANALYTICS_SESSION_COOKIE, ANALYTICS_ACQUISITION_COOKIE, ANALYTICS_VISITOR_COOKIE]) {
+      if (request.cookies.has(name)) response.cookies.set(name, "", { httpOnly: true, sameSite: "lax", secure, maxAge: 0, path: "/" });
+    }
+  }
   if (authenticated && request.nextUrl.pathname.startsWith("/admin")) {
     const internalToken = await signAnalyticsToken("internal", { enabled: true as const, exp: now + 12 * 60 * 60 });
     if (internalToken) response.cookies.set(ANALYTICS_INTERNAL_COOKIE, internalToken, { httpOnly: true, sameSite: "lax", secure, maxAge: 12 * 60 * 60, path: "/" });

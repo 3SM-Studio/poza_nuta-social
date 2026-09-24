@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { NextRequest } from "next/server";
 import { signAnalyticsToken } from "./analytics-token";
-import { buildTrackingContext, isConservativeBot } from "./tracking-context";
+import { buildTrackingContext, isConservativeBot, readConsentChoice } from "./tracking-context";
 
 describe("traffic classification", () => {
   it.each([
@@ -28,8 +28,16 @@ describe("traffic classification", () => {
 
   it("does not accept a forged consent or visitor identity", async () => {
     const request = new NextRequest("http://localhost/", { headers: { cookie: "pn_consent=forged; pn_visitor=67a593f7-55d4-4dc5-b720-cf9ccdf09c9c" } });
-    const { context } = await buildTrackingContext(request);
+    const { context, cookies } = await buildTrackingContext(request);
     expect(context.consent).toEqual({ analytics: false, marketing: false });
     expect(context.identity.visitorId).toBeNull();
+    expect(cookies).toEqual([]);
+  });
+
+  it("re-prompts after a consent information version change", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 60;
+    const old = await signAnalyticsToken("consent", { analytics: true, marketing: false, version: 1, exp });
+    const request = new NextRequest("http://localhost/", { headers: { cookie: `pn_consent=${old}` } });
+    expect(await readConsentChoice(request)).toBeNull();
   });
 });

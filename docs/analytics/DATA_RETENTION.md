@@ -2,6 +2,8 @@
 
 Status: proposed technical defaults; final periods require product/privacy/legal approval before production automation is enabled.
 
+The EU privacy slice disables new event ingestion without analytics consent. It adds `analytics_consent_evidence` with an `expires_at` marker at 180 days; deletion is **not automatic**. A production purge process and confirmed periods remain release prerequisites. The client-side `pn_consent` preference lasts 180 days; consented analytics cookies last 30 minutes (`pn_session`, `pn_acquisition`) or 180 days (`pn_visitor`). These cookie lifetimes do not delete server data.
+
 | Category | Proposed default | End-of-life action |
 | --- | --- | --- |
 | visitor identity | 180 days since last consented activity | unlink/anonymize visitor ID from retained events, then delete visitor row |
