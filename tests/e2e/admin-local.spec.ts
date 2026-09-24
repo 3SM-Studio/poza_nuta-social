@@ -178,6 +178,9 @@ test("database membership authorizes viewer and admin while rejecting inactive, 
   await viewerPage.goto("/admin/key-events");
   await expect(viewerPage.getByRole("heading", { name: "Key Events / Outcomes" })).toBeVisible();
   await expect(viewerPage.getByRole("link", { name: "Key Events" })).toBeVisible();
+  await viewerPage.goto("/admin/attribution");
+  await expect(viewerPage.getByRole("heading", { name: "Attribution", exact: true })).toBeVisible();
+  await expect(viewerPage.getByRole("link", { name: "Attribution" })).toBeVisible();
   await expect(viewerPage.getByRole("button", { name: /utwórz|zapisz|usuń/i })).toHaveCount(0);
   await viewerPage.goto("/admin/team");
   await expect(viewerPage.getByText(/dostęp tylko do odczytu/i)).toBeVisible();
