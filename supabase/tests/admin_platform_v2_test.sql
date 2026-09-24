@@ -18,9 +18,17 @@ insert into auth.users (
 
 insert into public.admin_profiles (user_id, email, role, status) values
   ('d1000000-0000-4000-8000-000000000001','owner-v2@pozanuta.test','owner','active'),
-  ('d1000000-0000-4000-8000-000000000002','admin-v2@pozanuta.test','admin','active'),
+  ('d1000000-0000-4000-8000-000000000002','admin-v2@pozanuta.test','owner','active'),
   ('d1000000-0000-4000-8000-000000000003','viewer-v2@pozanuta.test','viewer','active'),
   ('d1000000-0000-4000-8000-000000000004','inactive-v2@pozanuta.test','admin','inactive');
+
+-- Exercise the multi-owner starting state even on a fresh database. Keep the
+-- last-owner checks scoped to this suite's owner; rollback restores any owner
+-- profiles left by independent E2E runs.
+update public.admin_profiles
+set role = 'admin'
+where role = 'owner' and status = 'active'
+  and user_id <> 'd1000000-0000-4000-8000-000000000001';
 
 create function pg_temp.force_invitation_audit_failure()
 returns trigger
