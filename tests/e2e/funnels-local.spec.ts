@@ -20,6 +20,7 @@ test("Funnels is admin-only, counts scoped sessions, and works at narrow widths"
   const existing = new Set(before.messages?.map((message) => message.ID).filter(Boolean));
   await page.getByLabel("E-mail").fill(email!);
   await page.getByRole("button", { name: "Wyślij magic link" }).click();
+  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
   let messageId: string | null = null;
   await expect.poll(async () => {
     const mailbox = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };

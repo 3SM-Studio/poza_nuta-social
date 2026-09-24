@@ -35,6 +35,7 @@ test("DebugView is guarded, bounded, responsive and keeps exceptions sanitized",
     const existingIds = new Set(beforeMailbox.messages?.map((message) => message.ID).filter(Boolean));
     await page.getByLabel("E-mail").fill(viewerEmail);
     await page.getByRole("button", { name: "Wyślij magic link" }).click();
+    await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
     let messageId: string | null = null;
     await expect.poll(async () => {
       const mailbox = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };

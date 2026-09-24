@@ -20,10 +20,12 @@ test("Paths is admin-only, session-scoped, and usable at narrow widths", async (
   const existing = new Set(before.messages?.map((message) => message.ID).filter(Boolean));
   await page.getByLabel("E-mail").fill(email!);
   await page.getByRole("button", { name: "Wyślij magic link" }).click();
+  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
   let messageId: string | null = null;
   await expect.poll(async () => {
-    const mailbox = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !existing.has(message.ID))?.ID || null;
+    const mailbox = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string; Subject?: string; To?: Array<{ Address?: string }> }> };
+    messageId = mailbox.messages?.find((message) => message.ID && !existing.has(message.ID)
+      && message.Subject === "Your sign-in link" && message.To?.some((recipient) => recipient.Address === email))?.ID || null;
     return messageId;
   }, { timeout: 10_000 }).not.toBeNull();
   const message = await (await request.get(`${mailpit}/api/v1/message/${messageId}`)).json() as { HTML?: string; Text?: string };
@@ -31,6 +33,7 @@ test("Paths is admin-only, session-scoped, and usable at narrow widths", async (
   const magicUrl = body.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
   expect(magicUrl).toBeTruthy();
   await page.goto(magicUrl!);
+  await expect(page).not.toHaveURL(/\/admin\/login/);
 
   const sessions = [crypto.randomUUID(), crypto.randomUUID()];
   const cookieless = [crypto.randomUUID(), crypto.randomUUID()];
@@ -75,7 +78,7 @@ test("Paths is admin-only, session-scoped, and usable at narrow widths", async (
     await page.goto(`/admin/paths?${range}&scope=diagnostic`);
     await expect(page.getByText("2 sesji z odsłoną strony").first()).toBeVisible();
     await page.goto("/admin/paths?range=custom&from=2032-04-09&to=2032-04-09");
-    await expect(page.getByText(/Brak sesji consented z odsłoną strony/)).toBeVisible();
+    await expect(page.getByText(/Brak sesji consented z odsłoną strony/).first()).toBeVisible();
     await page.goto("/admin/paths?path=%2Fkontakt%3Bdrop%20table%20x");
     await expect(page.getByRole("heading", { name: "Nieprawidłowa strona" })).toBeVisible();
   } finally {

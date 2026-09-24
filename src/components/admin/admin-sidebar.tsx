@@ -13,6 +13,7 @@ import {
   LogOut,
   Megaphone,
   MousePointerClick,
+  Target,
   ShieldCheck,
   Users,
   Waypoints,
@@ -45,6 +46,7 @@ const groups = [
     items: [
       { href: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
       { href: "/admin/acquisition", label: "Analiza pozyskania", icon: Megaphone },
+      { href: "/admin/key-events", label: "Key Events", icon: Target },
       { href: "/admin/funnels", label: "Funnele", icon: GitBranch },
       { href: "/admin/paths", label: "Ścieżki stron", icon: Waypoints },
       { href: "/admin/realtime", label: "Realtime", icon: Radio },
