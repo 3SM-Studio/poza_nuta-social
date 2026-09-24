@@ -2,26 +2,23 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
-import { PublicFooter } from "@/components/public-footer";
-import { PublicHeader } from "@/components/public-header";
+import { PublicPageMain } from "@/components/public-page-main";
 import { StructuredData } from "@/components/structured-data";
 import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
-
-export const revalidate = 60;
+import { publicPage } from "@/lib/public-paths";
 
 const title = "Karaoke w Trójmieście";
 const description = "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Dowiedz się, gdzie szukać aktualnych informacji i jak zaprosić nas do lokalu.";
-export const metadata: Metadata = publicMetadata("/karaoke-trojmiasto", title, description);
+export const metadata: Metadata = publicMetadata(publicPage.karaoke, title, description);
 
 export default function KaraokePage() {
   return (
-    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-5 pt-2 sm:px-8 lg:px-10">
+    <>
       <TrackPageView />
-      <StructuredData data={publicPageGraph("/karaoke-trojmiasto", title, description)} />
-      <PublicHeader />
-      <main id="main-content" tabIndex={-1} className="mx-auto flex w-full max-w-2xl flex-1 flex-col">
+      <StructuredData data={publicPageGraph(publicPage.karaoke, title, description)} />
+      <PublicPageMain>
       <PublicBreadcrumb current={title} />
       <article className="flex-1 py-10 sm:py-14">
         <h1 className="font-display text-[clamp(3.4rem,12vw,5.5rem)] leading-[0.9] tracking-[-0.025em] text-foreground">Karaoke w Trójmieście</h1>
@@ -31,7 +28,7 @@ export default function KaraokePage() {
         <section className="mt-12 border-t pt-8" aria-labelledby="channels-heading">
           <h2 id="channels-heading" className="text-xl font-bold tracking-tight">Oficjalne kanały Poza Nutą</h2>
           <p className="mt-3 text-sm leading-7 text-muted-foreground">Na stronie z linkami znajdziesz nasze aktualne profile i komunikaty.</p>
-          <Link href="/linki" className={`${buttonVariants({ variant: "accent", size: "lg" })} mt-6 w-full justify-between sm:w-auto`}>
+          <Link href={publicPage.links} className={`${buttonVariants({ variant: "accent", size: "lg" })} mt-6 w-full justify-between sm:w-auto`}>
             Zobacz oficjalne profile <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </section>
@@ -39,13 +36,12 @@ export default function KaraokePage() {
         <section className="mt-12 border-t pt-8" aria-labelledby="venue-heading">
           <h2 id="venue-heading" className="text-xl font-bold tracking-tight">Chcesz zorganizować karaoke w lokalu?</h2>
           <p className="mt-3 text-sm leading-7 text-muted-foreground">Poza Nutą współpracuje z lokalami w Trójmieście. Jeśli reprezentujesz lokal i chcesz porozmawiać o karaoke lub wydarzeniu muzycznym, zobacz informacje o współpracy i skontaktuj się z nami.</p>
-          <Link href="/dla-lokali" className={`${buttonVariants({ variant: "outline", size: "lg" })} mt-6 w-full justify-between sm:w-auto`}>
+          <Link href={publicPage.venues} className={`${buttonVariants({ variant: "outline", size: "lg" })} mt-6 w-full justify-between sm:w-auto`}>
             Współpraca z lokalami <ArrowRight className="size-4" aria-hidden="true" />
           </Link>
         </section>
       </article>
-      </main>
-      <PublicFooter />
-    </div>
+      </PublicPageMain>
+    </>
   );
 }

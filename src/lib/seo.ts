@@ -2,19 +2,19 @@ import type { Metadata } from "next";
 import { officialDestinationUrl } from "./analytics-taxonomy";
 import type { Destination } from "./types";
 import { getSiteUrl } from "./env";
-import { publicPaths } from "./public-paths";
+import { publicPage, publicPaths, type PublicPath } from "./public-paths";
 
 export { publicPaths };
 
-export function publicUrl(path: string) {
-  if (path === "/") return getSiteUrl();
+export function publicUrl(path: PublicPath) {
+  if (path === publicPage.home) return getSiteUrl();
   return new URL(path, `${getSiteUrl()}/`).toString();
 }
 
-export function publicMetadata(path: string, title: string, description: string): Metadata {
-  const fullTitle = path === "/" ? title : `${title} · Poza Nutą`;
+export function publicMetadata(path: PublicPath, title: string, description: string): Metadata {
+  const fullTitle = path === publicPage.home ? title : `${title} · Poza Nutą`;
   return {
-    title: path === "/" ? { absolute: title } : title,
+    title: path === publicPage.home ? { absolute: title } : title,
     description,
     alternates: { canonical: publicUrl(path) },
     openGraph: {
@@ -38,11 +38,11 @@ export function officialProfiles(destinations: Destination[]) {
   }))];
 }
 
-export function publicPageGraph(path: string, name: string, description: string, options: {
+export function publicPageGraph(path: PublicPath, name: string, description: string, options: {
   destinations?: Destination[];
   includeOrganization?: boolean;
 } = {}) {
-  const base = publicUrl("/");
+  const base = publicUrl(publicPage.home);
   const url = publicUrl(path);
   const organizationId = `${base}#organization`;
   const websiteId = `${base}#website`;
@@ -79,7 +79,7 @@ export function publicPageGraph(path: string, name: string, description: string,
     isPartOf: { "@id": websiteId },
     about: { "@id": organizationId },
   };
-  if (path !== "/") {
+  if (path !== publicPage.home) {
     page.breadcrumb = { "@id": `${url}#breadcrumb` };
     nodes.push({
       "@type": "BreadcrumbList",

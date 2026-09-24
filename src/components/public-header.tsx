@@ -7,13 +7,8 @@ import { BrandLogo } from "@/components/brand-logo";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetClose, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "cn";
-
-const navigation = [
-  { href: "/karaoke-trojmiasto", label: "Karaoke" },
-  { href: "/dla-lokali", label: "Dla lokali" },
-  { href: "/kontakt", label: "Kontakt" },
-  { href: "/linki", label: "Linki" },
-] as const;
+import { publicNavigation } from "@/lib/public-navigation";
+import { publicPage } from "@/lib/public-paths";
 
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
@@ -21,15 +16,15 @@ export function PublicHeader() {
 
   return (
     <header className="flex min-h-20 items-center justify-between gap-5 border-b py-2 sm:min-h-24 lg:grid lg:grid-cols-[1fr_auto_1fr]">
-      <Link href="/" aria-label="Poza Nutą - strona główna" className="inline-flex min-h-12 items-center text-foreground transition-colors hover:text-accent">
+      <Link href={publicPage.home} aria-label="Poza Nutą - strona główna" className="inline-flex min-h-12 items-center text-foreground transition-colors hover:text-accent">
         <BrandLogo className="size-16 sm:size-[4.5rem]" />
       </Link>
       <nav aria-label="Nawigacja główna" className="hidden items-center gap-6 text-sm font-bold lg:flex">
-        {navigation.map(({ href, label }) => (
+        {publicNavigation.map(({ href, label }) => (
           <Link key={href} href={href} className="inline-flex min-h-11 items-center text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
         ))}
       </nav>
-      <Link href="/karaoke-trojmiasto" className={cn(buttonVariants({ variant: "accent", size: "lg" }), "hidden lg:inline-flex lg:justify-self-end")}>
+      <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "hidden lg:inline-flex lg:justify-self-end")}>
         Chcę zaśpiewać <ArrowUpRight aria-hidden="true" />
       </Link>
       <Sheet open={open} onOpenChange={(next) => {
@@ -45,11 +40,11 @@ export function PublicHeader() {
             <SheetClose render={<Button variant="ghost" size="lg" aria-label="Zamknij menu" />}>Zamknij</SheetClose>
           </SheetHeader>
           <nav aria-label="Nawigacja główna" className="flex flex-col py-5">
-            {navigation.map(({ href, label }) => (
+            {publicNavigation.map(({ href, label }) => (
               <Link key={href} href={href} onClick={() => setOpen(false)} className="flex min-h-14 items-center border-b text-xl font-bold text-foreground hover:text-accent">{label}</Link>
             ))}
           </nav>
-          <Link href="/karaoke-trojmiasto" onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "mt-5 w-full justify-between")}>
+          <Link href={publicPage.karaoke} onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "mt-5 w-full justify-between")}>
             Chcę zaśpiewać <ArrowUpRight aria-hidden="true" />
           </Link>
         </SheetContent>

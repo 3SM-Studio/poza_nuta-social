@@ -1,18 +1,16 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
-import { PublicFooter } from "@/components/public-footer";
-import { PublicHeader } from "@/components/public-header";
 import { StructuredData } from "@/components/structured-data";
 import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
 import { getPublicDestinations } from "@/lib/destinations";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
+import { publicPage } from "@/lib/public-paths";
 import { cn } from "cn";
 
-export const revalidate = 60;
 const homeDescription = "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Poznaj nas, sprawdź informacje dla uczestników i lokali oraz skontaktuj się z nami.";
-export const metadata: Metadata = publicMetadata("/", "Poza Nutą — karaoke i wydarzenia muzyczne w Trójmieście", homeDescription);
+export const metadata: Metadata = publicMetadata(publicPage.home, "Poza Nutą — karaoke i wydarzenia muzyczne w Trójmieście", homeDescription);
 
 const textLink = "inline-flex min-h-11 items-center gap-2 text-base font-bold text-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent";
 
@@ -21,10 +19,9 @@ export default async function HomePage() {
   const leadDestination = destinations[0];
 
   return (
-    <div className="mx-auto flex min-h-svh w-full max-w-6xl flex-col px-5 pt-2 sm:px-8 lg:px-10">
+    <>
       <TrackPageView />
-      <StructuredData data={publicPageGraph("/", "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
-      <PublicHeader />
+      <StructuredData data={publicPageGraph(publicPage.home, "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
       <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
         <section className="grid gap-12 border-b py-20 sm:py-28 lg:min-h-[39rem] lg:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] lg:items-end lg:gap-16 lg:py-28" aria-labelledby="hero-title">
           <div>
@@ -34,8 +31,8 @@ export default async function HomePage() {
             <p className="text-xl font-bold leading-snug">Karaoke i wydarzenia muzyczne w Trójmieście.</p>
             <p className="mt-5 text-base leading-7 text-muted-foreground">Poza Nutą zaprasza do wspólnego śpiewania. Sprawdź, gdzie publikujemy aktualne daty i miejsca.</p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row lg:flex-col xl:flex-row">
-              <Link href="/karaoke-trojmiasto" className={cn(buttonVariants({ variant: "accent", size: "lg" }), "min-w-0 justify-between whitespace-normal")}>Chcę zaśpiewać <ArrowRight aria-hidden="true" /></Link>
-              <Link href="/dla-lokali" className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-w-0 justify-between whitespace-normal")}>Dla lokali <ArrowRight aria-hidden="true" /></Link>
+              <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "min-w-0 justify-between whitespace-normal")}>Chcę zaśpiewać <ArrowRight aria-hidden="true" /></Link>
+              <Link href={publicPage.venues} className={cn(buttonVariants({ variant: "outline", size: "lg" }), "min-w-0 justify-between whitespace-normal")}>Dla lokali <ArrowRight aria-hidden="true" /></Link>
             </div>
           </div>
         </section>
@@ -58,12 +55,12 @@ export default async function HomePage() {
             <div className="border-t border-accent pt-7">
               <h3 className="font-display text-4xl leading-none sm:text-5xl">Chcę śpiewać</h3>
               <p className="mt-5 max-w-md text-base leading-7 text-muted-foreground">Dowiedz się, gdzie sprawdzać bieżące daty i miejsca karaoke w Trójmieście.</p>
-              <Link href="/karaoke-trojmiasto" className={cn(textLink, "mt-6")}>Karaoke w Trójmieście <ArrowRight className="size-4" aria-hidden="true" /></Link>
+              <Link href={publicPage.karaoke} className={cn(textLink, "mt-6")}>Karaoke w Trójmieście <ArrowRight className="size-4" aria-hidden="true" /></Link>
             </div>
             <div className="border-t border-foreground pt-7">
               <h3 className="font-display text-4xl leading-none sm:text-5xl">Prowadzę lokal</h3>
               <p className="mt-5 max-w-md text-base leading-7 text-muted-foreground">Porozmawiajmy o karaoke lub wydarzeniu muzycznym w Twoim lokalu.</p>
-              <Link href="/dla-lokali" className={cn(textLink, "mt-6")}>Współpraca z lokalami <ArrowRight className="size-4" aria-hidden="true" /></Link>
+              <Link href={publicPage.venues} className={cn(textLink, "mt-6")}>Współpraca z lokalami <ArrowRight className="size-4" aria-hidden="true" /></Link>
             </div>
           </div>
         </section>
@@ -84,7 +81,7 @@ export default async function HomePage() {
           </div>
           <div className="flex shrink-0 flex-col items-start gap-2 text-sm font-bold">
             {leadDestination ? <Link href={`/go/${encodeURIComponent(leadDestination.slug)}`} target="_blank" rel="noopener noreferrer" className={textLink}>Otwórz {leadDestination.label} <ArrowUpRight className="size-4" aria-hidden="true" /></Link> : null}
-            <Link href="/linki" className={textLink}>Wszystkie oficjalne linki <ArrowRight className="size-4" aria-hidden="true" /></Link>
+            <Link href={publicPage.links} className={textLink}>Wszystkie oficjalne linki <ArrowRight className="size-4" aria-hidden="true" /></Link>
           </div>
         </section>
 
@@ -93,10 +90,9 @@ export default async function HomePage() {
             <h2 id="final-heading" className="font-display max-w-[12ch] text-[clamp(3.6rem,8vw,6rem)] leading-[0.9] tracking-[-0.025em]">Do zobaczenia przy mikrofonie.</h2>
             <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground">Zobacz informacje dla uczestników i sprawdź aktualne kanały Poza Nutą.</p>
           </div>
-          <Link href="/karaoke-trojmiasto" className={cn(buttonVariants({ variant: "accent", size: "lg" }), "justify-between")}>Chcę zaśpiewać <ArrowRight aria-hidden="true" /></Link>
+          <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "justify-between")}>Chcę zaśpiewać <ArrowRight aria-hidden="true" /></Link>
         </section>
       </main>
-      <PublicFooter />
-    </div>
+    </>
   );
 }

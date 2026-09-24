@@ -12,6 +12,12 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page,
     const response = await page.goto(route);
     expect(response?.status(), route).toBe(200);
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.getByRole("banner")).toHaveCount(1);
+    await expect(page.getByRole("main")).toHaveCount(1);
+    await expect(page.getByRole("contentinfo")).toHaveCount(1);
+    const footerNavigation = page.getByRole("contentinfo").getByRole("navigation", { name: "Nawigacja w stopce" });
+    await expect(footerNavigation.getByRole("link")).toHaveCount(4);
+    await expect(footerNavigation.getByRole("link", { name: "Dla lokali" })).toHaveAttribute("href", "/dla-lokali");
     if (testInfo.project.name.startsWith("mobile")) {
       await page.getByRole("button", { name: "Otwórz menu" }).click();
       await expect(page.getByRole("navigation", { name: "Nawigacja główna" })).toBeVisible();
