@@ -1,6 +1,6 @@
-# Poza Nutą — public hub
+# Poza Nutą — marketing site
 
-Standalone digital business card, official-links hub and first-party attribution analytics for Poza Nutą.
+Main marketing site for Poza Nutą, with a compact official-links route at `/linki` and first-party attribution analytics. Its future canonical origin is `https://pozanuta.pl`; domain migration is a separate task.
 
 The application is intentionally independent: its own repository, Vercel deployment, Supabase project, authentication, database and analytics. It does not depend on Stage or any other Poza Nutą application.
 
@@ -24,7 +24,7 @@ Read these before changing product/UI behavior:
 - shadcn/ui `base-nova` with Base UI and the current `cn` package;
 - Impeccable detector in CI plus required Impeccable design workflow;
 - dedicated Supabase/Postgres + Auth;
-- Vercel target deployment;
+- existing Vercel deployment target; final production hosting choice remains open;
 - programmatic SVG QR generation;
 - Vitest unit tests + Playwright Chromium/WebKit E2E tests, including an opt-in local Supabase/Auth flow.
 
@@ -41,7 +41,7 @@ npm run dev
 
 Create a fresh Supabase project dedicated to this application. For local development, start the local stack and use `npx supabase db reset --local`: it replays **every committed file** in `supabase/migrations/` in order, including Admin Platform V2 and subsequent hardening, then applies `supabase/seed.sql`. Do not select migrations from a hand-maintained list. For a dedicated remote project, verify the linked project ID and use the controlled Supabase CLI migration workflow to apply all pending committed migrations; never apply only the analytics migrations.
 
-Configure Supabase Auth redirect URLs for local development, previews and the approved production host's `/auth/callback`. The production host is still unresolved between `social.pozanuta.pl` and `socials.pozanuta.pl`.
+Configure Supabase Auth redirect URLs for local development, previews and the future root-domain host's `/auth/callback`. Do not change production Auth configuration as part of local marketing-site work.
 
 ## Verification
 

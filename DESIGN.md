@@ -1,9 +1,9 @@
 # Poza Nutą — design system
 
-This document describes the current implemented hub. The approved future `pozanuta.pl` marketing-site direction requires a separate design/architecture slice; current hub-specific layout rules are not a final design brief for that site.
+This document describes the public marketing site prepared for `pozanuta.pl` and its compact `/linki` hub.
 
 ## Overview
-The public experience is a compact digital business card, not a SaaS landing page and not a generic Linktree clone. The interface should feel authored, direct, nightlife-adjacent, and recognizably Poza Nutą while remaining highly legible for business visitors.
+The homepage is a typographic marketing introduction to Poza Nutą, with clear routes for participants and venues. `/linki` is a compact official-channels hub, not a generic Linktree clone. Both surfaces should feel direct, nightlife-adjacent, and recognizably Poza Nutą while remaining highly legible for business visitors.
 
 Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component system. The current shadcn base is `base-nova` using Base UI. Do not introduce a competing component library.
 
@@ -23,11 +23,12 @@ Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component syst
 
 ## Layout
 - Mobile-first.
-- Public content stays deliberately narrow on large screens rather than stretching into a dashboard.
+- The homepage uses a wider editorial composition on large screens; information pages and `/linki` remain narrow and readable.
 - Touch targets must remain at least comfortably tappable (roughly 44px+).
 - Use spacing rhythm from the shadcn/Tailwind token system.
 - Homepage contains no photography.
-- Business/contact information should be reachable without turning the homepage into a sales page.
+- Homepage sections introduce the offer and point to the existing karaoke, venue, contact, and links pages rather than repeating their full content.
+- Public pages share a simple text-based header and footer. The typographic wordmark is a fallback until a genuine brand asset exists.
 - Admin navigation uses the shadcn Sidebar system: persistent/icon-collapsible on desktop and its off-canvas sheet on mobile. Only implemented destinations appear.
 
 ## Elevation & Depth
@@ -45,7 +46,7 @@ Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component syst
 - Use shadcn components/primitives for interactive controls.
 - Current base is Base UI; raw form controls outside the shadcn UI layer are forbidden by CI.
 - Components may be customized for Poza Nutą, but remain inside the shadcn-owned source layer.
-- Instagram is the primary social CTA; TikTok is second. Facebook is visually quieter. YouTube appears only when active.
+- On `/linki`, Instagram is the primary social CTA; TikTok is second. Facebook is visually quieter. YouTube appears only when active.
 - `Kontakt / współpraca` is a purposeful first-party route, not an arbitrary generic CTA system.
 - Every loading, empty, error, disabled, keyboard-focus, mobile, and desktop state must be designed.
 - Admin tables and dialogs must remain usable at 360px, long emails/names must wrap safely, destructive membership actions require confirmation, and collapsed navigation retains accessible names/tooltips.
@@ -65,7 +66,7 @@ Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component syst
 
 ## Do's and Don'ts
 ### Do
-- make the public page feel like one focused brand surface;
+- make the homepage feel like the main Poza Nutą brand surface and `/linki` like its small companion;
 - optimize for a person scanning a QR on a phone;
 - make business contact obvious without crowding the page;
 - preserve fast server-first rendering;

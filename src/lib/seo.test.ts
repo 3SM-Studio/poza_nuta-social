@@ -8,17 +8,16 @@ function destination(slug: string, url: string, active = true): Destination {
 
 describe("public SEO model", () => {
   it("publishes only the durable public routes", () => {
-    expect(publicPaths).toEqual(["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/privacy"]);
+    expect(publicPaths).toEqual(["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy"]);
   });
 
-  it("uses the configured origin for either candidate production domain", () => {
+  it("uses the configured root origin for all public routes", () => {
     const original = process.env.NEXT_PUBLIC_SITE_URL;
     try {
-      for (const origin of ["https://social.pozanuta.pl", "https://socials.pozanuta.pl"]) {
-        process.env.NEXT_PUBLIC_SITE_URL = origin;
-        expect(publicUrl("/")).toBe(origin);
-        expect(publicUrl("/dla-lokali")).toBe(`${origin}/dla-lokali`);
-      }
+      process.env.NEXT_PUBLIC_SITE_URL = "https://pozanuta.pl";
+      expect(publicUrl("/")).toBe("https://pozanuta.pl");
+      expect(publicUrl("/dla-lokali")).toBe("https://pozanuta.pl/dla-lokali");
+      expect(publicUrl("/linki")).toBe("https://pozanuta.pl/linki");
     } finally {
       if (original === undefined) delete process.env.NEXT_PUBLIC_SITE_URL;
       else process.env.NEXT_PUBLIC_SITE_URL = original;

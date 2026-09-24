@@ -1,4 +1,4 @@
-# Agent rules for `social.pozanuta.pl`
+# Agent rules for the Poza Nutą marketing site
 
 This repository is an independent application. Never import code, database tables, auth state or runtime assumptions from another Poza Nutą application.
 

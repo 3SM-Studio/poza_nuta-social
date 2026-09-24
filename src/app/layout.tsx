@@ -11,7 +11,7 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: { default: "Poza Nutą — Trójmiasto", template: "%s · Poza Nutą" },
-  description: "Oficjalna wizytówka Poza Nutą: sociale, kontakt i współpraca. Karaoke i wydarzenia muzyczne w Trójmieście.",
+  description: "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Informacje dla uczestników i lokali, oficjalne kanały oraz kontakt.",
   ...(process.env.VERCEL_ENV === "preview" ? { robots: { index: false, follow: false } } : {}),
 };
 

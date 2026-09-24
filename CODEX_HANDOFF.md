@@ -1,8 +1,10 @@
 # Codex handoff — locally verified repository
 
-## Recovery direction, 2026-09-24
+## Root-domain marketing-site checkpoint, 2026-09-24
 
-The owner has changed the future main-site target to `https://pozanuta.pl`. The earlier `socials.pozanuta.pl` release checklist and open domain-choice notes below are historical. The present link hub, consent model and hosting configuration are not the final root-domain implementation. Continue with separate canonical/root-domain, EU privacy/cookie, WCAG 2.2 AA, hosting/cost and final readiness slices; see `docs/PRODUCT_DECISIONS.md`. Do not execute the older external release steps as part of local recovery.
+The owner selected `https://pozanuta.pl` as the future canonical origin. `/` is now the main marketing introduction; `/linki` is the compact official destination hub. `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/privacy` remain separate public pages with shared navigation. Destination URLs still come from `getPublicDestinations()`, and `/go/[slug]`, `/r/[code]`, Admin, referrals and Analytics retain their existing contracts. The earlier subdomain release checklist and open domain-choice notes below are historical. The production domain, privacy/consent model, accessibility target, and hosting selection require separate slices; see `docs/PRODUCT_DECISIONS.md`.
+
+The local root-domain contract passed `npm run verify` with `NEXT_PUBLIC_SITE_URL=https://pozanuta.pl` and public Playwright checks at 360px and 1440px. A real `CONTACT_EMAIL` and active official destinations remain required before publication; the local fallback/placeholder does not prove those external channels are ready. The current tracked-QR database contract permits `/` and `/kontakt` as landing paths, not `/linki`.
 
 This repository contains approved decisions 1–82, the explicit analytics refinements, and the implemented Admin Platform V2 contract under `docs/admin/`. Read both document sets before changing access, identity, consent, taxonomy, metrics, or external sinks.
 
@@ -100,7 +102,7 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 - README setup replays every committed migration; CI now includes local Supabase advisors and `npm audit --audit-level=moderate`. Final legal/controller/retention approval, production SMTP, firewall, remote Supabase/Vercel, canonical domain, and physical QR tests remain Production Readiness/SEO-GEO work.
 
 ## Remaining external release gates / unresolved product inputs
-- `social.pozanuta.pl` versus `socials.pozanuta.pl`, actual final slogan/copy;
+- root-domain production mapping to `https://pozanuta.pl`, future subdomain behavior, and actual final slogan/copy;
 - final consent/legal basis, production notice, and retention periods;
 - production `ANALYTICS_SIGNING_SECRET`, official contact details and optional GA4/Search Console configuration;
 - production official contact/channel values and complete legal privacy facts;

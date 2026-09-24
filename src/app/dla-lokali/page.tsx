@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
+import { PublicFooter } from "@/components/public-footer";
+import { PublicHeader } from "@/components/public-header";
 import { StructuredData } from "@/components/structured-data";
 import { TrackPageView } from "@/components/track-page-view";
 import { buttonVariants } from "@/components/ui/button";
@@ -16,6 +18,7 @@ export default function VenuesPage() {
     <main className="mx-auto flex min-h-svh w-full max-w-xl flex-col px-5 py-7 sm:px-7 sm:py-10">
       <TrackPageView />
       <StructuredData data={publicPageGraph("/dla-lokali", title, description)} />
+      <PublicHeader />
       <PublicBreadcrumb current={title} />
       <article className="flex-1 py-10 sm:py-14">
         <h1 className="font-display text-[clamp(3.4rem,12vw,5.5rem)] leading-[0.9] tracking-[-0.025em] text-foreground">Współpraca z lokalami</h1>
@@ -38,10 +41,7 @@ export default function VenuesPage() {
           </Link>
         </section>
       </article>
-      <footer className="flex items-center justify-between gap-4 border-t py-5 text-xs text-muted-foreground">
-        <span>© {new Date().getFullYear()} Poza Nutą</span>
-        <Link href="/privacy" className="inline-flex min-h-11 items-center font-bold text-foreground underline-offset-4 hover:underline">Prywatność</Link>
-      </footer>
+      <PublicFooter />
     </main>
   );
 }

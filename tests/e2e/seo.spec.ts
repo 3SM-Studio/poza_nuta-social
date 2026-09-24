@@ -5,6 +5,7 @@ const publicRoutes = [
   { path: "/karaoke-trojmiasto", heading: "Karaoke w Trójmieście" },
   { path: "/dla-lokali", heading: "Współpraca z lokalami" },
   { path: "/kontakt", heading: "Kontakt / współpraca" },
+  { path: "/linki", heading: "Poza Nutą" },
   { path: "/privacy", heading: "Prywatność bez kombinowania." },
 ];
 const canonicalOrigin = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");

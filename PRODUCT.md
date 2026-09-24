@@ -4,44 +4,45 @@
 ## Product
 This repository is an independent Poza Nutą application. It is not a Stage module, not a shared dashboard module, and does not share database, authentication, deployment, or runtime dependencies with any other Poza Nutą product.
 
-## Future direction — owner decision, 2026-09-24
-This codebase is planned to become the main Poza Nutą marketing site at `https://pozanuta.pl`. The current link-hub information architecture describes the existing implementation, not the final root-domain experience. The future role of `socials.pozanuta.pl` is undecided. Hosting, EU privacy and cookie compliance, and WCAG 2.2 AA work are separate slices. Do not treat the current consent flow as final legal approval or migrate hosting as part of routine readiness fixes.
+## Root-domain direction — owner decision, 2026-09-24
+This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. `/linki` holds the compact official-links hub; the homepage introduces the brand, karaoke, and collaboration. The future role of `socials.pozanuta.pl` is undecided. Domain deployment, hosting, EU privacy and cookie compliance, and WCAG 2.2 AA remain separate slices. Do not treat the current consent flow as final legal approval.
 
 ## Overview
-The public surface is a digital business card and official-links hub for Poza Nutą. It serves two equally legitimate audiences:
+The public surface is the main marketing site for Poza Nutą. It serves two equally legitimate audiences:
 
-1. people who want to find the official Poza Nutą social profiles quickly;
-2. venues, companies, organizers, and other people interested in business collaboration who need to understand what Poza Nutą is and how to contact the team.
+1. people looking for Poza Nutą karaoke, musical events, and current information;
+2. venues and organizers interested in collaboration and direct contact.
 
-The visible experience must stay extremely simple. Attribution and analytics run invisibly underneath it.
+The homepage explains the brand and directs visitors to useful details. `/linki` keeps official channels fast to reach, especially from bio links. Attribution and analytics run invisibly underneath both.
 
 ## Primary outcome
-A visitor should understand that this is the official Poza Nutą presence, then reach the correct official channel or the collaboration/contact path in seconds.
+A visitor should understand what Poza Nutą does in Trójmiasto and find a clear path to karaoke information, collaboration, contact, or official channels.
 
 ## Product boundaries
 - Public name: **Poza Nutą**. Never expose “Poza Nutą Social” as the product name to visitors.
 - Geographic wording: **Trójmiasto**. Do not make Gdynia the primary public location label.
-- This is not a generic Linktree clone or generic link-builder SaaS.
+- `/linki` is not a generic Linktree clone or generic link-builder SaaS.
 - No Stage CTA in the current scope.
 - No “nearest karaoke” or event integration in the current scope.
-- Do not invent arbitrary CTA types. The public hub is for official Poza Nutą channels plus contact/collaboration.
+- Do not invent arbitrary CTA types. `/linki` is for official Poza Nutą channels plus contact/collaboration.
 - Final marketing slogan is intentionally **TBD**. Do not hard-code a temporary slogan as brand truth.
 
 ## Public information hierarchy
-1. Poza Nutą identity/logo.
-2. Short factual context: what Poza Nutą is and that it operates in Trójmiasto.
-3. Official social links, with Instagram first and TikTok second; Facebook lower priority; YouTube only when active.
-4. One clear **Kontakt / współpraca** route.
-5. Minimal footer/privacy information.
+1. `/`: Poza Nutą identity and factual introduction to karaoke and musical events in Trójmiasto.
+2. `/karaoke-trojmiasto`: information for participants and where to find current dates and places.
+3. `/dla-lokali`: collaboration information for venues and organizers.
+4. `/kontakt`: one first-party contact route.
+5. `/linki`: compact official destinations from the existing destination model, with Instagram first and TikTok second when active.
+6. `/privacy`: current privacy information and consent controls, pending a separate compliance slice.
 
 ## Visual constraints
-- Mobile-first, with a deliberate desktop layout that remains focused and narrow.
+- Mobile-first, with an editorial desktop homepage and a deliberately narrow `/linki` layout.
 - Dark-first.
 - Pink is the main accent, not a full-page background.
 - No theme toggle in MVP.
 - No photography on the public homepage.
 - No decorative gradients.
-- One or two actions may receive stronger emphasis, but the hub must remain structurally consistent.
+- One or two actions may receive stronger emphasis, but `/linki` must remain structurally consistent.
 
 ## Tracking truth
 The analytics system is first-party and privacy-first:

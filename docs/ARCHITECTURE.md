@@ -1,10 +1,13 @@
 # Architecture
 
 ## Boundary
-`social.pozanuta.pl` is a completely independent product. It owns its repository, Vercel project, Supabase project, authentication, database, analytics and public routes. It must not import Stage or another Poza Nutą application.
+This Poza Nutą application is independent and prepared for the future canonical origin `https://pozanuta.pl`. It owns its repository, deployment, Supabase project, authentication, database, analytics and public routes. It must not import Stage or another Poza Nutą application. Production domain and hosting changes are separate work.
 
 ## Public surfaces
-- `/` — compact Poza Nutą business card and official social hub.
+- `/` — main Poza Nutą marketing introduction and routes for participants and venues.
+- `/karaoke-trojmiasto` — participant information and pointer to current official updates.
+- `/dla-lokali` — collaboration information for venues and organizers.
+- `/linki` — compact official destination hub using the same records as `/go/[slug]`.
 - `/kontakt` — first-party business/collaboration contact surface.
 - `/privacy` — privacy information.
 - `/r/[code]` — campaign/QR entry route, `noindex`, no-store.
@@ -19,10 +22,10 @@
 6. `/go/[slug]` records an outbound click, inherits the session's current attribution and redirects. Database lookups and analytics writes have bounded best-effort deadlines so an outage cannot indefinitely hold navigation.
 
 ## QR / owned campaign flow
-1. Programmatic SVG contains `https://social.pozanuta.pl/r/ABC123`.
+1. After root-domain migration, programmatic SVG contains a stable URL such as `https://pozanuta.pl/r/ABC123`.
 2. `/r/[code]` resolves an active tracking link and records a `tracking_entry` if analytics is available.
 3. The anonymous session stores canonical acquisition (first eligible non-direct with direct fallback) and current/last-touch attribution server-side.
-4. Visitor is redirected to a clean landing path, usually `/`.
+4. Visitor is redirected to a clean landing path, currently `/` or `/kontakt`. The current database contract does not allow `/linki` as a tracked QR landing path.
 5. Later external UTM/referrer can update last-touch while canonical session acquisition remains unchanged after its first eligible non-direct value. A server-resolved owned link may replace weaker client-observed acquisition evidence.
 6. Later `/go/[slug]` clicks inherit the latest session attribution.
 

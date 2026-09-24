@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
+import { PublicFooter } from "@/components/public-footer";
+import { PublicHeader } from "@/components/public-header";
 import { ConsentPreferences } from "@/components/consent-controls";
 import { StructuredData } from "@/components/structured-data";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -11,6 +13,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto min-h-svh w-full max-w-2xl px-5 py-10 sm:px-7 sm:py-16">
       <StructuredData data={publicPageGraph("/privacy", "Prywatność bez kombinowania.", description)} />
+      <PublicHeader />
       <PublicBreadcrumb current="Prywatność bez kombinowania." />
       <article className="mt-10 space-y-8">
         <header>
@@ -40,6 +43,7 @@ export default function PrivacyPage() {
           <p>Jeżeli dane są potrzebne do analityki technicznej, zapisujemy jedynie szerokie kategorie, np. telefon/komputer, rodzina przeglądarki i systemu. Nie przechowujemy dokładnego modelu ani nie tworzymy odcisku urządzenia.</p>
         </section>
       </article>
+      <PublicFooter />
     </main>
   );
 }

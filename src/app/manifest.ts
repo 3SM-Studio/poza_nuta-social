@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Poza Nutą",
     short_name: "Poza Nutą",
-    description: "Oficjalna wizytówka Poza Nutą: sociale i kontakt w Trójmieście.",
+    description: "Poza Nutą — karaoke i wydarzenia muzyczne w Trójmieście.",
     start_url: "/",
     display: "browser",
     background_color: "#0d0b0d",
