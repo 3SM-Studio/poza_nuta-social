@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicFooter } from "@/components/public-footer";
 import { PublicHeader } from "@/components/public-header";
+import { TrackPageView } from "@/components/track-page-view";
 import { ConsentPreferences } from "@/components/consent-controls";
 import { StructuredData } from "@/components/structured-data";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -15,6 +16,7 @@ export const metadata: Metadata = publicMetadata("/cookies", "Cookies", descript
 
 export default function CookiesPage() {
   return <div className="mx-auto min-h-svh w-full max-w-6xl px-5 pt-2 sm:px-8 lg:px-10">
+    <TrackPageView />
     <StructuredData data={publicPageGraph("/cookies", "Cookies", description)} />
     <PublicHeader />
     <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl">

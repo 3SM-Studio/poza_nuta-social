@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { officialDestinationUrl } from "./analytics-taxonomy";
 import type { Destination } from "./types";
 import { getSiteUrl } from "./env";
+import { publicPaths } from "./public-paths";
 
-export const publicPaths = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/privacy", "/cookies"] as const;
+export { publicPaths };
 
 export function publicUrl(path: string) {
   if (path === "/") return getSiteUrl();

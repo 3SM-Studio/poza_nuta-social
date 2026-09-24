@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { requireEditor } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { sanitizePath, sanitizeTaxonomyValue } from "@/lib/analytics-taxonomy";
+import { sanitizeReferralLandingPath, sanitizeTaxonomyValue } from "@/lib/analytics-taxonomy";
 import { createTrackingCode } from "@/lib/tracking-code";
 
 export async function createTrackingLinkAction(formData: FormData) {
@@ -17,7 +17,7 @@ export async function createTrackingLinkAction(formData: FormData) {
   const medium = sanitizeTaxonomyValue(String(formData.get("medium") || "qr"), 64) || "qr";
   const asset = String(formData.get("asset") || "").trim() || null;
   const placement = String(formData.get("placement") || "").trim() || null;
-  const landingPath = sanitizePath(String(formData.get("landingPath") || "/").trim());
+  const landingPath = sanitizeReferralLandingPath(String(formData.get("landingPath") || "/").trim());
   if (!label || label.length > 120) throw new Error("Tracking link label is required");
   if (!new Set(["offline", "organic_social", "ai_referral", "referral"]).has(channelGroup)) throw new Error("Unsupported channel group");
 

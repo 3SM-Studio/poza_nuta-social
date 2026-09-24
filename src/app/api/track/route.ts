@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { trackEventBestEffort } from "@/lib/analytics";
-import { acquisitionFromRequest, EVENT_NAMES, sanitizePath, type AnalyticsEventName } from "@/lib/analytics-taxonomy";
+import { acquisitionFromRequest, EVENT_NAMES, sanitizePagePath, type AnalyticsEventName } from "@/lib/analytics-taxonomy";
 import { getSiteUrl } from "@/lib/env";
 import { validVisitId } from "@/lib/attribution";
 import { applyTrackingCookies, buildTrackingContext, readAnalyticsConsent } from "@/lib/tracking-context";
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
   if (!EVENT_NAMES.includes(eventName) || !clientEvents.has(eventName)) return reply({ error: "invalid-event" }, 400);
   const eventId = validVisitId(typeof body.eventId === "string" ? body.eventId : null);
   if (!eventId) return reply({ error: "invalid-event-id" }, 400);
-  const path = sanitizePath(typeof body.path === "string" ? body.path : "/");
+  const path = sanitizePagePath(typeof body.path === "string" ? body.path : "/");
   if ((eventName === "contact_view" || eventName === "contact_click") && path !== "/kontakt") return reply({ error: "invalid-contact-path" }, 400);
   const observed = acquisitionFromRequest({
     ownHost: new URL(getSiteUrl()).hostname,

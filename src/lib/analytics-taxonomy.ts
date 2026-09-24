@@ -1,3 +1,5 @@
+import { isPublicPath } from "./public-paths";
+
 export const CHANNEL_GROUPS = ["direct", "offline", "ai_referral", "organic_search", "organic_social", "referral", "email", "paid_social", "paid_search", "other"] as const;
 export const EVENT_NAMES = ["tracking_entry", "page_view", "outbound_click", "contact_view", "contact_click", "hub_resumed"] as const;
 export const TRAFFIC_CLASSES = ["external", "internal", "test", "bot"] as const;
@@ -109,7 +111,11 @@ export function sanitizeTaxonomyValue(value?: string | null, limit = 96) {
   return normalized.replace(/[^a-z0-9._:/+-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, limit) || null;
 }
 
-export function sanitizePath(value?: string | null) {
+export function sanitizePagePath(value?: string | null) {
+  return isPublicPath(value) ? value : "/";
+}
+
+export function sanitizeReferralLandingPath(value?: string | null) {
   return value === "/kontakt" ? "/kontakt" : "/";
 }
 

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicFooter } from "@/components/public-footer";
 import { PublicHeader } from "@/components/public-header";
+import { TrackPageView } from "@/components/track-page-view";
 import { ConsentPreferences } from "@/components/consent-controls";
 import { StructuredData } from "@/components/structured-data";
 import { privacyConfig } from "@/lib/privacy-config";
@@ -16,6 +17,7 @@ export const metadata: Metadata = publicMetadata("/privacy", "Prywatność", des
 export default function PrivacyPage() {
   const config = privacyConfig();
   return <div className="mx-auto min-h-svh w-full max-w-6xl px-5 pt-2 sm:px-8 lg:px-10">
+    <TrackPageView />
     <StructuredData data={publicPageGraph("/privacy", "Prywatność", description)} />
     <PublicHeader />
     <main id="main-content" tabIndex={-1} className="mx-auto max-w-2xl">
