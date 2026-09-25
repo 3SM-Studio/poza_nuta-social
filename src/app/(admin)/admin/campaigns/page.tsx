@@ -23,7 +23,7 @@ export default async function CampaignsPage() {
   if (!data) return <ReadUnavailable title="kampanii" />;
   return (
     <div className="space-y-7">
-      <header><p className="text-xs font-black uppercase tracking-[0.16em] text-accent">Atrybucja</p><h1 className="mt-2 text-3xl font-black tracking-tight">Kampanie</h1><p className="mt-2 text-sm text-muted-foreground">Grupuj plakaty, ulotki, reklamy i inne wejścia pod jednym wydarzeniem lub akcją.</p></header>
+      <header><p className="text-xs font-black uppercase tracking-[0.16em] text-primary dark:text-sidebar-primary">Atrybucja</p><h1 className="mt-2 text-3xl font-black tracking-tight">Kampanie</h1><p className="mt-2 text-sm text-muted-foreground">Grupuj plakaty, ulotki, reklamy i inne wejścia pod jednym wydarzeniem lub akcją.</p></header>
       {canMutate ? <Card>
         <CardHeader><CardTitle>Nowa kampania</CardTitle><CardDescription>Slug jest technicznym identyfikatorem w analityce.</CardDescription></CardHeader>
         <CardContent>

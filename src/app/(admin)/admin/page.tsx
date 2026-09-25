@@ -26,7 +26,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
   return (
     <div className="space-y-7">
       <header>
-        <p className="text-xs font-black uppercase tracking-[0.16em] text-accent">{range.label}</p>
+        <p className="text-xs font-black uppercase tracking-[0.16em] text-primary dark:text-sidebar-primary">{range.label}</p>
         <h1 className="mt-2 text-3xl font-black tracking-tight sm:text-4xl">Co naprawdę działa?</h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Własne pomiary wejść, pozyskania i kliknięć Poza Nutą. Rankingi pozyskania przypisują każdą sesję dokładnie raz. Bez surowych adresów IP i odcisku urządzenia.</p>
         <nav className="mt-4 flex flex-wrap gap-2" aria-label="Zakres analityki">

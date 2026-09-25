@@ -8,6 +8,9 @@ The homepage is a typographic marketing introduction to Poza Nutą, with clear r
 Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component system. The current shadcn base is `base-nova` using Base UI. Do not introduce a competing component library.
 
 ## Colors
+
+These colors apply to the public marketing routes; Admin has the separate scoped theme below.
+
 - Dark neutral background is the default surface.
 - Foreground is high-contrast off-white.
 - Pink is the single branded accent.
@@ -15,7 +18,17 @@ Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component syst
 - Do not use decorative gradients or neon glow soup.
 - Destructive/success/status colors are functional only and must not compete with the branded accent.
 
+## Admin visual foundation
+
+- The Admin routes use the scoped Nova / Neutral / Rose theme in `src/app/globals.css`; public routes retain the brand theme above. The `admin-theme` route marker scopes both page content and portaled shadcn overlays. Dark is the current default; the same semantic tokens define the light variant.
+- The Admin light and dark token values in that stylesheet are canonical, including charts, sidebar colors, and `0.625rem` radius. Use semantic tokens instead of local colors.
+- On dark surfaces, use the brighter `sidebar-primary` token for small rose text and focus outlines; use `primary` for filled actions. This preserves contrast without changing the canonical palette.
+- shadcn/ui (`base-nova` + Base UI) remains the sole component foundation. Admin typography is Geist; icons are Lucide. Use restrained borders and shadows, compact dashboard hierarchy, and the supplied Nova / Neutral / Rose reference as visual direction, not as product content.
+
 ## Typography
+
+These font choices apply to the public marketing routes; Admin uses Geist as specified above.
+
 - Display: Bebas Neue for the Poza Nutą wordmark-style headline treatment where appropriate.
 - Interface/body: Space Grotesk.
 - Do not replace the typography with generic Inter/system-font styling unless the brand system is intentionally changed.

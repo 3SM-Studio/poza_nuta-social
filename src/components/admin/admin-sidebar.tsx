@@ -82,7 +82,7 @@ export function AdminSidebar({ email, role }: { email: string; role: AdminRole }
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" tooltip="Poza Nutą · panel" render={<Link href="/admin" />}>
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent font-black text-accent-foreground">PN</span>
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary font-black text-primary-foreground">PN</span>
               <span className="min-w-0"><span className="block truncate font-black">Poza Nutą</span><span className="block truncate text-xs text-muted-foreground">Panel administracyjny</span></span>
             </SidebarMenuButton>
           </SidebarMenuItem>

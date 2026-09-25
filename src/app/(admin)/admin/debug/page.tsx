@@ -66,7 +66,7 @@ export default async function DebugPage({ searchParams }: { searchParams: Promis
               const query = new URLSearchParams(base);
               query.set("record", record.key);
               return <Link key={record.key} href={`/admin/debug?${query}#debug-inspector`} aria-current={selected?.key === record.key ? "true" : undefined}
-                className={`block rounded-xl border p-3 transition-colors hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${selected?.key === record.key ? "border-accent bg-card" : "border-border"}`}>
+                className={`block rounded-xl border p-3 transition-colors hover:bg-muted/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring ${selected?.key === record.key ? "border-primary bg-card dark:border-sidebar-primary" : "border-border"}`}>
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <strong className="min-w-0 break-all text-sm">{record.eventName ?? "Nazwa niedostępna"}</strong>
                   <Badge variant="outline">{outcomes[record.outcome]}</Badge>
