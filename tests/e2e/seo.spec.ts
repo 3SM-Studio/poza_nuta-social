@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 const publicRoutes = [
-  { path: "/", heading: "Nie musisz umieć śpiewać. Musisz chcieć śpiewać." },
+  { path: "/", heading: "Poza Nutą" },
   { path: "/karaoke-trojmiasto", heading: "Karaoke w Trójmieście" },
   { path: "/dla-lokali", heading: "Współpraca z lokalami" },
   { path: "/kontakt", heading: "Kontakt / współpraca" },

@@ -15,17 +15,17 @@ export function PublicHeader() {
   const triggerRef = useRef<HTMLButtonElement>(null);
 
   return (
-    <header className="flex min-h-20 items-center justify-between gap-5 border-b py-2 sm:min-h-24 lg:grid lg:grid-cols-[1fr_auto_1fr]">
+    <header className="flex min-h-20 items-center justify-between gap-5 border-b py-2 sm:min-h-24 lg:grid lg:grid-cols-[auto_1fr_auto] lg:gap-10">
       <Link href={publicPage.home} aria-label="Poza Nutą - strona główna" className="inline-flex min-h-12 items-center text-foreground transition-colors hover:text-accent">
         <BrandLogo className="size-16 sm:size-[4.5rem]" />
       </Link>
-      <nav aria-label="Nawigacja główna" className="hidden items-center gap-6 text-sm font-bold lg:flex">
+      <nav aria-label="Nawigacja główna" className="hidden items-center justify-center gap-5 text-sm font-bold xl:gap-8 lg:flex">
         {publicNavigation.map(({ href, label }) => (
           <Link key={href} href={href} className="inline-flex min-h-11 items-center text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
         ))}
       </nav>
       <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "hidden lg:inline-flex lg:justify-self-end")}>
-        Chcę zaśpiewać <ArrowUpRight aria-hidden="true" />
+        Informacje o karaoke <ArrowUpRight aria-hidden="true" />
       </Link>
       <Sheet open={open} onOpenChange={(next) => {
         setOpen(next);
@@ -45,7 +45,7 @@ export function PublicHeader() {
             ))}
           </nav>
           <Link href={publicPage.karaoke} onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "mt-5 w-full justify-between")}>
-            Chcę zaśpiewać <ArrowUpRight aria-hidden="true" />
+            Informacje o karaoke <ArrowUpRight aria-hidden="true" />
           </Link>
         </SheetContent>
       </Sheet>

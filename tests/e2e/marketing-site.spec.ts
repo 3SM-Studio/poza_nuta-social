@@ -35,7 +35,7 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page,
   }
 
   await page.goto("/");
-  await page.getByRole("main").getByRole("link", { name: "Chcę zaśpiewać" }).first().click();
+  await page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first().click();
   await expect(page).toHaveURL(/\/karaoke-trojmiasto$/);
   await page.getByRole("link", { name: "Zobacz oficjalne profile" }).click();
   await expect(page).toHaveURL(/\/linki$/);
@@ -59,4 +59,29 @@ test("mobile menu keeps link semantics, restores focus, and follows a route", as
   await navigation.getByRole("link", { name: "Dla lokali" }).click();
   await expect(page).toHaveURL(/\/dla-lokali$/);
   await expect(page.getByRole("heading", { name: "Współpraca z lokalami" })).toBeVisible();
+});
+
+test("V2 participant path keeps its first action visible and public theme isolated", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
+  const publicAccent = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim());
+
+  for (const width of [360, 390, 768, 1440, 1920]) {
+    await page.setViewportSize({ width, height: 900 });
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+    expect(overflow, `homepage overflow at ${width}px`).toBeLessThanOrEqual(0);
+    await expect(page.getByRole("heading", { level: 1, name: "Poza Nutą" })).toBeVisible();
+    await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toBeInViewport();
+    await page.screenshot({ path: `test-results/v2-home-${width}.png`, fullPage: false });
+  }
+
+  await page.goto("/admin/login");
+  await expect(page.locator(".admin-theme")).toBeVisible();
+  const adminAccent = await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim());
+  expect(adminAccent).not.toBe(publicAccent);
+  await page.screenshot({ path: "test-results/v2-admin-login.png", fullPage: false });
+  await page.goto("/linki");
+  await expect(page.locator(".admin-theme")).toHaveCount(0);
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim())).toBe(publicAccent);
 });

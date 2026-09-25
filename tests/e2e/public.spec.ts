@@ -2,10 +2,10 @@ import { expect, test } from "@playwright/test";
 
 test("homepage introduces Poza Nutą and routes both audiences", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
   await expect(page.getByRole("main").getByText("Karaoke i wydarzenia muzyczne w Trójmieście.", { exact: true })).toBeVisible();
-  await expect(page.getByRole("main").getByRole("link", { name: "Chcę zaśpiewać" }).first()).toHaveAttribute("href", "/karaoke-trojmiasto");
-  await expect(page.getByRole("main").getByRole("link", { name: "Dla lokali", exact: true })).toHaveAttribute("href", "/dla-lokali");
+  await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toHaveAttribute("href", "/karaoke-trojmiasto");
+  await expect(page.getByRole("main").getByRole("link", { name: "Współpraca z lokalami" })).toHaveAttribute("href", "/dla-lokali");
   await expect(page.getByRole("link", { name: "Wszystkie oficjalne linki" })).toHaveAttribute("href", "/linki");
   await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram" })).toHaveAttribute("href", "/go/instagram");
   await expect(page.getByRole("link", { name: "Współpraca z lokalami" })).toBeVisible();
@@ -23,7 +23,7 @@ test("link hub uses the official destination route and returns to the marketing 
   await expect(page.getByRole("banner").getByRole("link", { name: "Poza Nutą - strona główna" })).toHaveAttribute("href", "/");
   await page.getByRole("banner").getByRole("link", { name: "Poza Nutą - strona główna" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
 });
 
 test("contact is a first-party page", async ({ page }) => {
@@ -40,7 +40,7 @@ test("public content remains usable without JavaScript", async ({ browser }) => 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Kontakt" })).toBeVisible();
   await context.close();
 });
@@ -203,7 +203,7 @@ test("consent lifecycle grants, reuses, withdraws, rejects marketing and tamperi
   await page.reload();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Nie musisz umieć śpiewać/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
   await context.close();
 });
 
