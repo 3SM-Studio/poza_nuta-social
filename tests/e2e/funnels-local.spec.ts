@@ -67,7 +67,7 @@ test("Funnels is admin-only, counts scoped sessions, and works at narrow widths"
     await expect(page.getByText("100%", { exact: true }).first()).toBeVisible();
     await page.goto("/admin/funnels?range=custom&from=2032-04-06&to=2032-04-05");
     await expect(page.getByRole("heading", { name: "Nieprawidłowy zakres dat" })).toBeVisible();
-    await expect(page.getByText("Raport nie został przeliczony.")).toBeVisible();
+    await expect(page.getByRole("main").getByText("Raport nie został przeliczony.")).toBeVisible();
   } finally {
     const eventIds = events.map((event) => `'${event.event_id}'`).join(",");
     const sessionIds = sessions.map((id) => `'${id}'`).join(",");

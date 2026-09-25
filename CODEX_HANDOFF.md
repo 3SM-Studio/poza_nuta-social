@@ -81,11 +81,15 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 11. exercise owner/admin/viewer/inactive/non-member access, new/existing invitation acceptance and ownership transfer;
 12. prove the Michał → later-session Dima → same-session Victor referral fixture without double credit.
 
-## Completed local evidence
-- Node 24 deterministic install, guards including secret scan, lint, types, 92 unit tests and production build pass.
+## Historical local evidence
+
+The checks below describe earlier checkpoints, not the current gate status or test counts. Run `npm run verify`, `npm run test:db`, `npx supabase db lint --local --schema public`, and `npx supabase db advisors --local --type all --level warn --fail-on error` against a fresh local `npx supabase db reset --local` for current evidence. `npm run test:e2e` and `npm run test:a11y` provide the current browser results.
+
+- Node 24 deterministic install, guards including secret scan, lint, types, unit tests and production build passed at the earlier checkpoint.
 - The dependency audit reports zero vulnerabilities; shadcn reports the expected Next 16.3.5 / `base-nova` project with Chart installed.
 - Public and local integration Playwright passes at 360×800, 390×844, 720×450 zoom-equivalent and 1440×900 in Chromium plus desktop WebKit, including JS-disabled, consent lifecycle and accessibility/responsive invariants.
-- Isolated PostgreSQL 17 applied all eight migrations/seed from zero; the expanded 216 pgTAP assertions, schema lint/advisors, and seven Admin plus seven Analytics concurrency cases pass. The earlier six owner failures were caused by accumulated E2E fixture state and did not recur from clean state. V2 ingest is atomic/idempotent, acquisition rankings are exclusive, rate numerators are valid subsets, membership/invitation/referral mutations are atomic with audit history, all exposed tables have RLS, active RPCs are invoker functions with explicit grants, owner transactions preserve at least one active owner, visitor/session timestamps are monotonic, and event/audit history is append-only for normal secret-key/service-role behavior.
+- Isolated PostgreSQL 17 replayed the then-current migrations and seed from zero; pgTAP, schema lint/advisors, and Admin and Analytics concurrency checks passed. The earlier six owner failures were caused by accumulated E2E fixture state and did not recur from clean state. V2 ingest is atomic/idempotent, acquisition rankings are exclusive, rate numerators are valid subsets, membership/invitation/referral mutations are atomic with audit history, all exposed tables have RLS, active RPCs are invoker functions with explicit grants, owner transactions preserve at least one active owner, visitor/session timestamps are monotonic, and event/audit history is append-only for normal secret-key/service-role behavior.
+
 - Seven real concurrency cases pass with 33 unique events, sequences through 20, same-ID deduplication, stable canonical acquisition, monotonic visitor/session timestamps and intact visitor/session/event relationships.
 - Real local Mailpit magic-link auth and campaign → tracking link → SVG QR → first/last attribution → outbound → audit-log flow pass.
 - Real local Mailpit covers new-user token-hash invitations, existing-user onboarding, revoke-before-accept, fresh role enforcement, ownership transfer and restore.
@@ -93,6 +97,10 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 - The installed shadcn Sidebar is persisted/collapsible on desktop and uses the accessible mobile sheet at 390px; 360/390/720/1440 overflow coverage is automated.
 - A stale owner-rendered form cannot mutate after the server-side role changes to viewer; signed test/internal classification and contact event uniqueness are browser-verified.
 - Rendered Impeccable audit/critique/harden/polish and final detector pass.
+
+## Admin consolidation advisor decision
+
+The local DB advisor reports `function_search_path_mutable` for `public.analytics_reporting_eligible_v1`. This immutable, `SECURITY INVOKER` SQL predicate reads no relations, calls no user-defined functions, and depends only on its three text arguments; execution is revoked from `PUBLIC`, `anon`, and `authenticated` and granted to `service_role`. The warning does not identify an exploitable object lookup or a material runtime issue for this function. No DB migration is warranted solely to silence it; keep reporting the warning in current advisor results.
 
 ## Post-Admin V2 audit hardening, 2026-09-23
 
