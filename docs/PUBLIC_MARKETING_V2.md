@@ -1,6 +1,6 @@
 # Public Marketing V2 — canonical implementation brief
 
-Status: **product and creative direction approved 2026-09-25; implementation not started**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. Admin Platform is out of scope.
+Status: **product and creative direction approved 2026-09-25; public foundation implemented in 6bedd501; media production pending**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. The practical event shoot, factual gate, permissions manifest and next-slice handoff live in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
 
 ## Product thesis and audience
 
@@ -57,7 +57,7 @@ The result is premium when a guest understands the offer and next action in the 
 
 ## Coherent implementation slices
 
-1. **Public foundation and path accuracy — next slice, independent of photo readiness.** Refine public type/spacing/layout rules and responsive page shell within the approved live-poster grammar; clarify consumer-first navigation and CTA wording so links promise the destination they actually reach; preserve the visible B2B route and existing `/linki` behavior. Use existing factual copy and real logo. Establish media placement and responsive composition rules in the design system without rendering empty media slots, placeholder imagery, fictional proof, new event routes or a pretend final hero. Verify desktop/mobile, keyboard, route destinations and current analytics behavior. This slice prepares the structure for real media without presenting a substitute final design.
+1. **Public foundation and path accuracy — implemented in 6bedd501, independent of photo readiness.** The public type/spacing/layout and responsive page shell use the approved live-poster grammar; consumer-first navigation and CTA wording promise the destinations they reach; the B2B route and `/linki` remain. This slice prepares the structure for real media without presenting a substitute final design.
 2. **Documentary content and media production.** Shoot, select, clear rights, caption and optimize real assets; confirm participation rules and B2B facts. This is a content gate, not a dependency-install slice.
 3. **Consumer homepage and karaoke experience.** Build the approved story with the selected media, accurate current-information CTA, practical answers and responsive art direction. Keep fallback stills and reduced-motion behavior.
 4. **Venue proof and contact.** Develop `/dla-lokali` with a verified case/process and working contact, then add its concise homepage section.
