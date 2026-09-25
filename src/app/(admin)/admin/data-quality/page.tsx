@@ -5,14 +5,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getDataQualityReport, type DataQualityReport, type QualityReason } from "@/lib/analytics/data-quality";
+import { getDataQualityReport, type DataQualityReport } from "@/lib/analytics/data-quality";
 import { requireAdmin } from "@/lib/admin";
 import { resolveDashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
 
-const reasonLabels: Record<QualityReason, string> = {
+const reasonLabels: Partial<Record<string, string>> = {
   invalid_json: "Niepoprawny JSON",
   payload_too_large: "Przekroczony limit żądania",
   forbidden_field: "Niedozwolone pole",

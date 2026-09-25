@@ -56,9 +56,26 @@ export type DataQualityReport = {
   duplicates: number;
   filtered: number;
   contractDrift: number;
-  rejectionReasons: Array<{ reason: QualityReason; count: number }>;
-  eventNames: Array<{ eventName: AnalyticsEventName; count: number }>;
+  rejectionReasons: Array<{ reason: string; count: number }>;
+  eventNames: Array<{ eventName: string; count: number }>;
 };
+
+const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
+const count = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+
+export function isDataQualityReport(value: unknown): value is DataQualityReport {
+  if (!record(value) || !count(value.persistedTotal) || !count(value.persistedCookieless)
+    || !count(value.persistedConsented) || !count(value.rejected) || !count(value.duplicates)
+    || !count(value.filtered) || !count(value.contractDrift)
+    || value.persistedTotal !== value.persistedCookieless + value.persistedConsented
+    || !Array.isArray(value.rejectionReasons) || !Array.isArray(value.eventNames)) return false;
+  if (!value.rejectionReasons.every((row: unknown) => record(row)
+    && typeof row.reason === "string" && row.reason.trim().length > 0 && count(row.count))
+    || !value.eventNames.every((row: unknown) => record(row)
+      && typeof row.eventName === "string" && row.eventName.trim().length > 0 && count(row.count))) return false;
+  return value.rejectionReasons.reduce((total, row) => total + row.count, 0) === value.rejected
+    && value.eventNames.reduce((total, row) => total + row.count, 0) === value.persistedTotal;
+}
 
 export async function getDataQualityReport(from: string, toExclusive: string): Promise<DataQualityReport | null> {
   const admin = createAdminClient();
@@ -68,9 +85,9 @@ export async function getDataQualityReport(from: string, toExclusive: string): P
     p_from_date: from,
     p_to_date_exclusive: toExclusive,
   });
-  if (error || !data || typeof data !== "object") {
+  if (error || !isDataQualityReport(data)) {
     console.error("analytics data quality read failed", { reason: "report_unavailable" });
     return null;
   }
-  return data as DataQualityReport;
+  return data;
 }
