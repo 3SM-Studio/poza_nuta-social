@@ -1,5 +1,15 @@
 # Approved product decisions — discovery 1–82
 
+## Public Marketing V2 — owner continuation after Slice 1, 2026-09-25
+
+This later owner instruction supersedes the earlier factual holds on non-singer attendance, joining flow, B2B contact and the permission to name a venue case. It authorizes the experience-clarity and B2B-proof code slice while leaving media, event pages, pricing and Admin out of scope.
+
+- Attendance without performing is valid: guests may listen and spend time with friends. Singing is encouraged, never required; the karaoke line remains contextual, not the final master slogan.
+- No Poza Nutą booking is required before arrival. For a song, the guest arrives, scans the event QR, enters a six-digit session code, chooses/adds a song, joins the queue and performs when called. The karaoke platform is an independent service, not Poza Nutą proprietary technology.
+- Poza Nutą owns and communicates authoritative public event information after arrangements with a venue are confirmed. Own event pages still require a separate data/update/cancellation lifecycle.
+- The canonical public B2B address is hello@pozanuta.pl via the existing contact path. Per-venue arrangements may include coordination, hosting, song/queue operation, promotion, documentation and extra equipment; optional services are not guaranteed. Technical responsibilities are agreed with each venue.
+- iGranie w Lochu is approved as a real case study, not an exclusive partner or brand home. In that cooperation the venue provides sound, microphones and projectors; Poza Nutą can bring additional equipment. Publish no private details, financials, unsupported outcomes, attendance figures or invented partner quote.
+
 ## Public Marketing V2 — owner decision, 2026-09-25
 
 This unnumbered owner decision is the active product and creative direction for the future public marketing redesign. `PRODUCT.md` and `DESIGN.md` hold the concise durable rules; `docs/PUBLIC_MARKETING_V2.md` holds the canonical implementation brief. The historical numbered decisions remain below for traceability. This decision authorizes documentation and planning now, **not** UI implementation, new routes, dependencies or deployment.

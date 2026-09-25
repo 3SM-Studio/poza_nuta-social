@@ -1,12 +1,12 @@
 # Public Marketing V2 — canonical implementation brief
 
-Status: **product and creative direction approved 2026-09-25; public foundation implemented in 6bedd501; media production pending**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. The practical event shoot, factual gate, permissions manifest and next-slice handoff live in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
+Status: **product and creative direction approved 2026-09-25; public foundation implemented in 6bedd501; participant clarity and factual B2B proof are the current continuation; media production pending**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. The practical event shoot, factual gate, permissions manifest and next-slice handoff live in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
 
 ## Product thesis and audience
 
 Poza Nutą invites people to participate in music together without requiring vocal skill. Karaoke is today's key format and a necessary Trójmiasto SEO term, not the full limit of the future brand. Do not imply events elsewhere in Poland before they exist. The approved line “Nie musisz umieć śpiewać. Musisz chcieć śpiewać.” can lead karaoke/campaign moments; it is not the permanent master-brand slogan.
 
-The homepage is **consumer-first**: help a guest understand the experience, believe it is real, find current information and decide to attend. Venue/organizer collaboration is visible in navigation, receives a meaningful homepage section, and has its own evidence and contact path on `/dla-lokali`. Do not place two equally dominant consumer/B2B actions in the hero. Attendance without performing is a possible objection answer **only after the real event rules confirm it**.
+The homepage is **consumer-first**: help a guest understand the experience, believe it is real, find current information and decide to attend. Venue/organizer collaboration is visible in navigation, receives a meaningful homepage section, and has its own evidence and contact path on `/dla-lokali`. Do not place two equally dominant consumer/B2B actions in the hero. The owner has confirmed that guests may attend without singing; explain this without pressuring them to perform.
 
 ## Creative and content contract
 
@@ -19,9 +19,9 @@ Commission one dedicated event documentation session before media-led homepage w
 ## Information and conversion architecture
 
 - `/`: experience and evidence first, one dominant participant action, clear secondary navigation toward B2B.
-- `/karaoke-trojmiasto`: practical participation and the authoritative path to current dates until owned event pages exist. CTA language must accurately describe its destination.
-- `/dla-lokali`: scope of collaboration, process, verified proof, risk-reducing answers and first-party contact.
-- `/kontakt`: one usable first-party collaboration route; confirm the actual email/channel before B2B promotion.
+- `/karaoke-trojmiasto`: practical participation, including optional singing and the QR → six-digit session code → song → queue flow, plus the authoritative path to current dates until owned event pages exist. CTA language must accurately describe its destination; never present the independent karaoke platform as brand-owned technology.
+- `/dla-lokali`: per-venue scope and responsibilities, a factual iGranie w Lochu realization without invented outcomes or testimonial, risk-reducing answers and first-party contact.
+- `/kontakt`: one usable first-party collaboration route with the owner-approved hello@pozanuta.pl address.
 - `/linki`: ordered official social channels and contact, optimized for a phone after bio/QR entry; never a generic CTA builder or second homepage.
 - `/wydarzenia` and `/wydarzenia/[slug]`: conceptually approved **future** surfaces, not part of the initial implementation. Gate: authoritative maintained event source, named update owner, date, place, status, cancellation/change workflow and archive semantics. No empty directory or automatic Stage dependency.
 - `/prywatnosc` and `/cookies`: preserve existing consent and disclosure access.
@@ -32,7 +32,7 @@ Consumer journey: discover → understand the real experience → trust → see 
 
 1. **Hero:** name Poza Nutą, current format and Trójmiasto; express the emotional invitation and one accurate participant action. Use authentic hero media only when ready. The karaoke line is optional in this context, not compulsory brand copy.
 2. **Immediate evidence:** one real event moment with source context; establish that the experience exists before expanding the promise.
-3. **What participation feels like:** people, interaction and simple practical explanation. Do not claim non-singer participation before factual confirmation.
+3. **What participation feels like:** people, interaction and simple practical explanation. Attending without singing is valid; explain the song/queue flow only for guests who choose to perform.
 4. **Current opportunity:** a verified upcoming event only after the event-source gate; until then, point directly to the official channel that publishes dates.
 5. **Human story and process:** one or two real voices/moments that answer hesitation, not a generic testimonial carousel.
 6. **Venue path:** concise business offer, proof and link to `/dla-lokali` without changing the homepage's consumer priority.
@@ -58,15 +58,15 @@ The result is premium when a guest understands the offer and next action in the 
 ## Coherent implementation slices
 
 1. **Public foundation and path accuracy — implemented in 6bedd501, independent of photo readiness.** The public type/spacing/layout and responsive page shell use the approved live-poster grammar; consumer-first navigation and CTA wording promise the destinations they reach; the B2B route and `/linki` remain. This slice prepares the structure for real media without presenting a substitute final design.
-2. **Documentary content and media production.** Shoot, select, clear rights, caption and optimize real assets; confirm participation rules and B2B facts. This is a content gate, not a dependency-install slice.
-3. **Consumer homepage and karaoke experience.** Build the approved story with the selected media, accurate current-information CTA, practical answers and responsive art direction. Keep fallback stills and reduced-motion behavior.
-4. **Venue proof and contact.** Develop `/dla-lokali` with a verified case/process and working contact, then add its concise homepage section.
+2. **Experience clarity and factual B2B proof — current continuation, independent of media.** Explain optional singing, no Poza Nutą booking, the on-site song flow and official information path. Develop `/dla-lokali` with the owner-confirmed iGranie realization, per-venue scope and a working contact path; strengthen the homepage bridge. Do not fill absent media or testimonial slots.
+3. **Documentary content and media production.** Shoot, select, clear rights, caption and optimize real assets. Check event-specific variations and publication permissions. This is a content gate, not a dependency-install slice.
+4. **Media-led consumer and venue storytelling, conditional.** Add approved event moments and verified voices to the existing narrative. Keep appropriate stills and reduced-motion behavior. Omit any proof that lacks source or permission.
 5. **Owned events, conditional.** Only after the event-source gate, implement list/detail, lifecycle states, metadata/structured data and public-path/analytics contract changes. Until then, retain the official-channel path.
 6. **Selective motion and finish QA.** Add only sequences justified by the story; test mobile network, accessibility, SEO, consent, attribution and QR/outbound redirects. Run Impeccable detector + audit/critique/harden/polish and `npm run verify` on Node 24 before release merge.
 
 ## Confirm before final copy or gated slices
 
-- Actual rules for guests who do not perform, joining/booking and any event-specific variation.
-- Source, editor, update frequency and cancellation/archive ownership for future event pages.
-- Confirmed contact channel and B2B service scope; venue/participant permission to name, quote and show people or places.
+- Any event-specific variations to the owner-confirmed attendance and song flow.
+- Source, editor, update frequency and cancellation/archive ownership for future first-party event pages.
+- Per-venue service scope and technical responsibilities; venue/participant permission to quote and show people or places. iGranie w Lochu is approved as a factual named realization only within the owner-confirmed boundaries.
 - Final master-brand slogan; `socials.pozanuta.pl` deployment/redirect mapping and production/legal facts remain separate decisions.

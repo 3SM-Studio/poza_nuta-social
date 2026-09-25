@@ -18,20 +18,15 @@ export default function ContactPage() {
       <StructuredData data={publicPageGraph(publicPage.contact, "Kontakt / współpraca", description)} />
       <PublicPageMain>
       <PublicBreadcrumb current="Kontakt / współpraca" />
-      <div className="flex-1 py-10">
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-accent">Poza Nutą · Trójmiasto</p>
-        <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Kontakt / współpraca</h1>
-        <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground">
-          Chcesz zorganizować karaoke, zaprosić Poza Nutą do lokalu albo porozmawiać o współpracy? Napisz do nas oficjalnym kanałem.
-        </p>
+      <div className="flex-1 pb-20 pt-10 sm:pb-28 sm:pt-14">
+        <div className="border-t border-accent pt-6">
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Poza Nutą · Trójmiasto</p>
+          <h1 className="font-display mt-4 text-[clamp(3.5rem,11vw,5.5rem)] leading-[0.9] tracking-[-0.025em]">Kontakt / współpraca</h1>
+          <p className="mt-7 max-w-lg text-xl font-bold leading-snug sm:text-2xl">Masz pomysł na karaoke lub wydarzenie muzyczne w swoim lokalu?</p>
+          <p className="mt-4 max-w-lg text-base leading-7 text-muted-foreground">Napisz, gdzie działa lokal i co chcesz zorganizować. Termin oraz zakres współpracy możemy ustalić w rozmowie.</p>
+        </div>
 
-        {email ? (
-          <TrackedContactLink email={email} />
-        ) : (
-          <div className="mt-8 rounded-xl border bg-card p-5 text-sm text-muted-foreground">
-            Oficjalny adres kontaktowy jest właśnie konfigurowany. Skorzystaj na razie z jednego z oficjalnych profili <Link href={publicPage.links} className="font-bold text-foreground underline underline-offset-4">na stronie z linkami</Link>.
-          </div>
-        )}
+        <TrackedContactLink email={email} />
         <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm font-bold">
           <Link className="inline-flex min-h-11 items-center text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href={publicPage.venues}>Informacje dla lokali</Link>
           <Link className="inline-flex min-h-11 items-center text-foreground underline decoration-accent underline-offset-4 hover:text-accent" href={publicPage.karaoke}>O karaoke</Link>

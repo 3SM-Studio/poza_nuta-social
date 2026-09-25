@@ -25,5 +25,5 @@ export function getBootstrapOwnerEmail() {
 
 export function getContactEmail() {
   const value = process.env.CONTACT_EMAIL?.trim();
-  return value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : null;
+  return value && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ? value : "hello@pozanuta.pl";
 }

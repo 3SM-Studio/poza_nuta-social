@@ -30,11 +30,18 @@ describe("server environment", () => {
     expect(hasSupabaseAdminEnv()).toBe(false);
   });
 
-  it("does not render malformed contact placeholders", () => {
+  it("falls back to the approved address instead of rendering malformed contact placeholders", () => {
     process.env.CONTACT_EMAIL = "contact.example.invalid";
-    expect(getContactEmail()).toBeNull();
+    expect(getContactEmail()).toBe("hello@pozanuta.pl");
     process.env.CONTACT_EMAIL = "kontakt@pozanuta.pl";
     expect(getContactEmail()).toBe("kontakt@pozanuta.pl");
+  });
+
+  it("uses the approved public contact address when not configured", () => {
+    delete process.env.CONTACT_EMAIL;
+    expect(getContactEmail()).toBe("hello@pozanuta.pl");
+    process.env.CONTACT_EMAIL = "  ";
+    expect(getContactEmail()).toBe("hello@pozanuta.pl");
   });
 
   it("normalizes only a valid bootstrap owner email", () => {

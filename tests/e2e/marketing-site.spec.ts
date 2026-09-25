@@ -85,3 +85,24 @@ test("V2 participant path keeps its first action visible and public theme isolat
   await expect(page.locator(".admin-theme")).toHaveCount(0);
   expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--accent").trim())).toBe(publicAccent);
 });
+
+test("participant and venue journeys answer the first decision and reach the right contact path", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium");
+  await page.goto("/");
+  await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
+  await expect(page.getByRole("main").getByText("Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać.", { exact: false })).toBeVisible();
+  await page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first().click();
+  await expect(page.getByText("Śpiewanie jest Twoim wyborem.", { exact: false })).toBeVisible();
+  const steps = page.getByRole("list").filter({ has: page.getByRole("heading", { name: "Zeskanuj QR na miejscu" }) });
+  await expect(steps.getByRole("listitem")).toHaveCount(4);
+  await expect(page.getByText("Wpisz sześciocyfrowy kod sesji dostępny podczas wydarzenia.")).toBeVisible();
+  await page.getByRole("link", { name: "Zobacz oficjalne profile" }).click();
+  await expect(page).toHaveURL(/\/linki$/);
+
+  await page.goto("/dla-lokali");
+  await expect(page.getByRole("heading", { name: "Co możemy wziąć na siebie?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "iGranie w Lochu, Gdynia" })).toBeVisible();
+  await page.getByRole("main").getByRole("link", { name: "Kontakt / współpraca" }).click();
+  await expect(page).toHaveURL(/\/kontakt$/);
+  await expect(page.getByRole("link", { name: /kontakt@pozanuta\.test/ })).toHaveAttribute("href", "mailto:kontakt@pozanuta.test");
+});
