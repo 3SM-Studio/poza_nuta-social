@@ -1,23 +1,23 @@
 import { type ReportingScope } from "./reporting-scope";
 
+// analytics_funnel_v1 owns the event sequence; this registry supplies UI labels.
+// funnel-contract.test.ts keeps preset and step identities aligned with the SQL definition.
 export const FUNNELS = {
   contact_intent: {
-    key: "contact_intent",
     label: "Kontakt",
     description: "Od wyświetlenia strony kontaktu do kliknięcia sposobu kontaktu.",
     steps: [
-      { key: "contact_view", label: "Wyświetlenie kontaktu", eventName: "contact_view" },
-      { key: "contact_click", label: "Kliknięcie kontaktu", eventName: "contact_click" },
+      { key: "contact_view", label: "Wyświetlenie kontaktu" },
+      { key: "contact_click", label: "Kliknięcie kontaktu" },
     ],
   },
   tracked_entry_to_contact: {
-    key: "tracked_entry_to_contact",
     label: "Wejście przez link → kontakt",
     description: "Od wejścia przez aktywny link /r do wyświetlenia i kliknięcia kontaktu w tej samej sesji. Nie jest to analiza przypisania do kampanii.",
     steps: [
-      { key: "tracking_entry", label: "Wejście przez link", eventName: "tracking_entry" },
-      { key: "contact_view", label: "Wyświetlenie kontaktu", eventName: "contact_view" },
-      { key: "contact_click", label: "Kliknięcie kontaktu", eventName: "contact_click" },
+      { key: "tracking_entry", label: "Wejście przez link" },
+      { key: "contact_view", label: "Wyświetlenie kontaktu" },
+      { key: "contact_click", label: "Kliknięcie kontaktu" },
     ],
   },
 } as const;
