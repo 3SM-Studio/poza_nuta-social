@@ -1,11 +1,13 @@
 import { Archive } from "lucide-react";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { ReadUnavailable } from "@/components/admin/read-unavailable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { canMutateAdmin, requireAdminAccess } from "@/lib/admin";
+import { adminRows } from "@/lib/admin-read";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { archiveCampaignAction, createCampaignAction } from "./actions";
 
@@ -17,8 +19,9 @@ export default async function CampaignsPage() {
   const admin = createAdminClient();
   const result = admin
     ? await admin.from("campaigns").select("id,name,slug,status,starts_on,ends_on,created_at").order("created_at", { ascending: false })
-    : { data: [] };
-  const data = result.data ?? [];
+    : null;
+  const data = adminRows(result);
+  if (!data) return <ReadUnavailable title="kampanii" />;
   return (
     <div className="space-y-7">
       <header><p className="text-xs font-black uppercase tracking-[0.16em] text-accent">Atrybucja</p><h1 className="mt-2 text-3xl font-black tracking-tight">Kampanie</h1><p className="mt-2 text-sm text-muted-foreground">Grupuj plakaty, ulotki, reklamy i inne wejścia pod jednym wydarzeniem lub akcją.</p></header>

@@ -1,5 +1,6 @@
 import { Eye, EyeOff } from "lucide-react";
 import { SubmitButton } from "@/components/admin/submit-button";
+import { ReadUnavailable } from "@/components/admin/read-unavailable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { canMutateAdmin, requireAdminAccess } from "@/lib/admin";
+import { adminRows } from "@/lib/admin-read";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createDestinationAction, toggleDestinationAction } from "./actions";
 
@@ -18,8 +20,9 @@ export default async function DestinationsPage() {
   const admin = createAdminClient();
   const result = admin
     ? await admin.from("destinations").select("id,slug,label,description,url,icon,sort_order,active").order("sort_order")
-    : { data: [] };
-  const data = result.data ?? [];
+    : null;
+  const data = adminRows(result);
+  if (!data) return <ReadUnavailable title="destynacji" />;
   return <div className="space-y-7">
     <header><p className="text-xs font-black uppercase tracking-[0.16em] text-accent">Publiczny hub</p><h1 className="mt-2 text-3xl font-black tracking-tight">Destynacje</h1><p className="mt-2 text-sm text-muted-foreground">Każdy publiczny przycisk przechodzi przez `/go/...`, więc kliknięcie zostaje policzone przed wyjściem.</p></header>
     {canMutate ? <Card><CardHeader><CardTitle>Dodaj lub zaktualizuj</CardTitle><CardDescription>Obsługujemy wyłącznie oficjalne kanały Poza Nutą: instagram, tiktok, facebook, youtube lub website.</CardDescription></CardHeader><CardContent><form action={createDestinationAction} className="grid gap-4 md:grid-cols-2">

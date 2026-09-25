@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Download, Eye, EyeOff } from "lucide-react";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { CopyButton } from "@/components/admin/copy-button";
+import { ReadUnavailable } from "@/components/admin/read-unavailable";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { canMutateAdmin, requireAdminAccess } from "@/lib/admin";
+import { adminRows } from "@/lib/admin-read";
 import { getSiteUrl } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createTrackingLinkAction, toggleTrackingLinkAction } from "./actions";
@@ -23,9 +25,10 @@ export default async function LinksPage() {
   const [campaignResult, linksResult] = admin ? await Promise.all([
     admin.from("campaigns").select("id,name,status").neq("status", "archived").order("created_at", { ascending: false }),
     admin.from("tracking_links").select("id,code,label,channel_group,source,medium,asset,placement,landing_path,active,campaign_id,campaigns(name)").order("created_at", { ascending: false }),
-  ]) : [{ data: [] }, { data: [] }];
-  const campaigns = campaignResult.data ?? [];
-  const links = linksResult.data ?? [];
+  ]) : [null, null];
+  const campaigns = adminRows(campaignResult);
+  const links = adminRows(linksResult);
+  if (!campaigns || !links) return <ReadUnavailable title="linków i kampanii" />;
   const siteUrl = getSiteUrl();
 
   return <div className="space-y-7">

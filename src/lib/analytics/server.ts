@@ -108,36 +108,37 @@ export async function findTrackingLinkByCode(code?: string | null) {
   return { ...link, campaign: campaign || null, asset_entity: firstRelation(analytics_assets) || null, placement_entity: firstRelation(analytics_placements) || null, referral_participant: firstRelation(referral_participants) || null } as TrackingLink;
 }
 
-export async function getDashboardRange(fromDate: string, toDateExclusive: string): Promise<AnalyticsDashboard> {
-  const empty: AnalyticsDashboard = {
-    pageViews: 0, trackingEntries: 0, sessions: 0, visitors: 0, newVisitors: 0, returningVisitors: 0, returningVisitorRate: 0, outboundSessions: 0,
-    outboundSessionRate: 0, outboundClicks: 0, clicksPerOutboundSession: 0,
-    multiDestinationSessions: 0, multiDestinationSessionRate: 0, returnToHubSessions: 0,
-    returnToHubRate: 0, contactInterestSessions: 0, contactInterestRate: 0, contactClickRate: 0,
-    topSources: [], topCampaigns: [], topAssets: [], topPlacements: [], topDestinations: [], topTrackingLinks: [], timeSeries: [], trafficBreakdown: [],
-  };
+export async function getDashboardRange(fromDate: string, toDateExclusive: string): Promise<AnalyticsDashboard | null> {
   const admin = createAdminClient();
-  if (!admin) return empty;
+  if (!admin) return null;
   const { data, error } = await admin.rpc("analytics_dashboard_v2", { p_from_date: fromDate, p_to_date_exclusive: toDateExclusive });
-  if (error || !data) {
-    console.error("analytics dashboard v2 failed", error?.message);
-    return empty;
+  if (error || !isDashboardPayload(data)) {
+    console.error("analytics dashboard v2 read failed", { reason: error ? "rpc_error" : "invalid_response" });
+    return null;
   }
-  const row = data as Record<string, unknown>;
-  return {
-    ...empty,
-    pageViews: numeric(row.pageViews), trackingEntries: numeric(row.trackingEntries), sessions: numeric(row.sessions), visitors: numeric(row.visitors), newVisitors: numeric(row.newVisitors), returningVisitors: numeric(row.returningVisitors), returningVisitorRate: numeric(row.returningVisitorRate),
-    outboundSessions: numeric(row.outboundSessions), outboundSessionRate: numeric(row.outboundSessionRate), outboundClicks: numeric(row.outboundClicks),
-    clicksPerOutboundSession: numeric(row.clicksPerOutboundSession), multiDestinationSessions: numeric(row.multiDestinationSessions),
-    multiDestinationSessionRate: numeric(row.multiDestinationSessionRate), returnToHubSessions: numeric(row.returnToHubSessions),
-    returnToHubRate: numeric(row.returnToHubRate), contactInterestSessions: numeric(row.contactInterestSessions),
-    contactInterestRate: numeric(row.contactInterestRate), contactClickRate: numeric(row.contactClickRate),
-    topSources: rows(row.topSources), topCampaigns: rows(row.topCampaigns), topAssets: rows(row.topAssets), topPlacements: rows(row.topPlacements), topDestinations: rows(row.topDestinations), topTrackingLinks: rows(row.topTrackingLinks),
-    timeSeries: (Array.isArray(row.timeSeries) ? row.timeSeries : []) as AnalyticsDashboard["timeSeries"],
-    trafficBreakdown: rows(row.trafficBreakdown),
-  };
+  return data;
 }
 
 function firstRelation<T>(value: T | T[] | null): T | null { return Array.isArray(value) ? value[0] || null : value || null; }
-function numeric(value: unknown) { return Number(value || 0); }
-function rows(value: unknown) { return (Array.isArray(value) ? value : []) as Array<{ label: string; value: number }>; }
+
+const dashboardMetrics = [
+  "pageViews", "trackingEntries", "sessions", "visitors", "newVisitors", "returningVisitors", "returningVisitorRate",
+  "outboundSessions", "outboundSessionRate", "outboundClicks", "clicksPerOutboundSession", "multiDestinationSessions",
+  "multiDestinationSessionRate", "returnToHubSessions", "returnToHubRate", "contactInterestSessions", "contactInterestRate", "contactClickRate",
+] as const satisfies ReadonlyArray<keyof AnalyticsDashboard>;
+const dashboardRankings = [
+  "topSources", "topCampaigns", "topAssets", "topPlacements", "topDestinations", "topTrackingLinks", "trafficBreakdown",
+] as const satisfies ReadonlyArray<keyof AnalyticsDashboard>;
+
+function isDashboardPayload(value: unknown): value is AnalyticsDashboard {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const row = value as Record<string, unknown>;
+  const finite = (item: unknown) => typeof item === "number" && Number.isFinite(item);
+  const ranking = (item: unknown) => Array.isArray(item) && item.every((entry) =>
+    entry && typeof entry === "object" && typeof entry.label === "string" && finite(entry.value));
+  return dashboardMetrics.every((key) => finite(row[key]))
+    && dashboardRankings.every((key) => ranking(row[key]))
+    && Array.isArray(row.timeSeries)
+    && row.timeSeries.every((entry) => entry && typeof entry === "object" && typeof entry.date === "string"
+      && finite(entry.sessions) && finite(entry.outboundSessions));
+}

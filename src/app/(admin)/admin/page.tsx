@@ -10,6 +10,7 @@ import { requireAdmin } from "@/lib/admin";
 import { comparisonNote, resolveDashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";
 import { AnalyticsChart } from "@/components/admin/analytics-chart";
+import { ReadUnavailable } from "@/components/admin/read-unavailable";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,7 @@ export default async function AdminDashboardPage({ searchParams }: { searchParam
     getDashboardRange(range.from, range.toExclusive),
     getDashboardRange(range.previousFrom, range.previousToExclusive),
   ]);
+  if (!data || !previous) return <ReadUnavailable title="analityki" />;
   return (
     <div className="space-y-7">
       <header>
