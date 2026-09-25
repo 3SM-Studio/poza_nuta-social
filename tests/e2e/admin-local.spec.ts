@@ -125,12 +125,32 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
       await page.goto(route);
       await waitForHydration(page);
       await expect(page.getByRole("heading", { name: heading, level: 1 })).toBeVisible();
+      if (route === "/admin/team") {
+        const membersTable = page.getByRole("table").first();
+        await expect(membersTable).toBeVisible();
+        await expect(membersTable.getByRole("columnheader", { name: "Osoba" })).toHaveCount(1);
+        expect(await membersTable.evaluate((table) => getComputedStyle(table).display)).toBe(viewport.width < 768 ? "block" : "table");
+      }
       await testInfo.attach(`${viewport.name}-${route.replaceAll("/", "-") || "home"}`, {
         body: await page.screenshot({ fullPage: true }),
         contentType: "image/png",
       });
       if (screenshotDir) {
         await page.screenshot({ path: join(screenshotDir, `${viewport.name}-${route.replaceAll("/", "-") || "home"}.png`), fullPage: true });
+      }
+      if (route === "/admin/team" || route === "/admin/referrals") {
+        const card = page.locator("[data-slot=card]").first();
+        const darkBackground = await card.evaluate((element) => getComputedStyle(element).backgroundColor);
+        await page.locator(".admin-theme").evaluate((element) => element.classList.remove("dark"));
+        expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe("light");
+        expect(await card.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(darkBackground);
+        await testInfo.attach(`${viewport.name}-${route.replaceAll("/", "-")}-light`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: "image/png",
+        });
+        if (screenshotDir) {
+          await page.screenshot({ path: join(screenshotDir, `${viewport.name}-${route.replaceAll("/", "-")}-light.png`), fullPage: true });
+        }
       }
       const layout = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -145,6 +165,42 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
       expect(layout.overflow, `${route} should not overflow at ${viewport.width}px: ${JSON.stringify(layout.offenders)}`).toBeLessThanOrEqual(0);
     }
   }
+});
+
+test("Team and Referrals keep mobile table semantics, status labels, and actions", async ({ page, request }, testInfo) => {
+  test.setTimeout(60_000);
+  test.skip(!adminEmail || !mailpitUrl || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth and Mailpit");
+  await loginWithMagicEmail(page, request, adminEmail!);
+  await page.setViewportSize({ width: 390, height: 844 });
+
+  await page.goto("/admin/team");
+  const member = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Zmień rolę" }) }).first();
+  await expect(member.getByText("Status:")).toBeVisible();
+  await expect(member.getByRole("button", { name: "Zmień rolę" })).toBeInViewport();
+  expect(await member.getByRole("button", { name: "Zmień rolę" }).evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+
+  await page.goto("/admin/referrals");
+  const name = `Mobilny uczestnik ${Date.now().toString(36)}`;
+  const linkName = `Mobilny link ${Date.now().toString(36)}`;
+  await page.getByRole("button", { name: "Dodaj uczestnika" }).click();
+  await page.getByLabel("Nazwa wyświetlana").fill(name);
+  await page.getByRole("button", { name: "Dodaj uczestnika", exact: true }).click();
+  const participant = page.getByRole("row").filter({ hasText: name }).filter({ has: page.getByRole("button", { name: "Nowy link" }) });
+  await expect(participant.getByText("Status:")).toBeVisible();
+  await expect(participant).toContainText("aktywny");
+  await participant.getByRole("button", { name: "Nowy link" }).click();
+  await page.getByLabel("Nazwa linku").fill(linkName);
+  await page.getByRole("button", { name: "Utwórz link" }).click();
+  const link = page.getByRole("row").filter({ hasText: linkName });
+  await expect(link).toBeVisible();
+  await expect(page.getByRole("table").first()).toBeVisible();
+  await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(2);
+  await expect(link.getByText("Status:")).toBeVisible();
+  await expect(link).toContainText("Aktywny");
+  await link.getByRole("button", { name: "Kopiuj" }).scrollIntoViewIfNeeded();
+  await expect(link.getByRole("button", { name: "Kopiuj" })).toBeInViewport();
+  expect(await link.getByRole("button", { name: "Kopiuj" }).evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
 });
 
 test("database membership authorizes viewer and admin while rejecting inactive, non-member, and stale roles", async ({ browser, request }, testInfo) => {

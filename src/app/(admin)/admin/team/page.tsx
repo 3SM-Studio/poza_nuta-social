@@ -1,7 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminResponsiveTable } from "@/components/admin/admin-responsive-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   ActivateMemberButton,
   DeactivateMemberDialog,
@@ -15,8 +16,6 @@ import { requireAdminAccess } from "@/lib/admin";
 import { listTeamAccess, type AdminInvitation } from "@/lib/admin-team";
 
 export const dynamic = "force-dynamic";
-
-const responsiveTable = "max-md:block max-md:[&_thead]:sr-only max-md:[&_tbody]:block max-md:[&_tr]:mb-3 max-md:[&_tr]:block max-md:[&_tr]:rounded-lg max-md:[&_tr]:border max-md:[&_tr]:border-border max-md:[&_tr]:p-4 max-md:[&_td]:block max-md:[&_td]:p-0 max-md:[&_td]:pt-3 max-md:[&_td:first-child]:pt-0 max-md:[&_td_button]:min-h-11";
 
 export default async function TeamPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const access = await requireAdminAccess();
@@ -51,7 +50,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
         </CardHeader>
         <CardContent>
           {members.length ? (
-            <Table className={responsiveTable}>
+            <AdminResponsiveTable>
               <TableHeader>
                 <TableRow>
                   <TableHead>Osoba</TableHead>
@@ -93,7 +92,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
                   );
                 })}
               </TableBody>
-            </Table>
+            </AdminResponsiveTable>
           ) : <p className="py-8 text-center text-sm text-muted-foreground">Nie ma jeszcze członków zespołu.</p>}
         </CardContent>
       </Card>
@@ -105,7 +104,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
         </CardHeader>
         <CardContent>
           {invitations.length ? (
-            <Table className={responsiveTable}>
+            <AdminResponsiveTable>
               <TableHeader><TableRow><TableHead>Adres</TableHead><TableHead>Rola</TableHead><TableHead>Wysyłka</TableHead><TableHead>Zaproszenie aktywne do</TableHead>{canInvite ? <TableHead className="text-right">Działania</TableHead> : null}</TableRow></TableHeader>
               <TableBody>
                 {invitations.map((invitation) => {
@@ -128,7 +127,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
                   );
                 })}
               </TableBody>
-            </Table>
+            </AdminResponsiveTable>
           ) : <p className="py-8 text-center text-sm text-muted-foreground">Brak oczekujących lub nieudanych zaproszeń.</p>}
         </CardContent>
       </Card>
