@@ -1,5 +1,7 @@
 # Stack and implementation audit
 
+Historical implementation snapshot. The 2026-09-25 Public Marketing V2 owner decision supersedes this audit's homepage photography ban and link-card homepage priority; see `docs/PRODUCT_DECISIONS.md` and `docs/PUBLIC_MARKETING_V2.md`. The audit's observations about the code at its date remain historical evidence, not current V2 design rules.
+
 Audit date: **2026-09-22**, post-Admin V2 and SEO/GEO hardening addenda **2026-09-23**.
 Scope: repository source, approved product decisions 1–82, dependency choices, architecture, tracking/privacy, UI system, database/auth, SEO/GEO, security, tests and Vercel readiness.
 

@@ -8,8 +8,9 @@ The application is intentionally independent: its own repository, Vercel deploym
 Read these before changing product/UI behavior:
 - `PRODUCT.md` — durable product truth;
 - `DESIGN.md` — design-system truth;
-- `docs/PRODUCT_DECISIONS.md` — approved discovery decisions 1–82;
-- `docs/STACK_AUDIT.md` — current engineering/tooling audit;
+- `docs/PRODUCT_DECISIONS.md` — numbered decision history and the superseding Public Marketing V2 owner decision;
+- `docs/PUBLIC_MARKETING_V2.md` — approved Public Marketing V2 implementation direction and phased plan;
+- `docs/STACK_AUDIT.md` — dated engineering/tooling audit; V2 product supersessions are recorded separately;
 - `docs/RELEASE_CHECKLIST.md` — gates before production verification;
 - `docs/seo/SEO_GEO_PRODUCTION_HARDENING.md` — public routes, entity model, crawler policy and later webmaster setup;
 - `docs/analytics/ANALYTICS_ARCHITECTURE.md` — visitor/session/event and TrackingContext contract;
@@ -65,7 +66,7 @@ npm run test:e2e:local
 
 `package-lock.json` is the only lockfile and CI uses `npm ci`. A local Supabase stack can be initialized with the committed `supabase/config.toml`; `npx supabase db reset --local` replays all migrations and the seed without touching a remote project. `npm run test:e2e` and `npm run test:e2e:local` use the same local runner; pass Playwright arguments after `--` to select a project or scenario. The CI browser job starts and resets its own local stack before running the full suite.
 
-Production additionally requires a unique 32+ character `ANALYTICS_SIGNING_SECRET` and confirmed `PRIVACY_*` disclosure values (see `.env.example`). Use `SUPABASE_SECRET_KEY` only in the controlled server runtime; `SUPABASE_SERVICE_ROLE_KEY` is a temporary legacy fallback for older/local projects. Never expose either through `NEXT_PUBLIC_*`. Public product analytics and its session identity start only after versioned consent; before consent, `/go` and `/r` still redirect without analytics ingestion. Grant evidence is stored in `analytics_consent_evidence`. Postgres remains authoritative. GA4/Search Console are documented integration boundaries, not active production services in this repository. Retention enforcement, legal facts and privacy review remain production gates.
+Production additionally requires a unique 32+ character `ANALYTICS_SIGNING_SECRET` and confirmed `PRIVACY_*` disclosure values (see `.env.example`). Use `SUPABASE_SECRET_KEY` only in the controlled server runtime; `SUPABASE_SERVICE_ROLE_KEY` is a temporary legacy fallback for older/local projects. Never expose either through `NEXT_PUBLIC_*`. Before server-confirmed analytics consent, limited identity-free public events may be ingested without visitor/session/acquisition identity; `/go` and `/r` still redirect if tracking fails. Consented identity-based analytics applies only to new events. Grant evidence is stored in `analytics_consent_evidence`. Postgres remains authoritative. GA4/Search Console are documented integration boundaries, not active production services in this repository. Retention enforcement, legal facts and privacy review remain production gates.
 
 ## Important
-Do not call the public product “Poza Nutą Social”. Do not add Stage/event CTA, photography, a second UI library, raw IP storage, fingerprinting, or arbitrary generic CTAs unless the product owner explicitly changes the approved decisions.
+Do not call the public product “Poza Nutą Social”. Public Marketing V2 permits authentic event photography/video as evidence, while stock or generated substitute karaoke imagery remains excluded. Do not add Stage/nearest-event CTA, premature owned event routes, a second UI library, raw IP storage, fingerprinting, or arbitrary generic CTAs. See `docs/PUBLIC_MARKETING_V2.md` for the event-route gate and consumer-first direction.

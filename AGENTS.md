@@ -17,9 +17,9 @@ All user-facing progress updates, explanations, questions, approval requests, wa
 ## Public product invariants
 - Public name is Poza Nutą, not “Poza Nutą Social”.
 - Primary public geography is Trójmiasto.
-- Final slogan is unresolved: do not invent one.
-- No homepage photography or decorative gradients.
-- No Stage/event CTA in current scope.
+- Final master-brand slogan is unresolved. The approved karaoke/campaign line is not a permanent master slogan.
+- Public Marketing V2 allows authentic event photography/video on the homepage as evidence; no stock or generated substitute karaoke imagery or decorative gradients.
+- No Stage/nearest-event CTA. Own event routes are gated on an authoritative maintained event source and lifecycle.
 - Official channels + first-party contact/collaboration only; not a generic CTA builder.
 
 ## Analytics/privacy invariants

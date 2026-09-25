@@ -1,8 +1,25 @@
 # Approved product decisions — discovery 1–82
 
+## Public Marketing V2 — owner decision, 2026-09-25
+
+This unnumbered owner decision is the active product and creative direction for the future public marketing redesign. `PRODUCT.md` and `DESIGN.md` hold the concise durable rules; `docs/PUBLIC_MARKETING_V2.md` holds the canonical implementation brief. The historical numbered decisions remain below for traceability. This decision authorizes documentation and planning now, **not** UI implementation, new routes, dependencies or deployment.
+
+- The homepage is **consumer-first**. Participants and future participants get the dominant hero action. Venue/organizer collaboration stays visible in navigation, has a meaningful homepage section, and is developed on `/dla-lokali`; it does not compete as an equal hero CTA.
+- The long-term brand territory is shared participation in music without requiring vocal skill. Karaoke remains the current key format and SEO term. Do not claim nationwide operation before it exists. “Nie musisz umieć śpiewać. Musisz chcieć śpiewać.” is approved for karaoke, campaigns and selected storytelling/hero contexts; the permanent master-brand slogan remains undecided.
+- The V2 visual direction is **documentary event experience + live-poster brand language**: authentic people, reactions, venues and event context together with the existing Poza Nutą logo, strong typography, pink accent and deliberate poster rhythm. Mate Academy informs marketing mechanics, not the visual identity.
+- Authentic event photography and short video may appear on the homepage as evidence. The old homepage-photo and photo-background bans are superseded for V2. No stock or generated substitute karaoke imagery; hero video is permitted, never required. Use a strong real photograph when available video is weaker.
+- A dedicated event documentation session must supply real horizontal/vertical compositions, venue/crowd context, performer, reactions, friends, host/participant interaction, negative space for copy, short loops and testimonial candidates. Publication requires source verification and rights/consent for every visual, statement, partner mark, number, case study and event. No fictional proof or visual placeholders.
+- Communicating attendance without performing is conditional on confirmation of actual event rules. Final public copy must not assert it before that confirmation.
+- Own `/wydarzenia` and `/wydarzenia/[slug]` are conceptually approved, but their implementation is gated on an authoritative event source, update owner, date, venue, status, change/cancellation workflow and archive semantics. Do not publish an empty directory or add automatic Stage integration.
+- `https://pozanuta.pl` remains the future main brand/marketing origin. `socials.pozanuta.pl` remains a fast link-hub / QR / bio destination, not a second homepage. The hosting/deployment mapping and redirects still need separate execution decisions.
+- Motion must serve a specific story while preserving native scroll, keyboard access, reduced motion and performance. Start video with optimized native files, poster, muted `playsInline` loops, static fallback, deferred offscreen loading and captions/transcripts for speech. No dependency is authorized now; consider Mux/`next-video` only when a real library justifies it.
+- Preserve first-party attribution, QR/source tracking, consent semantics, `/go/[slug]`, `/r/[code]`, server-rendered SEO and accessibility. New routes require coordinated public-path, analytics and SEO contract changes.
+
+**Supersession map:** 2026-09-19 decisions **1–2** (link-card main goal and equal homepage emphasis) yield to the consumer-first marketing homepage; **8** remains relevant to `/linki` but not the editorial homepage; **10–11** (homepage photography/background bans) no longer apply to V2; **17–18** (Instagram/TikTok CTA priority) continue to govern the link hub, not the homepage's primary conversion. Decision **3** remains open for the master slogan, while the karaoke line gains the limited approved role above. The 2026-09-24 statement that the role of `socials.pozanuta.pl` was undecided is superseded by its link-hub / QR / bio role. Existing no-Stage, privacy and analytics decisions remain in force.
+
 ## Owner direction — 2026-09-24 (supersedes the earlier release target)
 
-- This codebase is planned to become the main Poza Nutą marketing site at `https://pozanuta.pl`. `socials.pozanuta.pl` is no longer the canonical target for the whole application; its eventual link-hub or redirect behavior is undecided.
+- This codebase is planned to become the main Poza Nutą marketing site at `https://pozanuta.pl`. `socials.pozanuta.pl` is no longer the canonical target for the whole application; its eventual link-hub or redirect behavior was undecided at this date (**superseded 2026-09-25** by the link-hub / QR / bio role above).
 - The root-domain marketing-site slice supersedes the earlier homepage-as-link-hub hierarchy: `/` introduces the brand, karaoke, and collaboration; `/linki` holds official destinations using the existing authoritative model. Earlier numbered hub-layout choices remain historical context for `/linki`, not homepage requirements.
 - The EU Privacy & Cookie slice is now authorized separately from the root-domain marketing checkpoint. It disables pre-consent product analytics, adds versioned choice, a persistent settings control and `/cookies`. Legal identity, infrastructure facts, retention and final approval remain release gates.
 - A separate accessibility slice targets WCAG 2.2 AA, axe automation, keyboard/focus/reflow/reduced-motion checks, and screen-reader smoke. The current recovery slice may fix the observed consent-banner overlap without claiming full compliance.
@@ -12,24 +29,24 @@
 Status: **approved by product owner on 2026-09-19**. These are binding unless explicitly changed later.
 
 ## Public product and brand (1–30)
-1. Main goal: fast official-link/contact business card; analytics is invisible infrastructure.
-2. Serve normal visitors and business/collaboration visitors; keep explanation short.
+1. Main goal: fast official-link/contact business card; analytics is invisible infrastructure. **Homepage goal superseded 2026-09-25**; the fast-card role remains with `/linki`.
+2. Serve normal visitors and business/collaboration visitors; keep explanation short. **Homepage priority superseded 2026-09-25**: consumer-first with a distinct B2B path.
 3. A slogan will exist, but its final wording is not yet decided.
 4. Publicly it is simply Poza Nutą; do not call it “Poza Nutą Social”.
 5. Public geographic label: Trójmiasto only.
 6. Brand-owned experience rather than a generic Linktree look.
 7. Mobile-first; desktop must still look deliberate.
-8. Desktop remains focused/narrow rather than becoming a dashboard layout.
+8. Desktop remains focused/narrow rather than becoming a dashboard layout. **Refined 2026-09-24/25**: applies to `/linki`; the homepage has an editorial composition.
 9. Logo should be visible but not dominate the viewport.
-10. No photos on the homepage.
-11. No photo background.
+10. No photos on the homepage. **Superseded for Public Marketing V2 on 2026-09-25**; authentic event photography is allowed as evidence.
+11. No photo background. **Superseded for Public Marketing V2 on 2026-09-25**; real event media may be composed in the homepage hero when justified.
 12. Dark-first visual direction.
 13. No light/dark toggle needed in MVP.
 14. Pink is an accent, not the entire background.
 15. Avoid decorative gradients.
 16. Link actions use a consistent structure; one or two may receive emphasis.
-17. Instagram is primary CTA.
-18. TikTok is second CTA.
+17. Instagram is primary CTA. **Scoped to the official link hub 2026-09-25**, not the homepage hero.
+18. TikTok is second CTA. **Scoped to the official link hub 2026-09-25**, not the homepage hero.
 19. Facebook is lower priority unless data later proves otherwise.
 20. YouTube is shown only while the channel is active/useful.
 21. No Stage CTA now.
@@ -104,9 +121,10 @@ Status: **approved by product owner on 2026-09-19**. These are binding unless ex
 82. Compare with the previous equivalent period.
 
 ## Explicitly unresolved
-- Final public slogan/copy.
+- Final master-brand slogan and factual final copy; the karaoke/campaign line above is approved only for its specified contexts.
 - Final exact business-contact copy and contact channel values.
-- Decisions 83+ have not been approved yet and must not be silently treated as product truth.
+- Event rules for people who do not perform, ownership and operating details of the future event source, evidence/publication rights, and production hosting/redirects.
+- Decisions 83+ have not been numbered; the unnumbered 2026-09-25 owner decision above is approved product truth and must not be mistaken for an invented numbered series.
 
 ## Superseding analytics decision — 2026-09-20
 

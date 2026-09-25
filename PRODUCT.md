@@ -4,16 +4,16 @@
 ## Product
 This repository is an independent Poza Nutą application. It is not a Stage module, not a shared dashboard module, and does not share database, authentication, deployment, or runtime dependencies with any other Poza Nutą product.
 
-## Root-domain direction — owner decision, 2026-09-24
-This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. `/linki` holds the compact official-links hub; the homepage introduces the brand, karaoke, and collaboration. The future role of `socials.pozanuta.pl` is undecided. The local EU privacy slice gates public analytics on versioned consent and adds `/cookies`; controller, deployment and retention facts still require confirmation before production. Domain deployment, hosting, legal sign-off and WCAG 2.2 AA remain separate work.
+## Root-domain direction — owner decisions, 2026-09-24 and 2026-09-25
+This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. The homepage is the consumer-first brand experience; `/linki` is the compact official-links hub. `socials.pozanuta.pl` remains a fast link-hub / QR / bio destination, not a second marketing homepage. The local EU privacy slice gates public analytics on versioned consent and adds `/cookies`; controller, deployment and retention facts still require confirmation before production. Domain deployment, hosting, legal sign-off and WCAG 2.2 AA remain separate work.
 
 ## Overview
-The public surface is the main marketing site for Poza Nutą. It serves two equally legitimate audiences:
+The public surface is the main marketing site for Poza Nutą. It serves two audiences with different paths:
 
 1. people looking for Poza Nutą karaoke, musical events, and current information;
 2. venues and organizers interested in collaboration and direct contact.
 
-The homepage explains the brand and directs visitors to useful details. `/linki` keeps official channels fast to reach, especially from bio links. Attribution and analytics run invisibly underneath both.
+The homepage primarily serves participants and future participants. Venue and organizer collaboration remains visible in navigation and a substantial homepage section, then continues on `/dla-lokali`. `/linki` keeps official channels fast to reach, especially from bio links and QR codes. Attribution and analytics run invisibly underneath both.
 
 ## Primary outcome
 A visitor should understand what Poza Nutą does in Trójmiasto and find a clear path to karaoke information, collaboration, contact, or official channels.
@@ -23,12 +23,15 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 - Geographic wording: **Trójmiasto**. Do not make Gdynia the primary public location label.
 - `/linki` is not a generic Linktree clone or generic link-builder SaaS.
 - No Stage CTA in the current scope.
-- No “nearest karaoke” or event integration in the current scope.
+- No “nearest karaoke” or automatic Stage event integration in the current implementation. Own `/wydarzenia` and `/wydarzenia/[slug]` routes are approved conceptually but gated on an authoritative event source, update owner, date/place/status, change/cancellation workflow, and archive semantics.
 - Do not invent arbitrary CTA types. `/linki` is for official Poza Nutą channels plus contact/collaboration.
-- Final marketing slogan is intentionally **TBD**. Do not hard-code a temporary slogan as brand truth.
+- Final master-brand slogan is intentionally **TBD**. “Nie musisz umieć śpiewać. Musisz chcieć śpiewać.” is approved for karaoke, campaign creative and selected hero/storytelling contexts, not as a permanent master-brand slogan.
+- The long-term brand territory is shared participation in music without requiring vocal skill. Karaoke remains the current key format and an important local SEO term. Do not claim nationwide reach before it exists.
+- Claims that non-singers can attend without performing require confirmation against actual event rules before publication.
+- Every testimonial, venue/partner name or logo, number, case study, event and photo/video requires a real source and publication rights or consent. Never fabricate proof.
 
 ## Public information hierarchy
-1. `/`: Poza Nutą identity and factual introduction to karaoke and musical events in Trójmiasto.
+1. `/`: consumer-first Poza Nutą brand experience and factual introduction to karaoke and musical events in Trójmiasto, with a distinct venue path.
 2. `/karaoke-trojmiasto`: information for participants and where to find current dates and places.
 3. `/dla-lokali`: collaboration information for venues and organizers.
 4. `/kontakt`: one first-party contact route.
@@ -36,14 +39,17 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 6. `/prywatnosc`: privacy information and consent controls, with deployment-specific facts guarded before publication.
 7. `/cookies`: canonical browser storage inventory and consent controls.
 
+Future `/wydarzenia` and `/wydarzenia/[slug]` remain gated and must not be published as an empty directory. The current public route/analytics/SEO contracts must be extended together when these routes become real.
+
 ## Visual constraints
 - Mobile-first, with an editorial desktop homepage and a deliberately narrow `/linki` layout.
 - Dark-first.
 - Pink is the main accent, not a full-page background.
 - No theme toggle in MVP.
-- No photography on the public homepage.
+- Public Marketing V2 may use authentic event photography and short event video on the homepage as evidence of the experience. No stock or generated substitute karaoke imagery. Hero video is optional; prefer a strong real photograph to weak video.
 - No decorative gradients.
 - One or two actions may receive stronger emphasis, but `/linki` must remain structurally consistent.
+- The canonical V2 direction combines documentary event experience with live-poster brand language. Preserve the supplied logo, expressive Poza Nutą typography and pink accent; avoid SaaS-template, generic black-luxury, cyberpunk and neon-heavy treatments.
 
 ## Tracking truth
 The analytics system is first-party and privacy-first:
@@ -77,4 +83,4 @@ The analytics system is first-party and privacy-first:
 - Default analytics range is 30 days; ranges are today/7/30/90/custom with previous-period comparison.
 
 ## Source of truth
-This file contains durable product truth. `DESIGN.md` contains visual-system truth. `docs/PRODUCT_DECISIONS.md` contains the detailed approved discovery record. Agents must not silently rewrite these decisions.
+This file contains durable product truth. `DESIGN.md` contains visual-system truth. `docs/PRODUCT_DECISIONS.md` preserves the decision history and supersession record. `docs/PUBLIC_MARKETING_V2.md` is the canonical implementation brief. Agents must not silently rewrite these decisions.
