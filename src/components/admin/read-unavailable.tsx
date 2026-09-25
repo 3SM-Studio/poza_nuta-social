@@ -1,5 +1,5 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { AdminNotice } from "@/components/admin/admin-notice";
 
 export function ReadUnavailable({ title }: { title: string }) {
-  return <Card role="alert"><CardHeader><h1 className="text-lg font-bold tracking-tight">Odczyt {title} niedostępny</h1></CardHeader><CardContent>Nie udało się pobrać danych. Brak odczytu nie oznacza pustej listy ani zerowej aktywności. Spróbuj odświeżyć stronę.</CardContent></Card>;
+  return <AdminNotice tone="error" title={`Odczyt ${title} niedostępny`} titleLevel={1}>Nie udało się pobrać danych. Brak odczytu nie oznacza pustej listy ani zerowej aktywności. Spróbuj odświeżyć stronę.</AdminNotice>;
 }

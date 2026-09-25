@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { AcquisitionRange } from "@/components/admin/acquisition-range";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
@@ -28,8 +30,8 @@ export default async function AcquisitionPage({ searchParams }: { searchParams: 
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">Sprawdź, które linki kampanii przyniosły mierzalne wejścia oraz które późniejsze działania mają utrwalony kontekst kampanii. Nazwy i statusy są aktualnymi danymi encji, a liczby pochodzą z historycznych zdarzeń.</p>
     </header>
     <AcquisitionRange basePath="/admin/acquisition" request={request} />
-    {request.status === "invalid" ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ? <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
-      <Card role="alert"><CardHeader><CardTitle>Odczyt pozyskania niedostępny</CardTitle></CardHeader><CardContent>Spróbuj ponownie później. Brak odczytu nie oznacza zerowej aktywności.</CardContent></Card> : <>
+    {request.status === "invalid" ? <AdminNotice tone="error" title="Nieprawidłowy zakres dat">Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</AdminNotice> : request.status === "too_long" ? <AdminNotice tone="error">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</AdminNotice> : !report ?
+      <AdminNotice tone="error" title="Odczyt pozyskania niedostępny">Spróbuj ponownie później. Brak odczytu nie oznacza zerowej aktywności.</AdminNotice> : <>
       <p className="text-xs text-muted-foreground">Zdarzenia: {range.from}–{range.toInclusive} · Europe/Warsaw · {REPORTING_SCOPE_LABELS[scope]}. Każde przyjęte zdarzenie jest liczone raz w jednej kategorii kontekstu.</p>
       <section aria-labelledby="acquisition-overview" className="space-y-3">
         <h2 id="acquisition-overview" className="text-lg font-bold">Aktywność w okresie</h2>
@@ -53,7 +55,7 @@ export default async function AcquisitionPage({ searchParams }: { searchParams: 
               <Count label="Kliknięcia /go" value={campaign.outboundClicks} />
             </dl>
           </Link>)}
-        </div> : <Card><CardContent className="pt-5 text-sm text-muted-foreground">Nie ma kampanii ani zdarzeń z zachowanym ID kampanii. Kampanie możesz utworzyć w sekcji Kampanie.</CardContent></Card>}
+        </div> : <AdminEmpty title="Brak kampanii w tym raporcie" description="Nie ma kampanii ani zdarzeń z zachowanym ID kampanii. Kampanie możesz utworzyć w sekcji Kampanie." action={<Link href="/admin/campaigns" className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Przejdź do kampanii</Link>} />}
         {report.campaignCount > 50 ? <nav aria-label="Strony kampanii" className="flex gap-2">
           {offset > 0 ? <Link href={`/admin/acquisition?${query}&offset=${Math.max(0,offset-50)}`} className={cn(buttonVariants({variant:"outline"}))}>Poprzednie</Link> : null}
           {offset + report.campaigns.length < report.campaignCount ? <Link href={`/admin/acquisition?${query}&offset=${offset+50}`} className={cn(buttonVariants({variant:"outline"}))}>Następne</Link> : null}

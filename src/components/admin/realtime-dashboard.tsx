@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { RefreshCw } from "lucide-react";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -67,7 +69,6 @@ export function RealtimeDashboard({ initialReport, initialWindow, initialScope }
         <p className="text-sm font-semibold">Aktywny zakres: {REPORTING_SCOPE_LABELS[initialScope]}</p>
         <p className="text-sm font-medium">
           Ostatni udany odczyt: {report ? <time dateTime={report.refreshedAt}>{formatTime(report.refreshedAt)}</time> : "brak"}
-          {readFailed && report ? <span role="status"> · Dane nieaktualne — ostatnie odświeżenie nie powiodło się</span> : null}
           {refreshing ? " · Trwa odświeżanie…" : null}
         </p>
       </div>
@@ -75,6 +76,8 @@ export function RealtimeDashboard({ initialReport, initialWindow, initialScope }
         <RefreshCw aria-hidden="true" /> Odśwież
       </Button>
     </header>
+
+    {readFailed && report ? <AdminNotice tone="error" title="Dane Realtime nieaktualne">Ostatnie odświeżenie nie powiodło się. Pokazujemy ostatni udany odczyt.</AdminNotice> : null}
 
     <div className="space-y-2">
       <p className="text-sm font-bold">Okno czasu</p>
@@ -99,10 +102,9 @@ export function RealtimeDashboard({ initialReport, initialWindow, initialScope }
       <p className="max-w-3xl text-xs leading-relaxed text-muted-foreground">Ruch biznesowy obejmuje przyjęte zdarzenia z produkcji od odbiorców zewnętrznych. Ruch testowy, wewnętrzny, boty i nieznana klasyfikacja są wyłączone. Diagnostyka pokazuje wszystkie przyjęte zdarzenia z obu trybów; wyjątki jakościowe pozostają osobno w Data Quality.</p>
     </div>
 
-    {!report ? <Card role="alert"><CardHeader><CardTitle>Odczyt Realtime niedostępny</CardTitle></CardHeader>
-      <CardContent className="space-y-3 text-sm text-muted-foreground"><p>Nie udało się pobrać danych. Spróbuj odświeżyć widok. Nie oznacza to zera zdarzeń ani awarii publicznego zapisu.</p></CardContent></Card> : <>
+    {!report ? <AdminNotice tone="error" title="Odczyt Realtime niedostępny">Nie udało się pobrać danych. Spróbuj odświeżyć widok. Nie oznacza to zera zdarzeń ani awarii publicznego zapisu.</AdminNotice> : <>
       <p className="text-xs text-muted-foreground">Okno: <time dateTime={report.windowStart}>{formatTime(report.windowStart)}</time> – <time dateTime={report.windowEnd}>{formatTime(report.windowEnd)}</time> · Europe/Warsaw · {REPORTING_SCOPE_LABELS[initialScope]} · automatyczny odczyt co 30 s na widocznej karcie</p>
-      {report.totalEvents === 0 && <Card><CardContent className="pt-5 text-sm text-muted-foreground">Brak przyjętych zdarzeń w tym zakresie ruchu i oknie. Zwiększ zakres do 60 minut lub sprawdź później.</CardContent></Card>}
+      {report.totalEvents === 0 && <AdminEmpty headingLevel={2} title="Brak przyjętych zdarzeń w tym oknie" description="Zwiększ zakres do 60 minut lub sprawdź później. Odczyt zakończył się poprawnie." />}
       <section aria-labelledby="realtime-kpis" className="space-y-3">
         <h2 id="realtime-kpis" className="text-lg font-bold">Co dzieje się teraz</h2>
         <div className="grid grid-cols-2 gap-2 sm:gap-3 xl:grid-cols-3">

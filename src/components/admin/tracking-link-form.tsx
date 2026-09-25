@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createTrackingLinkAction } from "@/app/(admin)/admin/links/actions";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { AdminInputField, AdminNativeSelectField } from "@/components/admin/admin-form-field";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { NativeSelectOption } from "@/components/ui/native-select";
@@ -30,8 +31,8 @@ export function TrackingLinkForm({ campaigns }: { campaigns: { id: string; name:
       <NativeSelectOption value="/">Strona główna</NativeSelectOption>
       <NativeSelectOption value="/kontakt">Kontakt</NativeSelectOption>
     </AdminNativeSelectField>
-    {state.formError ? <p role="alert" className="text-sm text-destructive md:col-span-2 xl:col-span-3">{state.formError}</p> : null}
-    {state.status === "saved" ? <p role="status" className="text-sm text-muted-foreground md:col-span-2 xl:col-span-3">Link i QR zostały utworzone.</p> : null}
+    {state.formError ? <div className="md:col-span-2 xl:col-span-3"><AdminNotice tone="error">{state.formError}</AdminNotice></div> : null}
+    {state.status === "saved" ? <div className="md:col-span-2 xl:col-span-3"><AdminNotice tone="success">Link i QR zostały utworzone.</AdminNotice></div> : null}
     <div className="md:col-span-2 xl:col-span-3"><SubmitButton idle="Wygeneruj link i QR" pending="Generuję…" /></div>
   </form>;
 }

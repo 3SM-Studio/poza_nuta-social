@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -46,7 +47,7 @@ export default async function DataQualityPage({ searchParams }: { searchParams: 
       </form>
     </header>
 
-    {!report ? <Card><CardHeader><h2 className="text-lg font-bold tracking-tight">Raport niedostępny</h2></CardHeader><CardContent className="text-sm text-muted-foreground">Nie udało się odczytać danych jakości. Spróbuj ponownie później. Nie oznacza to zera zdarzeń ani braku awarii.</CardContent></Card> : <Report report={report} />}
+    {!report ? <AdminNotice tone="error" title="Raport niedostępny">Nie udało się odczytać danych jakości. Spróbuj ponownie później. Nie oznacza to zera zdarzeń ani braku awarii.</AdminNotice> : <Report report={report} />}
   </div>;
 }
 

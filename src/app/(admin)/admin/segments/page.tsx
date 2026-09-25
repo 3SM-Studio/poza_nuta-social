@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -69,10 +70,10 @@ export default async function SegmentsPage({ searchParams }: { searchParams: Pro
       </div>
     </section>
 
-    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ?
-      <Card role="alert"><CardContent className="pt-5">Wybierz zakres nie dłuższy niż 366 dni.</CardContent></Card> : !report ?
-      <Card role="alert"><CardHeader><CardTitle>Odczyt segmentów niedostępny</CardTitle></CardHeader><CardContent className="space-y-3 text-sm"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={href(range,scope,selectedKey)} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> : <>
-        {invalidSegment ? <p role="status" className="text-sm text-muted-foreground">Nieznany segment. Pokazujemy domyślny preset.</p> : null}
+    {invalidCustom ? <AdminNotice tone="error" title="Nieprawidłowy zakres dat">Podaj poprawne daty od wcześniejszej do późniejszej. Raport nie został przeliczony.</AdminNotice> : request.status === "too_long" ?
+      <AdminNotice tone="error">Wybierz zakres nie dłuższy niż 366 dni.</AdminNotice> : !report ?
+      <AdminNotice tone="error" title="Odczyt segmentów niedostępny"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={href(range,scope,selectedKey)} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></AdminNotice> : <>
+        {invalidSegment ? <AdminNotice tone="info">Nieznany segment. Pokazujemy domyślny preset.</AdminNotice> : null}
         <section aria-labelledby="segments-population" className="space-y-3 border-b pb-5">
           <h2 id="segments-population" className="text-lg font-bold">Populacja bazowa</h2>
           <p className="text-4xl font-black tabular-nums">{number.format(report.baseSessions)}</p>

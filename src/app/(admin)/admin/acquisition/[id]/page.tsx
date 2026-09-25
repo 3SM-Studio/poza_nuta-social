@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { AcquisitionRange } from "@/components/admin/acquisition-range";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -35,9 +37,9 @@ export default async function AcquisitionCampaignPage({ params, searchParams }: 
       <div className="flex flex-wrap gap-2"><Link href="/admin/campaigns" className={cn(buttonVariants({variant:"outline",size:"sm"}))}>Zarządzaj kampaniami</Link><Link href="/admin/links" className={cn(buttonVariants({variant:"outline",size:"sm"}))}>Zarządzaj linkami</Link></div>
     </header>
     <AcquisitionRange basePath={`/admin/acquisition/${id}`} request={request} />
-    {request.status === "invalid" ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ? <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !uuid.test(id) ?
-      <Card role="alert"><CardContent className="pt-5">Nieprawidłowy identyfikator kampanii.</CardContent></Card> : !report ?
-      <Card role="alert"><CardContent className="pt-5">Odczyt kampanii jest niedostępny. Spróbuj ponownie później.</CardContent></Card> : <CampaignDetail report={report} campaignId={id} rangeLabel={`${range.from}–${range.toInclusive}`} scopeLabel={REPORTING_SCOPE_LABELS[scope]} />}
+    {request.status === "invalid" ? <AdminNotice tone="error" title="Nieprawidłowy zakres dat">Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</AdminNotice> : request.status === "too_long" ? <AdminNotice tone="error">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</AdminNotice> : !uuid.test(id) ?
+      <AdminNotice tone="error">Nieprawidłowy identyfikator kampanii.</AdminNotice> : !report ?
+      <AdminNotice tone="error" title="Odczyt kampanii niedostępny">Spróbuj ponownie później.</AdminNotice> : <CampaignDetail report={report} campaignId={id} rangeLabel={`${range.from}–${range.toInclusive}`} scopeLabel={REPORTING_SCOPE_LABELS[scope]} />}
   </div>;
 }
 
@@ -63,7 +65,7 @@ function CampaignDetail({ report, campaignId, rangeLabel, scopeLabel }: { report
     </section>
     <section aria-labelledby="campaign-graph" className="space-y-3">
       <h2 id="campaign-graph" className="text-lg font-bold">Materiały i użycia</h2>
-      {!assetIds.length && !unassignedLinks.length ? <Card><CardContent className="pt-5 text-sm text-muted-foreground">Ta kampania nie ma jeszcze materiałów ani linków. Utwórz je w sekcji Linki i QR, a tutaj zobaczysz powiązania i pomiar.</CardContent></Card> : null}
+      {!assetIds.length && !unassignedLinks.length ? <AdminEmpty title="Brak materiałów i linków" description="Ta kampania nie ma jeszcze materiałów ani linków. Utwórz je w sekcji Linki i QR, a tutaj zobaczysz powiązania i pomiar." action={<Link href="/admin/links" className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Przejdź do linków i QR</Link>} /> : null}
       {assetIds.map((assetId) => {
         const asset = assets.find((a) => a.id === assetId);
         const assetLinks = links.filter((l) => l.assetId === assetId);

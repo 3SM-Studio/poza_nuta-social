@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
@@ -37,10 +38,10 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
         {canInvite ? <InviteMemberDialog actorRole={access.role} /> : null}
       </header>
 
-      {status ? <TeamNotice tone="success">{successMessage(status)}</TeamNotice> : null}
-      {error ? <TeamNotice tone="error">{errorMessage(error)}</TeamNotice> : null}
+      {status ? <AdminNotice tone="success">{successMessage(status)}</AdminNotice> : null}
+      {error ? <AdminNotice tone="error">{errorMessage(error)}</AdminNotice> : null}
       {access.role === "viewer" ? (
-        <TeamNotice tone="neutral">Masz dostęp tylko do odczytu. Zmiany członkostwa są niedostępne dla roli viewer.</TeamNotice>
+        <AdminNotice tone="info">Masz dostęp tylko do odczytu. Zmiany członkostwa są niedostępne dla roli viewer.</AdminNotice>
       ) : null}
 
       <Card>
@@ -137,10 +138,6 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
 
 function RoleBadge({ role }: { role: "owner" | "admin" | "viewer" }) {
   return <Badge variant={role === "owner" ? "default" : role === "admin" ? "secondary" : "outline"}>{role}</Badge>;
-}
-
-function TeamNotice({ children, tone }: { children: React.ReactNode; tone: "success" | "error" | "neutral" }) {
-  return <p role={tone === "error" ? "alert" : "status"} className={`rounded-lg border px-4 py-3 text-sm ${tone === "error" ? "border-destructive/40 bg-destructive/10" : tone === "success" ? "border-emerald-400/30 bg-emerald-400/10" : "text-muted-foreground"}`}>{children}</p>;
 }
 
 function successMessage(status: string) {

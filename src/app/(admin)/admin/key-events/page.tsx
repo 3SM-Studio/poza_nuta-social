@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -29,9 +31,9 @@ export default async function KeyEventsPage({ searchParams }: { searchParams: Pr
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">Istotne działania zapisane w przyjętej analityce. Każde zdarzenie liczymy osobno, również gdy jedna sesja wykona je kilka razy.</p>
     </header>
 
-    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ?
-      <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
-      <Card role="alert"><CardHeader><CardTitle>Odczyt Key Events niedostępny</CardTitle></CardHeader><CardContent className="space-y-3"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/key-events?${analyticsReportQuery(range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> :
+    {invalidCustom ? <AdminNotice tone="error" title="Nieprawidłowy zakres dat">Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</AdminNotice> : request.status === "too_long" ?
+      <AdminNotice tone="error">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</AdminNotice> : !report ?
+      <AdminNotice tone="error" title="Odczyt Key Events niedostępny"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/key-events?${analyticsReportQuery(range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></AdminNotice> :
       <OutcomeResults report={report} range={range} scope={scope} />}
 
     <section id="outcome-settings" aria-label="Ustawienia raportu" className="space-y-5 rounded-xl border bg-card p-4 sm:p-5">
@@ -80,7 +82,7 @@ function OutcomeResults({ report, range, scope }: { report: OutcomeReport; range
       <h2 id="outcome-results" className="text-lg font-bold">Wyniki: {number.format(total)} zdarzeń</h2>
       <p className="text-xs text-muted-foreground">{range.from}–{range.toInclusive} · {REPORTING_SCOPE_LABELS[scope]} · <a href="#outcome-settings" className="font-semibold underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">Zmień zakres</a></p>
     </div>
-    {total === 0 ? <Card><CardContent className="space-y-2 pt-5 text-sm"><p className="font-bold">Brak Key Events w tym zakresie.</p><p className="text-muted-foreground">Zmień daty lub zakres ruchu. Pusty Business może współistnieć z danymi Diagnostic.</p></CardContent></Card> : null}
+    {total === 0 ? <AdminEmpty title="Brak Key Events w tym zakresie." description="Zmień daty lub zakres ruchu. Pusty Business może współistnieć z danymi Diagnostic." /> : null}
     <div className="grid gap-4 lg:grid-cols-2">
       {report.outcomes.map((row) => {
         const definition = EVENT_SEMANTICS[row.eventName];

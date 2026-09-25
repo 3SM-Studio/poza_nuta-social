@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { DebugRefresh } from "@/components/admin/debug-refresh";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -55,12 +57,12 @@ export default async function DebugPage({ searchParams }: { searchParams: Promis
       <Button type="submit" variant="accent">Zastosuj filtry</Button>
     </form>
 
-    {!records ? <Card><CardHeader><CardTitle>Odczyt niedostępny</CardTitle></CardHeader><CardContent className="text-sm text-muted-foreground">Nie udało się odczytać diagnostyki. Spróbuj odświeżyć widok. Nie oznacza to, że analityka publiczna przestała zapisywać zdarzenia.</CardContent></Card> :
+    {!records ? <AdminNotice tone="error" title="Odczyt niedostępny">Nie udało się odczytać diagnostyki. Spróbuj odświeżyć widok. Nie oznacza to, że analityka publiczna przestała zapisywać zdarzenia.</AdminNotice> : records.length === 0 ?
+      <AdminEmpty headingLevel={2} title="Brak zdarzeń dla tych filtrów" description="Sprawdź tryb, wynik lub zwiększ zakres do 24 godzin." /> :
       <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
         <section aria-labelledby="debug-stream" className="min-w-0 space-y-3">
           <h2 id="debug-stream" className="text-lg font-bold">Ostatnie zdarzenia <span className="text-sm font-normal text-muted-foreground">({records.length})</span></h2>
-          {records.length === 0 ? <Card><CardContent className="py-8 text-sm text-muted-foreground">Brak zdarzeń dla tych filtrów i zakresu. Sprawdź tryb, wynik lub zwiększ zakres do 24 godzin.</CardContent></Card> :
-            <div className="space-y-2">{records.map((record) => {
+          <div className="space-y-2">{records.map((record) => {
               const query = new URLSearchParams(base);
               query.set("record", record.key);
               return <Link key={record.key} href={`/admin/debug?${query}#debug-inspector`} aria-current={selected?.key === record.key ? "true" : undefined}
@@ -74,7 +76,7 @@ export default async function DebugPage({ searchParams }: { searchParams: Promis
                 </p>
                 <p className="mt-1 break-all text-xs"><span className="text-muted-foreground">Ścieżka: </span>{record.canonicalPath ?? "brak danych"}<span className="text-muted-foreground"> · Projekt: </span>Poza Nutą</p>
               </Link>;
-            })}</div>}
+            })}</div>
         </section>
         <section aria-labelledby="debug-inspector" className="min-w-0">
           <h2 id="debug-inspector" className="mb-3 scroll-mt-20 text-lg font-bold">Inspektor zdarzenia</h2>

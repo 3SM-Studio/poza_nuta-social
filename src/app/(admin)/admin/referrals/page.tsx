@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { CopyButton } from "@/components/admin/copy-button";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import {
   CreateParticipantDialog,
   CreateReferralLinkDialog,
@@ -41,8 +42,8 @@ export default async function ReferralsPage({ searchParams }: { searchParams: Pr
         {canMutate ? <CreateParticipantDialog memberships={memberships} /> : null}
       </header>
 
-      {typeof params.error === "string" ? <p role="alert" className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm">{referralErrorMessage(params.error)}</p> : null}
-      {typeof params.status === "string" ? <p role="status" className="rounded-lg border border-emerald-400/30 bg-emerald-400/10 px-4 py-3 text-sm">{referralSuccessMessage(params.status)}</p> : null}
+      {typeof params.error === "string" ? <AdminNotice tone="error">{referralErrorMessage(params.error)}</AdminNotice> : null}
+      {typeof params.status === "string" ? <AdminNotice tone="success">{referralSuccessMessage(params.status)}</AdminNotice> : null}
 
       <nav className="flex flex-wrap gap-2" aria-label="Zakres rankingu poleceń">
         {[{ key: "today", label: "Dziś" }, { key: "7", label: "7 dni" }, { key: "30", label: "30 dni" }, { key: "90", label: "90 dni" }].map((item) => (

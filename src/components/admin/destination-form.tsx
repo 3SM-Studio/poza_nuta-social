@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { createDestinationAction } from "@/app/(admin)/admin/destinations/actions";
+import { AdminNotice } from "@/components/admin/admin-notice";
 import { AdminInputField, AdminNativeSelectField } from "@/components/admin/admin-form-field";
 import { SubmitButton } from "@/components/admin/submit-button";
 import { NativeSelectOption } from "@/components/ui/native-select";
@@ -23,8 +24,8 @@ export function DestinationForm() {
     </AdminNativeSelectField>
     <AdminInputField label="Kolejność" name="sortOrder" type="number" min="0" max="10000" placeholder="10" defaultValue={state.values.sortOrder ?? ""} error={state.fieldErrors.sortOrder} />
     <AdminInputField label="Krótki opis" name="description" placeholder="Relacje, zdjęcia i aktualności" defaultValue={state.values.description ?? ""} error={state.fieldErrors.description} />
-    {state.formError ? <p role="alert" className="text-sm text-destructive md:col-span-2">{state.formError}</p> : null}
-    {state.status === "saved" ? <p role="status" className="text-sm text-muted-foreground md:col-span-2">Destynacja została zapisana.</p> : null}
+    {state.formError ? <div className="md:col-span-2"><AdminNotice tone="error">{state.formError}</AdminNotice></div> : null}
+    {state.status === "saved" ? <div className="md:col-span-2"><AdminNotice tone="success">Destynacja została zapisana.</AdminNotice></div> : null}
     <div className="md:col-span-2"><SubmitButton idle="Zapisz destynację" pending="Zapisuję…" /></div>
   </form>;
 }

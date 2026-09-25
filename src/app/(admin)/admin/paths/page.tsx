@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -67,7 +69,7 @@ export default async function PathsPage({ searchParams }: { searchParams: Promis
 
     {invalidCustom ? <Notice title="Nieprawidłowy zakres dat" body="Podaj poprawne daty w kolejności od wcześniejszej do późniejszej." /> : request.status === "too_long" ?
       <Notice title="Zbyt długi zakres" body="Wybierz okres nie dłuższy niż 366 dni." /> : !report ?
-      <Card role="alert"><CardHeader><CardTitle>Odczyt ścieżek niedostępny</CardTitle></CardHeader><CardContent className="space-y-3 text-sm"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={href(range,scope,path)} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> : <>
+      <AdminNotice tone="error" title="Odczyt ścieżek niedostępny"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={href(range,scope,path)} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></AdminNotice> : <>
       {invalidPath ? <Notice title="Nieprawidłowa strona" body="Wybrany path nie ma poprawnego formatu. Wybierz stronę z raportu." /> : null}
       <Results report={report} range={range} scope={scope} />
     </>}
@@ -87,7 +89,7 @@ function Results({ report, range, scope }: { report: PathsReport; range: Dashboa
   return <div className="space-y-6">
     <section aria-labelledby="paths-overview" className="space-y-4">
       <div className="flex flex-wrap items-baseline justify-between gap-2"><h2 id="paths-overview" className="text-xl font-bold">Obserwowane ścieżki</h2><p className="text-sm text-muted-foreground">{number.format(report.pathSessions)} sesji z odsłoną strony</p></div>
-      {report.pathSessions === 0 ? <p className="rounded-xl border bg-card p-5 text-sm">Brak sesji consented z odsłoną strony w tym zakresie ruchu. Zmień daty albo zakres; cookieless nie utworzy ścieżki.</p> :
+      {report.pathSessions === 0 ? <AdminEmpty title="Brak sesji consented z odsłoną strony" description="Zmień daty albo zakres ruchu. Zdarzenia cookieless nie tworzą ścieżek sesji." /> :
         <div className="grid gap-5 lg:grid-cols-2">
           <Card><CardHeader><CardTitle>Pierwsza obserwowana strona w zakresie</CardTitle></CardHeader><CardContent><ol className="divide-y">{report.entries.map((entry) =>
             <li key={entry.path} className="flex min-w-0 items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"><Link href={href(range,scope,entry.path)} className="min-w-0 break-all font-semibold underline underline-offset-4 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">{entry.path}</Link><Count sessions={entry.sessions} population={report.pathSessions} /></li>)}</ol></CardContent></Card>
@@ -119,4 +121,4 @@ function Count({ sessions, population }: { sessions: number; population: number 
   return <span className="shrink-0 text-right text-sm"><strong className="block tabular-nums">{number.format(sessions)} sesji</strong><span className="text-xs text-muted-foreground">{formatShare(sessions,population)}</span></span>;
 }
 function formatShare(sessions: number, population: number) { const value = share(sessions,population); return value === null ? "Brak bazy" : `${number.format(value)}%`; }
-function Notice({ title, body }: { title: string; body: string }) { return <Card role="alert"><CardHeader><CardTitle>{title}</CardTitle></CardHeader><CardContent className="text-sm">{body}</CardContent></Card>; }
+function Notice({ title, body }: { title: string; body: string }) { return <AdminNotice tone="error" title={title}>{body}</AdminNotice>; }

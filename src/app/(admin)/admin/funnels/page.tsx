@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminEmpty } from "@/components/admin/admin-empty";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -44,9 +46,9 @@ export default async function FunnelsPage({ searchParams }: { searchParams: Prom
       <p className="max-w-3xl text-sm text-muted-foreground">{definition.description}</p>
     </section>
 
-    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ?
-      <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
-      <Card role="alert"><CardHeader><CardTitle>Odczyt funnelu niedostępny</CardTitle></CardHeader><CardContent className="space-y-3"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/funnels?${query(key, range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> :
+    {invalidCustom ? <AdminNotice tone="error" title="Nieprawidłowy zakres dat">Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</AdminNotice> : request.status === "too_long" ?
+      <AdminNotice tone="error">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</AdminNotice> : !report ?
+      <AdminNotice tone="error" title="Odczyt funnelu niedostępny"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/funnels?${query(key, range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></AdminNotice> :
       <FunnelResults report={report} definition={definition} range={range} scope={scope} />}
 
     <section id="funnel-settings" aria-label="Ustawienia raportu" className="space-y-5 rounded-xl border bg-card p-4 sm:p-5">
@@ -94,8 +96,8 @@ function FunnelResults({ report, definition, range, scope }: { report: FunnelRep
       <h2 id="funnel-results" className="text-lg font-bold">{definition.label}</h2>
       <p className="text-xs text-muted-foreground">{range.from}–{range.toInclusive} · {REPORTING_SCOPE_LABELS[scope]} · tylko sesje consented · <a href="#funnel-settings" className="font-semibold underline underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring">Zmień zakres</a></p>
     </div>
-    {report.eligibleSessions === 0 ? <Card><CardContent className="space-y-2 pt-5 text-sm"><p className="font-bold">Brak sesji consented w wybranym zakresie ruchu.</p><p className="text-muted-foreground">Zmień daty lub zakres ruchu. Zdarzenia cookieless nie tworzą sesji dla tej analizy.</p></CardContent></Card> : report.entrants === 0 ?
-      <Card><CardContent className="space-y-2 pt-5 text-sm"><p className="font-bold">Żadna sesja nie rozpoczęła tej ścieżki.</p><p className="text-muted-foreground">W zakresie było {number.format(report.eligibleSessions)} sesji consented, lecz żadna nie wykonała pierwszego kroku. Współczynnik ukończenia nie ma bazy.</p></CardContent></Card> : null}
+    {report.eligibleSessions === 0 ? <AdminEmpty title="Brak sesji consented w wybranym zakresie ruchu." description="Zmień daty lub zakres ruchu. Zdarzenia cookieless nie tworzą sesji dla tej analizy." /> : report.entrants === 0 ?
+      <AdminEmpty title="Żadna sesja nie rozpoczęła tej ścieżki." description={<>W zakresie było {number.format(report.eligibleSessions)} sesji consented, lecz żadna nie wykonała pierwszego kroku. Współczynnik ukończenia nie ma bazy.</>} /> : null}
     <div className="grid gap-3 sm:grid-cols-2">
       <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Wejścia · sesje consented</p><p className="mt-1 text-3xl font-black tabular-nums">{number.format(report.entrants)}</p></CardContent></Card>
       <Card><CardContent className="pt-5"><p className="text-sm text-muted-foreground">Ukończenie całej ścieżki</p><p className="mt-1 text-3xl font-black tabular-nums">{percentage(report.completionRate)}</p><p className="mt-1 text-xs text-muted-foreground">Ostatni krok ÷ wejścia</p></CardContent></Card>
