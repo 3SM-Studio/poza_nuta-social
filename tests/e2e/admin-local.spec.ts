@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { join } from "node:path";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import { createLocalAuthUser, loginWithMagicEmail, mailMessageIds, newMessageUrl, requestMagicLink } from "./helpers/local-admin-auth";
 
 const adminEmail = process.env.LOCAL_ADMIN_E2E_EMAIL;
 const mailpitUrl = process.env.LOCAL_MAILPIT_URL;
@@ -19,27 +20,7 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
   const campaignSlug = `lokalny-test-e2e-${runId}`;
   const linkLabel = `Plakat lokalny ${runId}`;
 
-  await page.goto("/admin/login");
-  await waitForHydration(page);
-  await page.getByLabel("E-mail").fill(adminEmail!);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-    const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.[0]?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-
-  const messageResponse = await request.get(`${mailpitUrl}/api/v1/message/${messageId}`);
-  const message = await messageResponse.json() as { HTML?: string; Text?: string };
-  const messageBody = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const magicUrl = messageBody.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  expect(magicUrl, "Mailpit message should contain a Supabase verification URL").toBeTruthy();
-
-  await page.goto(magicUrl!);
+  await loginWithMagicEmail(page, request, adminEmail!);
   await waitForHydration(page);
   await expect(page.getByRole("heading", { name: "Co naprawdę działa?" })).toBeVisible();
   await expect(page.getByText("admin@pozanuta.test", { exact: true })).toBeVisible();
@@ -338,7 +319,7 @@ test("Team and Access reconciles existing and new Auth users, role changes, deac
   const beforeNewInvite = await mailMessageIds(request);
   await inviteFromTeamPage(page, newEmail, "viewer");
   await expect(page.getByText(/zapisano i wysłano/i)).toBeVisible();
-  const inviteUrl = await newMessageUrl(request, beforeNewInvite, /https?:\/\/[^\s"'<>]+\/auth\/confirm\?[^\s"'<>]+/);
+  const inviteUrl = await newMessageUrl(request, beforeNewInvite, /https?:\/\/[^\s"'<>]+\/auth\/confirm\?[^\s"'<>]+/, newEmail);
   const newUserContext = await browser.newContext();
   const newUserPage = await newUserContext.newPage();
   await newUserPage.goto(inviteUrl);
@@ -688,45 +669,9 @@ async function waitForHydration(page: import("@playwright/test").Page) {
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 }
 
-async function createLocalAuthUser(admin: SupabaseClient, email: string) {
-  const { data, error } = await admin.auth.admin.createUser({ email, email_confirm: true });
-  if (error || !data.user) throw new Error(error?.message || `Unable to create ${email}`);
-  return { id: data.user.id, email };
-}
-
 function decodeAnalyticsCookie(value?: string) {
   if (!value) return "";
   return JSON.parse(Buffer.from(value.split(".")[0], "base64url").toString("utf8")).id as string;
-}
-
-async function loginWithMagicEmail(page: import("@playwright/test").Page, request: import("@playwright/test").APIRequestContext, email: string) {
-  const magicUrl = await requestMagicLink(page, request, email);
-  await page.goto(magicUrl);
-  await waitForHydration(page);
-}
-
-async function requestMagicLink(page: import("@playwright/test").Page, request: import("@playwright/test").APIRequestContext, email: string) {
-  if (!mailpitUrl) throw new Error("Mailpit is required");
-  const beforeResponse = await request.get(`${mailpitUrl}/api/v1/messages`);
-  const beforeMailbox = await beforeResponse.json() as { messages?: Array<{ ID?: string }> };
-  const existingIds = new Set(beforeMailbox.messages?.map((message) => message.ID).filter(Boolean));
-  await page.goto("/admin/login");
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-    const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !existingIds.has(message.ID))?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-  const messageResponse = await request.get(`${mailpitUrl}/api/v1/message/${messageId}`);
-  const message = await messageResponse.json() as { HTML?: string; Text?: string };
-  const body = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const magicUrl = body.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  if (!magicUrl) throw new Error(`Magic link missing for ${email}`);
-  return magicUrl;
 }
 
 async function inviteFromTeamPage(page: import("@playwright/test").Page, email: string, role: "admin" | "viewer") {
@@ -735,32 +680,4 @@ async function inviteFromTeamPage(page: import("@playwright/test").Page, email: 
   await page.getByLabel("Rola").selectOption(role);
   await page.getByRole("button", { name: "Wyślij zaproszenie" }).click();
   await page.waitForURL(/\/admin\/team\?status=/);
-}
-
-async function mailMessageIds(request: import("@playwright/test").APIRequestContext) {
-  if (!mailpitUrl) throw new Error("Mailpit is required");
-  const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-  const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-  return new Set(mailbox.messages?.map((message) => message.ID).filter((id): id is string => Boolean(id)) || []);
-}
-
-async function newMessageUrl(
-  request: import("@playwright/test").APIRequestContext,
-  previousIds: Set<string>,
-  pattern: RegExp,
-) {
-  if (!mailpitUrl) throw new Error("Mailpit is required");
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-    const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !previousIds.has(message.ID))?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-  const response = await request.get(`${mailpitUrl}/api/v1/message/${messageId}`);
-  const message = await response.json() as { HTML?: string; Text?: string };
-  const body = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const url = body.match(pattern)?.[0];
-  if (!url) throw new Error("Expected URL was not found in the new email");
-  return url;
 }

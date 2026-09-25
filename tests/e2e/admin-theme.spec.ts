@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loginWithMagicEmail } from "./helpers/local-admin-auth";
 
 const adminEmail = process.env.LOCAL_ADMIN_E2E_EMAIL;
 const mailpitUrl = process.env.LOCAL_MAILPIT_URL;
@@ -106,26 +107,7 @@ test("Admin light and dark tokens stay scoped to Admin routes", async ({ page },
 test("authenticated Admin shell and forms use the same theme", async ({ page, request }, testInfo) => {
   test.skip(!adminEmail || !mailpitUrl || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth and Mailpit");
 
-  const before = await (await request.get(`${mailpitUrl}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };
-  const existing = new Set(before.messages?.map((message) => message.ID));
-  await page.goto("/admin/login");
-  await page.getByLabel("E-mail").fill(adminEmail!);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-
-  let messageId: string | undefined;
-  await expect.poll(async () => {
-    const mailbox = await (await request.get(`${mailpitUrl}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string; To?: Array<{ Address?: string }> }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !existing.has(message.ID)
-      && message.To?.some((recipient) => recipient.Address === adminEmail))?.ID;
-    return messageId;
-  }, { timeout: 10_000 }).toBeTruthy();
-
-  const message = await (await request.get(`${mailpitUrl}/api/v1/message/${messageId}`)).json() as { HTML?: string; Text?: string };
-  const magicUrl = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&")
-    .match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  expect(magicUrl).toBeTruthy();
-  await page.goto(magicUrl!);
+  await loginWithMagicEmail(page, request, adminEmail!);
 
   for (const [route, heading] of [["/admin", "Co naprawdę działa?"], ["/admin/campaigns", "Kampanie"], ["/admin/destinations", "Destynacje"]]) {
     await page.goto(route);

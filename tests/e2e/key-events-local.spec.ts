@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loginWithMagicEmail } from "./helpers/local-admin-auth";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
 import { execFileSync } from "node:child_process";
@@ -16,23 +17,7 @@ test("Key Events is admin-only and keeps event and session populations distinct"
   await page.goto(`/admin/key-events?${range}`);
   await expect(page).toHaveURL(/\/admin\/login/);
 
-  const before = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };
-  const existing = new Set(before.messages?.map((message) => message.ID).filter(Boolean));
-  await page.getByLabel("E-mail").fill(email!);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const mailbox = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string; Subject?: string; To?: Array<{ Address?: string }> }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !existing.has(message.ID)
-      && message.Subject === "Your sign-in link" && message.To?.some((recipient) => recipient.Address === email))?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-  const message = await (await request.get(`${mailpit}/api/v1/message/${messageId}`)).json() as { HTML?: string; Text?: string };
-  const body = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const magicUrl = body.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  expect(magicUrl).toBeTruthy();
-  await page.goto(magicUrl!);
+  await loginWithMagicEmail(page, request, email!);
   await expect(page).not.toHaveURL(/\/admin\/login/);
 
   const sessionId = crypto.randomUUID();

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { loginWithMagicEmail } from "./helpers/local-admin-auth";
 import AxeBuilder from "@axe-core/playwright";
 import { createClient } from "@supabase/supabase-js";
 import { ANALYTICS_PROJECT_KEY } from "../../src/lib/analytics-project";
@@ -17,22 +18,7 @@ test("Realtime is guarded, reflects accepted events, refreshes safely and works 
   await page.goto("/admin/realtime");
   await expect(page).toHaveURL(/\/admin\/login/);
 
-  const before = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };
-  const existing = new Set(before.messages?.map((message) => message.ID).filter(Boolean));
-  await page.getByLabel("E-mail").fill(email!);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const mailbox = await (await request.get(`${mailpit}/api/v1/messages`)).json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !existing.has(message.ID))?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-  const message = await (await request.get(`${mailpit}/api/v1/message/${messageId}`)).json() as { HTML?: string; Text?: string };
-  const body = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const magicUrl = body.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  expect(magicUrl).toBeTruthy();
-  await page.goto(magicUrl!);
+  await loginWithMagicEmail(page, request, email!);
 
   const cookielessId = crypto.randomUUID();
   const testId = crypto.randomUUID();
