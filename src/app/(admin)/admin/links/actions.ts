@@ -2,24 +2,41 @@
 
 import { revalidatePath } from "next/cache";
 import { requireEditor } from "@/lib/admin";
+import { invalidAdminForm, savedAdminForm, type AdminFormState } from "@/lib/admin-form-state";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeReferralLandingPath, sanitizeTaxonomyValue } from "@/lib/analytics-taxonomy";
 import { createTrackingCode } from "@/lib/tracking-code";
 
-export async function createTrackingLinkAction(formData: FormData) {
+type TrackingLinkField = "label" | "campaignId" | "channelGroup" | "source" | "medium" | "asset" | "placement" | "landingPath";
+
+export async function createTrackingLinkAction(previous: AdminFormState<TrackingLinkField>, formData: FormData): Promise<AdminFormState<TrackingLinkField>> {
   const actor = await requireEditor();
+  const values = {
+    label: String(formData.get("label") || ""),
+    campaignId: String(formData.get("campaignId") || ""),
+    channelGroup: String(formData.get("channelGroup") || "offline"),
+    source: String(formData.get("source") || "poster"),
+    medium: String(formData.get("medium") || "qr"),
+    asset: String(formData.get("asset") || ""),
+    placement: String(formData.get("placement") || ""),
+    landingPath: String(formData.get("landingPath") || "/"),
+  };
+  const label = values.label.trim();
+  const campaignId = values.campaignId.trim() || null;
+  const channelGroup = values.channelGroup;
+  const source = sanitizeTaxonomyValue(values.source, 64) || "poster";
+  const medium = sanitizeTaxonomyValue(values.medium, 64) || "qr";
+  const asset = values.asset.trim() || null;
+  const placement = values.placement.trim() || null;
+  const landingPath = sanitizeReferralLandingPath(values.landingPath.trim());
+  const fieldErrors: Partial<Record<TrackingLinkField, string>> = {};
+  if (!label || label.length > 120) fieldErrors.label = "Podaj nazwę linku (maksymalnie 120 znaków).";
+  if (campaignId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(campaignId)) fieldErrors.campaignId = "Wybierz poprawną kampanię.";
+  if (!["offline", "organic_social", "ai_referral", "referral"].includes(channelGroup)) fieldErrors.channelGroup = "Wybierz dostępny kanał.";
+  if (Object.keys(fieldErrors).length) return invalidAdminForm(previous, values, fieldErrors);
+
   const admin = createAdminClient();
   if (!admin) throw new Error("Supabase is not configured");
-  const label = String(formData.get("label") || "").trim();
-  const campaignId = String(formData.get("campaignId") || "").trim() || null;
-  const channelGroup = String(formData.get("channelGroup") || "offline");
-  const source = sanitizeTaxonomyValue(String(formData.get("source") || "poster"), 64) || "poster";
-  const medium = sanitizeTaxonomyValue(String(formData.get("medium") || "qr"), 64) || "qr";
-  const asset = String(formData.get("asset") || "").trim() || null;
-  const placement = String(formData.get("placement") || "").trim() || null;
-  const landingPath = sanitizeReferralLandingPath(String(formData.get("landingPath") || "/").trim());
-  if (!label || label.length > 120) throw new Error("Tracking link label is required");
-  if (!new Set(["offline", "organic_social", "ai_referral", "referral"]).has(channelGroup)) throw new Error("Unsupported channel group");
 
   for (let attempt = 0; attempt < 6; attempt++) {
     const code = createTrackingCode();
@@ -38,7 +55,9 @@ export async function createTrackingLinkAction(formData: FormData) {
       p_placement_slug: placement ? slugify(placement) : null,
       p_landing_path: landingPath,
     });
-    if (!error) { revalidatePath("/admin/links"); return; }
+    if (!error) { revalidatePath("/admin/links"); return savedAdminForm(previous); }
+    if (error.code === "23503") return invalidAdminForm(previous, values, { campaignId: "Wybrana kampania nie jest już dostępna." });
+    if (error.code === "23514") return invalidAdminForm(previous, values, {}, "Ten zestaw ustawień linku nie jest dozwolony.");
     if (error.code !== "23505") throw new Error(error.message);
   }
   throw new Error("Could not allocate unique tracking code");

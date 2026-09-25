@@ -1,15 +1,14 @@
 import { Archive } from "lucide-react";
-import { SubmitButton } from "@/components/admin/submit-button";
+import { CampaignForm } from "@/components/admin/campaign-form";
 import { ReadUnavailable } from "@/components/admin/read-unavailable";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { canMutateAdmin, requireAdminAccess } from "@/lib/admin";
 import { adminRows } from "@/lib/admin-read";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { archiveCampaignAction, createCampaignAction } from "./actions";
+import { archiveCampaignAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -28,13 +27,7 @@ export default async function CampaignsPage() {
       {canMutate ? <Card>
         <CardHeader><CardTitle>Nowa kampania</CardTitle><CardDescription>Slug jest technicznym identyfikatorem w analityce.</CardDescription></CardHeader>
         <CardContent>
-          <form action={createCampaignAction} className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <Field label="Nazwa" name="name" placeholder="Loch · 20.09.2026" required />
-            <Field label="Slug (opcjonalny)" name="slug" placeholder="loch-2026-09-20" />
-            <Field label="Start" name="startsOn" type="date" />
-            <Field label="Koniec" name="endsOn" type="date" />
-            <div className="md:col-span-2 xl:col-span-4"><SubmitButton idle="Utwórz kampanię" pending="Tworzę…" /></div>
-          </form>
+          <CampaignForm />
         </CardContent>
       </Card> : <p className="rounded-lg border px-4 py-3 text-sm text-muted-foreground">Tryb tylko do odczytu. Rola viewer nie może zmieniać kampanii.</p>}
       <Card>
@@ -45,8 +38,4 @@ export default async function CampaignsPage() {
       </Card>
     </div>
   );
-}
-
-function Field({ label, name, ...props }: { label: string; name: string } & React.ComponentProps<typeof Input>) {
-  return <div className="space-y-2"><Label htmlFor={name}>{label}</Label><Input id={name} name={name} {...props} /></div>;
 }
