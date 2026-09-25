@@ -5,30 +5,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FUNNELS, DEFAULT_FUNNEL, parseFunnelKey, type FunnelKey, type FunnelReport } from "@/lib/analytics/funnel-contract";
 import { getFunnelReport } from "@/lib/analytics/funnels";
-import { DEFAULT_REPORTING_SCOPE, parseReportingScope, REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
+import { REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
+import { analyticsReportQuery, resolveAnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange, type DashboardRange } from "@/lib/dashboard-range";
+import { type DashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
 const number = new Intl.NumberFormat("pl-PL");
 
 function query(key: FunnelKey, range: DashboardRange, scope: ReportingScope) {
-  const params = new URLSearchParams({ funnel: key, range: range.key });
-  if (range.key === "custom") { params.set("from", range.from); params.set("to", range.toInclusive); }
-  if (scope === "diagnostic") params.set("scope", scope);
-  return params.toString();
+  return analyticsReportQuery(range, scope, { extra: { funnel: key } });
 }
 
 export default async function FunnelsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdmin();
   const params = await searchParams;
   const key = parseFunnelKey(typeof params.funnel === "string" ? params.funnel : null) ?? DEFAULT_FUNNEL;
-  const scope = parseReportingScope(typeof params.scope === "string" ? params.scope : null) ?? DEFAULT_REPORTING_SCOPE;
-  const range = resolveDashboardRange(params);
-  const invalidCustom = params.range === "custom" && range.key !== "custom";
-  const days = (Date.parse(`${range.toExclusive}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86_400_000;
-  const report = !invalidCustom && days <= 366 ? await getFunnelReport(key, range.from, range.toExclusive, scope) : null;
+  const request = resolveAnalyticsReportRequest(params);
+  const { range, scope } = request;
+  const invalidCustom = request.status === "invalid";
+  const report = request.status === "valid" ? await getFunnelReport(key, range.from, range.toExclusive, scope) : null;
   const definition = FUNNELS[key];
 
   return <div className="space-y-7">
@@ -47,7 +44,7 @@ export default async function FunnelsPage({ searchParams }: { searchParams: Prom
       <p className="max-w-3xl text-sm text-muted-foreground">{definition.description}</p>
     </section>
 
-    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : days > 366 ?
+    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ?
       <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
       <Card role="alert"><CardHeader><CardTitle>Odczyt funnelu niedostępny</CardTitle></CardHeader><CardContent className="space-y-3"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/funnels?${query(key, range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> :
       <FunnelResults report={report} definition={definition} range={range} scope={scope} />}
@@ -58,15 +55,15 @@ export default async function FunnelsPage({ searchParams }: { searchParams: Prom
         <p className="text-xs text-muted-foreground">{invalidCustom ? "Popraw zakres własny poniżej." : `Aktywny zakres: ${range.from}–${range.toInclusive}${range.key === "custom" ? " · zakres własny" : ""}`}</p>
         <nav aria-label="Okres analizy funnelu" className="flex flex-wrap gap-2">
           {([ ["today","Dziś"], ["7","7 dni"], ["30","30 dni"], ["90","90 dni"] ] as const).map(([rangeKey,label]) =>
-            <Link key={rangeKey} href={`/admin/funnels?${new URLSearchParams({ funnel: key, range: rangeKey, ...(scope === "diagnostic" ? { scope } : {}) })}`}
+            <Link key={rangeKey} href={`/admin/funnels?${analyticsReportQuery(range, scope, { rangeKey, extra: { funnel: key } })}`}
               aria-current={range.key === rangeKey ? "page" : undefined}
               className={cn(buttonVariants({ variant: range.key === rangeKey ? "accent" : "outline" }), "min-h-11")}>{label}</Link>)}
         </nav>
         <form method="get" action="/admin/funnels" className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <Input type="hidden" name="funnel" value={key} /><Input type="hidden" name="range" value="custom" />
           {scope === "diagnostic" ? <Input type="hidden" name="scope" value={scope} /> : null}
-          <div className="space-y-2"><Label htmlFor="funnel-from">Od</Label><Input id="funnel-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom && typeof params.from === "string" ? params.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
-          <div className="space-y-2"><Label htmlFor="funnel-to">Do</Label><Input id="funnel-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom && typeof params.to === "string" ? params.to : ""} aria-invalid={invalidCustom || undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="funnel-from">Od</Label><Input id="funnel-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom ? request.custom.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="funnel-to">Do</Label><Input id="funnel-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom ? request.custom.to : ""} aria-invalid={invalidCustom || undefined} required /></div>
           <Button variant="outline" type="submit" className="min-h-11">Pokaż zakres</Button>
         </form>
         <p className="text-xs text-muted-foreground">Maksymalnie 366 dni. Dni liczymy według Europe/Warsaw.</p>

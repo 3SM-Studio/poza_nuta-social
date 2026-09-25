@@ -1,12 +1,12 @@
 import Link from "next/link";
-import { AcquisitionRange, acquisitionQuery } from "@/components/admin/acquisition-range";
+import { AcquisitionRange } from "@/components/admin/acquisition-range";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { getAcquisitionOverview } from "@/lib/analytics/acquisition";
 import { ACQUISITION_METRICS } from "@/lib/analytics/acquisition-contract";
-import { DEFAULT_REPORTING_SCOPE, parseReportingScope, REPORTING_SCOPE_LABELS } from "@/lib/analytics/reporting-scope";
+import { REPORTING_SCOPE_LABELS } from "@/lib/analytics/reporting-scope";
+import { analyticsReportQuery, resolveAnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
@@ -15,12 +15,11 @@ const nf = new Intl.NumberFormat("pl-PL");
 export default async function AcquisitionPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdmin();
   const params = await searchParams;
-  const range = resolveDashboardRange(params);
-  const scope = parseReportingScope(typeof params.scope === "string" ? params.scope : null) ?? DEFAULT_REPORTING_SCOPE;
+  const request = resolveAnalyticsReportRequest(params);
+  const { range, scope } = request;
   const offset = typeof params.offset === "string" && /^\d+$/.test(params.offset) ? Math.min(Number(params.offset), 100_000) : 0;
-  const days = (Date.parse(`${range.toExclusive}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86_400_000;
-  const report = days <= 366 ? await getAcquisitionOverview(range.from, range.toExclusive, scope, offset) : null;
-  const query = acquisitionQuery(range, scope);
+  const report = request.status === "valid" ? await getAcquisitionOverview(range.from, range.toExclusive, scope, offset) : null;
+  const query = analyticsReportQuery(range, scope);
   const rowHref = (id: string) => `/admin/acquisition/${id}?${query}`;
 
   return <div className="space-y-7">
@@ -28,8 +27,8 @@ export default async function AcquisitionPage({ searchParams }: { searchParams: 
       <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Pozyskanie i kampanie</h1>
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">Sprawdź, które linki kampanii przyniosły mierzalne wejścia oraz które późniejsze działania mają utrwalony kontekst kampanii. Nazwy i statusy są aktualnymi danymi encji, a liczby pochodzą z historycznych zdarzeń.</p>
     </header>
-    <AcquisitionRange basePath="/admin/acquisition" range={range} scope={scope} />
-    {days > 366 ? <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
+    <AcquisitionRange basePath="/admin/acquisition" request={request} />
+    {request.status === "invalid" ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ? <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
       <Card role="alert"><CardHeader><CardTitle>Odczyt pozyskania niedostępny</CardTitle></CardHeader><CardContent>Spróbuj ponownie później. Brak odczytu nie oznacza zerowej aktywności.</CardContent></Card> : <>
       <p className="text-xs text-muted-foreground">Zdarzenia: {range.from}–{range.toInclusive} · Europe/Warsaw · {REPORTING_SCOPE_LABELS[scope]}. Każde przyjęte zdarzenie jest liczone raz w jednej kategorii kontekstu.</p>
       <section aria-labelledby="acquisition-overview" className="space-y-3">

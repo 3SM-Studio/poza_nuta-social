@@ -4,21 +4,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange, type DashboardRange } from "@/lib/dashboard-range";
+import { type DashboardRange } from "@/lib/dashboard-range";
+import { analyticsReportQuery, resolveAnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { DEFAULT_SEGMENT_KEY, parseSegmentKey, SEGMENT_DEFINITIONS, shareOfBase, type SegmentKey, type SegmentReport } from "@/lib/analytics/segment-contract";
 import { getSegmentReport } from "@/lib/analytics/segments";
-import { DEFAULT_REPORTING_SCOPE, parseReportingScope, REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
+import { REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
 const number = new Intl.NumberFormat("pl-PL");
 const percent = new Intl.NumberFormat("pl-PL", { style: "percent", maximumFractionDigits: 1 });
 
-function href(range: DashboardRange, scope: ReportingScope, segment: SegmentKey) {
-  const query = new URLSearchParams({ range: range.key, segment });
-  if (range.key === "custom") { query.set("from", range.from); query.set("to", range.toInclusive); }
-  if (scope === "diagnostic") query.set("scope", scope);
-  return `/admin/segments?${query}`;
+function href(range: DashboardRange, scope: ReportingScope, segment: SegmentKey, rangeKey?: Exclude<DashboardRange["key"], "custom">) {
+  return `/admin/segments?${analyticsReportQuery(range, scope, { rangeKey, extra: { segment } })}`;
 }
 
 function formatShare(sessions: number, base: number) {
@@ -29,15 +27,14 @@ function formatShare(sessions: number, base: number) {
 export default async function SegmentsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdmin();
   const params = await searchParams;
-  const range = resolveDashboardRange(params);
-  const scope = parseReportingScope(typeof params.scope === "string" ? params.scope : null) ?? DEFAULT_REPORTING_SCOPE;
+  const request = resolveAnalyticsReportRequest(params);
+  const { range, scope } = request;
   const requestedSegment = params.segment;
   const parsedSegment = parseSegmentKey(requestedSegment);
   const selectedKey = parsedSegment ?? DEFAULT_SEGMENT_KEY;
   const invalidSegment = requestedSegment !== undefined && parsedSegment === null;
-  const invalidCustom = params.range === "custom" && range.key !== "custom";
-  const days = (Date.parse(`${range.toExclusive}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86_400_000;
-  const report = !invalidCustom && days <= 366 ? await getSegmentReport(range.from, range.toExclusive, scope, selectedKey) : null;
+  const invalidCustom = request.status === "invalid";
+  const report = request.status === "valid" ? await getSegmentReport(range.from, range.toExclusive, scope, selectedKey) : null;
   const selectedDefinition = SEGMENT_DEFINITIONS.find((definition) => definition.key === selectedKey)!;
 
   return <div className="min-w-0 space-y-7">
@@ -51,16 +48,14 @@ export default async function SegmentsPage({ searchParams }: { searchParams: Pro
         <h2 className="text-sm font-bold">Okres zdarzeń</h2>
         <p className="text-xs text-muted-foreground">{range.from}–{range.toInclusive} · dni według Europe/Warsaw, początek włącznie, następny dzień wyłącznie</p>
         <nav aria-label="Okres segmentów" className="flex flex-wrap gap-2">
-          {([ ["today","Dziś"], ["7","7 dni"], ["30","30 dni"], ["90","90 dni"] ] as const).map(([key,label]) => {
-            const next = { ...range, key } as DashboardRange;
-            return <Link key={key} href={href(next,scope,selectedKey)} aria-current={range.key === key ? "page" : undefined} className={cn(buttonVariants({ variant: range.key === key ? "accent" : "outline" }), "min-h-11")}>{label}</Link>;
-          })}
+          {([ ["today","Dziś"], ["7","7 dni"], ["30","30 dni"], ["90","90 dni"] ] as const).map(([key,label]) =>
+            <Link key={key} href={href(range,scope,selectedKey,key)} aria-current={range.key === key ? "page" : undefined} className={cn(buttonVariants({ variant: range.key === key ? "accent" : "outline" }), "min-h-11")}>{label}</Link>)}
         </nav>
         <form method="get" action="/admin/segments" className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <Input type="hidden" name="range" value="custom" /><Input type="hidden" name="segment" value={selectedKey} />
           {scope === "diagnostic" ? <Input type="hidden" name="scope" value={scope} /> : null}
-          <div className="space-y-2"><Label htmlFor="segments-from">Od</Label><Input id="segments-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
-          <div className="space-y-2"><Label htmlFor="segments-to">Do</Label><Input id="segments-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : ""} aria-invalid={invalidCustom || undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="segments-from">Od</Label><Input id="segments-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom ? request.custom.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="segments-to">Do</Label><Input id="segments-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom ? request.custom.to : ""} aria-invalid={invalidCustom || undefined} required /></div>
           <Button variant="outline" type="submit" className="min-h-11">Pokaż zakres</Button>
         </form>
         <p className="text-xs text-muted-foreground">Maksymalnie 366 dni.</p>
@@ -74,7 +69,7 @@ export default async function SegmentsPage({ searchParams }: { searchParams: Pro
       </div>
     </section>
 
-    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : days > 366 ?
+    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ?
       <Card role="alert"><CardContent className="pt-5">Wybierz zakres nie dłuższy niż 366 dni.</CardContent></Card> : !report ?
       <Card role="alert"><CardHeader><CardTitle>Odczyt segmentów niedostępny</CardTitle></CardHeader><CardContent className="space-y-3 text-sm"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={href(range,scope,selectedKey)} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> : <>
         {invalidSegment ? <p role="status" className="text-sm text-muted-foreground">Nieznany segment. Pokazujemy domyślny preset.</p> : null}

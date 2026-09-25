@@ -4,39 +4,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange, type DashboardRange } from "@/lib/dashboard-range";
+import { type DashboardRange } from "@/lib/dashboard-range";
+import { analyticsReportQuery, resolveAnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { EVENT_SEMANTICS, OUTCOME_METRICS, type OutcomeReport } from "@/lib/analytics/outcome-contract";
 import { getOutcomeReport } from "@/lib/analytics/outcomes";
-import { DEFAULT_REPORTING_SCOPE, parseReportingScope, REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
+import { REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
 const number = new Intl.NumberFormat("pl-PL");
 
-function query(range: DashboardRange, scope: ReportingScope) {
-  const params = new URLSearchParams({ range: range.key });
-  if (range.key === "custom") { params.set("from", range.from); params.set("to", range.toInclusive); }
-  if (scope === "diagnostic") params.set("scope", scope);
-  return params.toString();
-}
-
-function validDate(value: unknown): value is string {
-  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const parsed = new Date(`${value}T00:00:00Z`);
-  return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
-}
-
 export default async function KeyEventsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdmin();
   const params = await searchParams;
-  const range = resolveDashboardRange(params);
-  const scope = parseReportingScope(typeof params.scope === "string" ? params.scope : null) ?? DEFAULT_REPORTING_SCOPE;
-  const invalidCustom = params.range === "custom" && range.key !== "custom";
-  const invalidFrom = invalidCustom && !validDate(params.from);
-  const invalidTo = invalidCustom && !validDate(params.to);
-  const reversed = invalidCustom && !invalidFrom && !invalidTo && (params.from as string) > (params.to as string);
-  const days = (Date.parse(`${range.toExclusive}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86_400_000;
-  const report = !invalidCustom && days <= 366 ? await getOutcomeReport(range.from, range.toExclusive, scope) : null;
+  const request = resolveAnalyticsReportRequest(params);
+  const { range, scope } = request;
+  const invalidCustom = request.status === "invalid";
+  const { invalidFrom, invalidTo, reversed } = request.custom;
+  const report = request.status === "valid" ? await getOutcomeReport(range.from, range.toExclusive, scope) : null;
 
   return <div className="min-w-0 space-y-7">
     <header className="space-y-2">
@@ -44,9 +29,9 @@ export default async function KeyEventsPage({ searchParams }: { searchParams: Pr
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">Istotne działania zapisane w przyjętej analityce. Każde zdarzenie liczymy osobno, również gdy jedna sesja wykona je kilka razy.</p>
     </header>
 
-    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : days > 366 ?
+    {invalidCustom ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ?
       <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !report ?
-      <Card role="alert"><CardHeader><CardTitle>Odczyt Key Events niedostępny</CardTitle></CardHeader><CardContent className="space-y-3"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/key-events?${query(range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> :
+      <Card role="alert"><CardHeader><CardTitle>Odczyt Key Events niedostępny</CardTitle></CardHeader><CardContent className="space-y-3"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={`/admin/key-events?${analyticsReportQuery(range, scope)}`} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> :
       <OutcomeResults report={report} range={range} scope={scope} />}
 
     <section id="outcome-settings" aria-label="Ustawienia raportu" className="space-y-5 rounded-xl border bg-card p-4 sm:p-5">
@@ -55,15 +40,15 @@ export default async function KeyEventsPage({ searchParams }: { searchParams: Pr
         <p className="text-xs text-muted-foreground">{invalidCustom ? "Popraw zakres własny poniżej." : `Aktywny zakres: ${range.from}–${range.toInclusive}`}</p>
         <nav aria-label="Okres Key Events" className="flex flex-wrap gap-2">
           {([ ["today","Dziś"], ["7","7 dni"], ["30","30 dni"], ["90","90 dni"] ] as const).map(([key,label]) =>
-            <Link key={key} href={`/admin/key-events?${new URLSearchParams({ range: key, ...(scope === "diagnostic" ? { scope } : {}) })}`}
+            <Link key={key} href={`/admin/key-events?${analyticsReportQuery(range, scope, { rangeKey: key })}`}
               aria-current={range.key === key ? "page" : undefined}
               className={cn(buttonVariants({ variant: range.key === key ? "accent" : "outline" }), "min-h-11")}>{label}</Link>)}
         </nav>
         <form method="get" action="/admin/key-events" className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
           <Input type="hidden" name="range" value="custom" />
           {scope === "diagnostic" ? <Input type="hidden" name="scope" value={scope} /> : null}
-          <div className="space-y-2"><Label htmlFor="outcome-from">Od</Label><Input id="outcome-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom && typeof params.from === "string" ? params.from : ""} aria-invalid={invalidFrom || reversed || undefined} aria-describedby={invalidCustom ? "outcome-date-error" : undefined} required /></div>
-          <div className="space-y-2"><Label htmlFor="outcome-to">Do</Label><Input id="outcome-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom && typeof params.to === "string" ? params.to : ""} aria-invalid={invalidTo || reversed || undefined} aria-describedby={invalidCustom ? "outcome-date-error" : undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="outcome-from">Od</Label><Input id="outcome-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom ? request.custom.from : ""} aria-invalid={invalidFrom || reversed || undefined} aria-describedby={invalidCustom ? "outcome-date-error" : undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="outcome-to">Do</Label><Input id="outcome-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom ? request.custom.to : ""} aria-invalid={invalidTo || reversed || undefined} aria-describedby={invalidCustom ? "outcome-date-error" : undefined} required /></div>
           <Button variant="outline" type="submit" className="min-h-11">Pokaż zakres</Button>
         </form>
         {invalidCustom ? <p id="outcome-date-error" className="text-sm text-destructive">Sprawdź daty „Od” i „Do”: obie muszą być poprawne, a początek nie może być późniejszy niż koniec.</p> : null}
@@ -72,7 +57,7 @@ export default async function KeyEventsPage({ searchParams }: { searchParams: Pr
       <div className="space-y-2">
         <h2 className="text-sm font-bold">Zakres ruchu</h2>
         <nav aria-label="Zakres ruchu Key Events" className="flex flex-wrap gap-2">
-          {REPORTING_SCOPES.map((value) => <Link key={value} href={`/admin/key-events?${query(range, value)}`}
+          {REPORTING_SCOPES.map((value) => <Link key={value} href={`/admin/key-events?${analyticsReportQuery(range, value)}`}
             aria-current={scope === value ? "page" : undefined}
             className={cn(buttonVariants({ variant: scope === value ? "accent" : "outline" }), "h-auto min-h-11 max-w-full whitespace-normal text-left")}>{REPORTING_SCOPE_LABELS[value]}</Link>)}
         </nav>

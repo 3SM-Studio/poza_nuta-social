@@ -1,13 +1,13 @@
 import Link from "next/link";
-import { AcquisitionRange, acquisitionQuery } from "@/components/admin/acquisition-range";
+import { AcquisitionRange } from "@/components/admin/acquisition-range";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { getAcquisitionDetail } from "@/lib/analytics/acquisition";
 import { acquisitionCount, type AcquisitionDetail, type AcquisitionMetric } from "@/lib/analytics/acquisition-contract";
-import { DEFAULT_REPORTING_SCOPE, parseReportingScope, REPORTING_SCOPE_LABELS } from "@/lib/analytics/reporting-scope";
+import { REPORTING_SCOPE_LABELS } from "@/lib/analytics/reporting-scope";
+import { analyticsReportQuery, resolveAnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
@@ -21,11 +21,10 @@ export default async function AcquisitionCampaignPage({ params, searchParams }: 
   await requireAdmin();
   const { id } = await params;
   const queryParams = await searchParams;
-  const range = resolveDashboardRange(queryParams);
-  const scope = parseReportingScope(typeof queryParams.scope === "string" ? queryParams.scope : null) ?? DEFAULT_REPORTING_SCOPE;
-  const days = (Date.parse(`${range.toExclusive}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86_400_000;
-  const report = uuid.test(id) && days <= 366 ? await getAcquisitionDetail(range.from, range.toExclusive, scope, id) : null;
-  const query = acquisitionQuery(range, scope);
+  const request = resolveAnalyticsReportRequest(queryParams);
+  const { range, scope } = request;
+  const report = uuid.test(id) && request.status === "valid" ? await getAcquisitionDetail(range.from, range.toExclusive, scope, id) : null;
+  const query = analyticsReportQuery(range, scope);
 
   return <div className="space-y-7">
     <header className="space-y-3">
@@ -35,8 +34,8 @@ export default async function AcquisitionCampaignPage({ params, searchParams }: 
       <p className="max-w-3xl text-sm leading-relaxed text-muted-foreground">Materiał → umiejscowienie → link /r → strona docelowa. Miejsca i linki pokazują bieżące relacje, a liczby wyłącznie przyjęte zdarzenia z wybranego okresu. Zmiana nazwy nie zmienia ID ani historii liczb.</p>
       <div className="flex flex-wrap gap-2"><Link href="/admin/campaigns" className={cn(buttonVariants({variant:"outline",size:"sm"}))}>Zarządzaj kampaniami</Link><Link href="/admin/links" className={cn(buttonVariants({variant:"outline",size:"sm"}))}>Zarządzaj linkami</Link></div>
     </header>
-    <AcquisitionRange basePath={`/admin/acquisition/${id}`} range={range} scope={scope} />
-    {days > 366 ? <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !uuid.test(id) ?
+    <AcquisitionRange basePath={`/admin/acquisition/${id}`} request={request} />
+    {request.status === "invalid" ? <Card role="alert"><CardHeader><CardTitle>Nieprawidłowy zakres dat</CardTitle></CardHeader><CardContent>Podaj poprawne daty w kolejności od wcześniejszej do późniejszej. Raport nie został przeliczony.</CardContent></Card> : request.status === "too_long" ? <Card role="alert"><CardContent className="pt-5">Zakres jest dłuższy niż 366 dni. Wybierz krótszy okres.</CardContent></Card> : !uuid.test(id) ?
       <Card role="alert"><CardContent className="pt-5">Nieprawidłowy identyfikator kampanii.</CardContent></Card> : !report ?
       <Card role="alert"><CardContent className="pt-5">Odczyt kampanii jest niedostępny. Spróbuj ponownie później.</CardContent></Card> : <CampaignDetail report={report} campaignId={id} rangeLabel={`${range.from}–${range.toInclusive}`} scopeLabel={REPORTING_SCOPE_LABELS[scope]} />}
   </div>;

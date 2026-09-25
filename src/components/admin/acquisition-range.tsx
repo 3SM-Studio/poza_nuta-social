@@ -3,19 +3,14 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
-import type { DashboardRange } from "@/lib/dashboard-range";
+import { analyticsReportQuery, type AnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { cn } from "cn";
 
-export function acquisitionQuery(range: DashboardRange, scope: ReportingScope) {
-  const query = new URLSearchParams({ range: range.key });
-  if (range.key === "custom") { query.set("from", range.from); query.set("to", range.toInclusive); }
-  if (scope === "diagnostic") query.set("scope", "diagnostic");
-  return query.toString();
-}
-
-export function AcquisitionRange({ basePath, range, scope }: { basePath: string; range: DashboardRange; scope: ReportingScope }) {
-  const rangeUrl = (key: string) => `${basePath}?${new URLSearchParams({ range: key, ...(scope === "diagnostic" ? { scope } : {}) })}`;
-  const scopeUrl = (nextScope: ReportingScope) => `${basePath}?${acquisitionQuery(range, nextScope)}`;
+export function AcquisitionRange({ basePath, request }: { basePath: string; request: AnalyticsReportRequest }) {
+  const { range, scope } = request;
+  const invalidCustom = request.status === "invalid";
+  const rangeUrl = (key: "7" | "30" | "90") => `${basePath}?${analyticsReportQuery(range, scope, { rangeKey: key })}`;
+  const scopeUrl = (nextScope: ReportingScope) => `${basePath}?${analyticsReportQuery(range, nextScope)}`;
   return <div className="space-y-5 rounded-xl border bg-card p-4 sm:p-5">
     <div className="space-y-2">
       <p className="text-sm font-bold">Okres zdarzeń</p>
@@ -27,8 +22,8 @@ export function AcquisitionRange({ basePath, range, scope }: { basePath: string;
       <form method="get" action={basePath} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <Input type="hidden" name="range" value="custom" />
         {scope === "diagnostic" ? <Input type="hidden" name="scope" value="diagnostic" /> : null}
-        <div className="space-y-2"><Label htmlFor="acquisition-from">Od</Label><Input id="acquisition-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : ""} required /></div>
-        <div className="space-y-2"><Label htmlFor="acquisition-to">Do</Label><Input id="acquisition-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : ""} required /></div>
+        <div className="space-y-2"><Label htmlFor="acquisition-from">Od</Label><Input id="acquisition-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom ? request.custom.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
+        <div className="space-y-2"><Label htmlFor="acquisition-to">Do</Label><Input id="acquisition-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom ? request.custom.to : ""} aria-invalid={invalidCustom || undefined} required /></div>
         <Button variant="outline" type="submit" className="min-h-11">Pokaż zakres</Button>
       </form>
       <p className="text-xs text-muted-foreground">Maksymalnie 366 dni. Dni liczymy według Europe/Warsaw; koniec zakresu jest włącznie.</p>

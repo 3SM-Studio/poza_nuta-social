@@ -5,34 +5,30 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { getPathsReport } from "@/lib/analytics/paths";
 import { parsePathNode, share, type PathCount, type PathsReport } from "@/lib/analytics/paths-contract";
-import { DEFAULT_REPORTING_SCOPE, parseReportingScope, REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
+import { REPORTING_SCOPES, REPORTING_SCOPE_LABELS, type ReportingScope } from "@/lib/analytics/reporting-scope";
+import { analyticsReportQuery, resolveAnalyticsReportRequest } from "@/lib/analytics/report-request";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange, type DashboardRange } from "@/lib/dashboard-range";
+import { type DashboardRange } from "@/lib/dashboard-range";
 import { publicPaths } from "@/lib/public-paths";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
 const number = new Intl.NumberFormat("pl-PL");
 
-function href(range: DashboardRange, scope: ReportingScope, path: string | null, rangeKey = range.key) {
-  const query = new URLSearchParams({ range: rangeKey });
-  if (rangeKey === "custom") { query.set("from", range.from); query.set("to", range.toInclusive); }
-  if (scope === "diagnostic") query.set("scope", scope);
-  if (path !== null) query.set("path", path);
-  return `/admin/paths?${query}`;
+function href(range: DashboardRange, scope: ReportingScope, path: string | null, rangeKey?: Exclude<DashboardRange["key"], "custom">) {
+  return `/admin/paths?${analyticsReportQuery(range, scope, { rangeKey, extra: path !== null ? { path } : undefined })}`;
 }
 
 export default async function PathsPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdmin();
   const params = await searchParams;
-  const scope = parseReportingScope(typeof params.scope === "string" ? params.scope : null) ?? DEFAULT_REPORTING_SCOPE;
-  const range = resolveDashboardRange(params);
-  const invalidCustom = params.range === "custom" && range.key !== "custom";
+  const request = resolveAnalyticsReportRequest(params);
+  const { range, scope } = request;
+  const invalidCustom = request.status === "invalid";
   const rawPath = params.path;
   const path = parsePathNode(rawPath)?.path ?? null;
   const invalidPath = rawPath !== undefined && path === null;
-  const days = (Date.parse(`${range.toExclusive}T00:00:00Z`) - Date.parse(`${range.from}T00:00:00Z`)) / 86_400_000;
-  const report = !invalidCustom && days <= 366 ? await getPathsReport(range.from, range.toExclusive, scope, path) : null;
+  const report = request.status === "valid" ? await getPathsReport(range.from, range.toExclusive, scope, path) : null;
 
   return <div className="space-y-7">
     <header className="space-y-2">
@@ -53,8 +49,8 @@ export default async function PathsPage({ searchParams }: { searchParams: Promis
           <Input type="hidden" name="range" value="custom" />
           {scope === "diagnostic" ? <Input type="hidden" name="scope" value={scope} /> : null}
           {path !== null ? <Input type="hidden" name="path" value={path} /> : null}
-          <div className="space-y-2"><Label htmlFor="paths-from">Od</Label><Input id="paths-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
-          <div className="space-y-2"><Label htmlFor="paths-to">Do</Label><Input id="paths-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : ""} aria-invalid={invalidCustom || undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="paths-from">Od</Label><Input id="paths-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : invalidCustom ? request.custom.from : ""} aria-invalid={invalidCustom || undefined} required /></div>
+          <div className="space-y-2"><Label htmlFor="paths-to">Do</Label><Input id="paths-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : invalidCustom ? request.custom.to : ""} aria-invalid={invalidCustom || undefined} required /></div>
           <Button variant="outline" type="submit" className="min-h-11">Pokaż zakres</Button>
         </form>
         <p className="text-xs text-muted-foreground">Maksymalnie 366 dni. Dni liczymy według Europe/Warsaw.</p>
@@ -69,7 +65,7 @@ export default async function PathsPage({ searchParams }: { searchParams: Promis
       </div>
     </section>
 
-    {invalidCustom ? <Notice title="Nieprawidłowy zakres dat" body="Podaj poprawne daty w kolejności od wcześniejszej do późniejszej." /> : days > 366 ?
+    {invalidCustom ? <Notice title="Nieprawidłowy zakres dat" body="Podaj poprawne daty w kolejności od wcześniejszej do późniejszej." /> : request.status === "too_long" ?
       <Notice title="Zbyt długi zakres" body="Wybierz okres nie dłuższy niż 366 dni." /> : !report ?
       <Card role="alert"><CardHeader><CardTitle>Odczyt ścieżek niedostępny</CardTitle></CardHeader><CardContent className="space-y-3 text-sm"><p>Brak odczytu nie oznacza zerowej aktywności.</p><Link href={href(range,scope,path)} className={cn(buttonVariants({ variant: "outline" }), "min-h-11")}>Ponów odczyt</Link></CardContent></Card> : <>
       {invalidPath ? <Notice title="Nieprawidłowa strona" body="Wybrany path nie ma poprawnego formatu. Wybierz stronę z raportu." /> : null}
