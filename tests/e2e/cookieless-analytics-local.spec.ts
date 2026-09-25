@@ -112,6 +112,8 @@ test("one Analytics owner sends one initial and one navigated page view", async 
   const initial = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view" && response.request().postDataJSON()?.path === "/");
   await page.goto("/?utm_source=instagram", { referer: "https://instagram.com/" });
   await initial;
+  const mobileMenu = page.getByRole("button", { name: "Otwórz menu" });
+  if (await mobileMenu.isVisible()) await mobileMenu.click();
   const next = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view" && response.request().postDataJSON()?.path === "/linki");
   await page.getByRole("navigation", { name: "Nawigacja główna" }).getByRole("link", { name: "Linki" }).click();
   await next;

@@ -44,6 +44,6 @@ const env = {
   LOCAL_ADMIN_E2E_EMAIL: email,
   LOCAL_MAILPIT_URL: local.MAILPIT_URL,
 };
-const command = `npm run test:e2e -- ${process.argv.slice(2).map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
+const command = `npm run test:e2e:playwright -- ${process.argv.slice(2).map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
 const result = spawnSync(command, { cwd: process.cwd(), env, shell: true, stdio: "inherit" });
 process.exit(result.status ?? 1);

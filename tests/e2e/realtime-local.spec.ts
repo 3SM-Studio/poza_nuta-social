@@ -90,11 +90,12 @@ test("Realtime is guarded, reflects accepted events, refreshes safely and works 
 
     await page.route("**/admin/realtime/data?window=30", (route) => route.fulfill({ status: 503, body: "{}" }));
     await page.getByRole("button", { name: "Odśwież Realtime" }).click();
-    await expect(page.getByText(/Dane nieaktualne/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dane Realtime nieaktualne" })).toBeVisible();
+    await expect(page.getByText("Ostatnie odświeżenie nie powiodło się. Pokazujemy ostatni udany odczyt.")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Najczęściej oglądane strony" })).toBeVisible();
     await page.unroute("**/admin/realtime/data?window=30");
     await page.getByRole("button", { name: "Odśwież Realtime" }).click();
-    await expect(page.getByText(/Dane nieaktualne/)).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Dane Realtime nieaktualne" })).toHaveCount(0);
 
     let requests = 0;
     let release: (() => void) | undefined;
@@ -120,7 +121,8 @@ test("Realtime is guarded, reflects accepted events, refreshes safely and works 
     await expect(page.getByRole("button", { name: "Odśwież Realtime" })).toBeDisabled();
     await page.clock.fastForward(10_100);
     await expect(page.getByRole("button", { name: "Odśwież Realtime" })).toBeEnabled();
-    await expect(page.getByText(/Dane nieaktualne/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dane Realtime nieaktualne" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Brak przyjętych zdarzeń w tym oknie" })).toHaveCount(0);
     releaseTimeout?.();
     await page.unroute("**/admin/realtime/data?window=30");
 
@@ -129,12 +131,13 @@ test("Realtime is guarded, reflects accepted events, refreshes safely and works 
       topPages: [], observedSources: [], topCampaigns: [], topTrackingLinks: [], topDestinations: [], qualityExceptions: 0 };
     await page.route("**/admin/realtime/data?window=30", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(zeroReport) }));
     await page.getByRole("button", { name: "Odśwież Realtime" }).click();
-    await expect(page.getByText(/Brak przyjętych zdarzeń w tym zakresie ruchu i oknie/)).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Brak przyjętych zdarzeń w tym oknie" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Dane Realtime nieaktualne" })).toHaveCount(0);
     await expect(page.getByText("—")).toHaveCount(2);
     await expect(page.getByRole("heading", { name: "Kampanie z wejść śledzących" })).toHaveCount(0);
     await page.unroute("**/admin/realtime/data?window=30");
     await page.getByRole("button", { name: "Odśwież Realtime" }).click();
-    await expect(page.getByText(/Brak przyjętych zdarzeń w tym zakresie ruchu i oknie/)).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "Brak przyjętych zdarzeń w tym oknie" })).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Odśwież Realtime" })).toBeEnabled();
 
     await page.setViewportSize({ width: 360, height: 800 });

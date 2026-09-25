@@ -30,11 +30,18 @@ test("public not-found state has a named recovery path", async ({ page }, testIn
   expect((await new AxeBuilder({ page }).withTags(wcagTags).analyze()).violations).toEqual([]);
 });
 
-test("privacy settings remain reachable before the first choice", async ({ page }) => {
+test("privacy settings remain reachable before the first choice", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: "Przejdź do treści" })).toBeFocused();
+  const skipLink = page.getByRole("link", { name: "Przejdź do treści" });
+  if (testInfo.project.name === "desktop-webkit") {
+    // WebKit's default Tab navigation skips links; the first reachable button still receives focus.
+    await expect(page.getByRole("button", { name: "Odrzuć analitykę" })).toBeFocused();
+    await skipLink.focus();
+  } else {
+    await expect(skipLink).toBeFocused();
+  }
   await page.keyboard.press("Enter");
   await expect(page.getByRole("main")).toBeFocused();
   const control = page.getByRole("contentinfo").getByRole("button", { name: "Ustawienia prywatności" });

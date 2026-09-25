@@ -75,7 +75,7 @@ test("Attribution is guarded and explains event credit across modes and scopes",
     await expect(page.getByRole("main").getByText("100%").first()).toBeVisible();
     await expect(page.getByText("Persisted: 1").first()).toBeVisible();
     await page.goto("/admin/attribution?range=custom&from=2034-03-15&to=2034-03-15");
-    await expect(page.getByText("Brak Key Events w tym zakresie.")).toBeVisible();
+    await expect(page.getByRole("main").getByRole("heading", { name: "Brak Key Events w tym zakresie.", exact: true })).toBeVisible();
     await page.goto("/admin/attribution?range=custom&from=2034-03-11&to=2034-03-10");
     await expect(page.getByRole("heading", { name: "Nieprawidłowy zakres dat" })).toBeVisible();
     dbSql("revoke execute on function public.analytics_deterministic_attribution_v1(text,date,date,text) from service_role;");

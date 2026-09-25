@@ -236,6 +236,7 @@ test("analytics endpoint is inert before consent and validates consented input",
 test("hub resume requires an armed outbound and a meaningful hidden interval", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
+  await expect.poll(async () => (await page.context().cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
   const initialView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view");
   await page.goto("/linki");
   await initialView;

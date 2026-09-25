@@ -1,4 +1,5 @@
 import { expect, type APIRequestContext, type Page } from "@playwright/test";
+import { randomUUID } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const mailpitUrl = process.env.LOCAL_MAILPIT_URL;
@@ -60,4 +61,28 @@ export async function createLocalAuthUser(admin: SupabaseClient, email: string) 
   const { data, error } = await admin.auth.admin.createUser({ email, email_confirm: true });
   if (error || !data.user) throw new Error(error?.message || `Unable to create ${email}`);
   return { id: data.user.id, email };
+}
+
+export async function createLocalTeamMember(admin: SupabaseClient, label: string, ownerId: string, ownerEmail: string) {
+  const email = `${label}-${randomUUID()}@pozanuta.test`;
+  const user = await createLocalAuthUser(admin, email);
+  const { error } = await admin.from("admin_profiles").insert({ user_id: user.id, email, role: "admin", status: "active" });
+  if (error) {
+    await admin.auth.admin.deleteUser(user.id);
+    throw new Error(error.message);
+  }
+  return {
+    ...user,
+    async cleanup() {
+      // Membership removal is audited as deactivation; the table has no DELETE grant.
+      const { error: profileError } = await admin.rpc("admin_member_update_v1", {
+        p_actor_user_id: ownerId,
+        p_actor_email: ownerEmail,
+        p_target_user_id: user.id,
+        p_role: "admin",
+        p_status: "inactive",
+      });
+      if (profileError) throw new Error(profileError.message);
+    },
+  };
 }

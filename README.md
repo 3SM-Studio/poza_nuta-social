@@ -58,11 +58,12 @@ npm run test:scenario-matrix
 npm run build
 npm audit --audit-level=moderate
 npm run test:e2e
-# With isolated local Supabase/Auth/Mailpit running:
+# Both E2E commands require the isolated local Supabase/Auth/Mailpit stack.
+# The runner supplies local server-only keys, consent signing and contact fixtures.
 npm run test:e2e:local
 ```
 
-`package-lock.json` is the only lockfile and CI uses `npm ci`. A local Supabase stack can be initialized with the committed `supabase/config.toml`; `npx supabase db reset --local` replays all migrations and the seed without touching a remote project.
+`package-lock.json` is the only lockfile and CI uses `npm ci`. A local Supabase stack can be initialized with the committed `supabase/config.toml`; `npx supabase db reset --local` replays all migrations and the seed without touching a remote project. `npm run test:e2e` and `npm run test:e2e:local` use the same local runner; pass Playwright arguments after `--` to select a project or scenario. The CI browser job starts and resets its own local stack before running the full suite.
 
 Production additionally requires a unique 32+ character `ANALYTICS_SIGNING_SECRET` and confirmed `PRIVACY_*` disclosure values (see `.env.example`). Use `SUPABASE_SECRET_KEY` only in the controlled server runtime; `SUPABASE_SERVICE_ROLE_KEY` is a temporary legacy fallback for older/local projects. Never expose either through `NEXT_PUBLIC_*`. Public product analytics and its session identity start only after versioned consent; before consent, `/go` and `/r` still redirect without analytics ingestion. Grant evidence is stored in `analytics_consent_evidence`. Postgres remains authoritative. GA4/Search Console are documented integration boundaries, not active production services in this repository. Retention enforcement, legal facts and privacy review remain production gates.
 

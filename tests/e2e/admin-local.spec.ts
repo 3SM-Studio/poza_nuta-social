@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { join } from "node:path";
 import { createClient } from "@supabase/supabase-js";
-import { createLocalAuthUser, loginWithMagicEmail, mailMessageIds, newMessageUrl, requestMagicLink } from "./helpers/local-admin-auth";
+import { createLocalAuthUser, createLocalTeamMember, loginWithMagicEmail, mailMessageIds, newMessageUrl, requestMagicLink } from "./helpers/local-admin-auth";
 
 const adminEmail = process.env.LOCAL_ADMIN_E2E_EMAIL;
 const mailpitUrl = process.env.LOCAL_MAILPIT_URL;
@@ -9,7 +9,8 @@ const screenshotDir = process.env.LOCAL_E2E_SCREENSHOT_DIR;
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-test.describe.configure({ mode: "serial" });
+// One local worker protects shared Mailpit and RPC grants; a failed scenario must not skip the rest.
+test.describe.configure({ mode: "default" });
 
 test("local owner can authenticate and complete the campaign-to-QR flow", async ({ browser, page, request }, testInfo) => {
   test.setTimeout(90_000);
@@ -150,38 +151,82 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
 
 test("Team and Referrals keep mobile table semantics, status labels, and actions", async ({ page, request }, testInfo) => {
   test.setTimeout(60_000);
-  test.skip(!adminEmail || !mailpitUrl || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth and Mailpit");
-  await loginWithMagicEmail(page, request, adminEmail!);
-  await page.setViewportSize({ width: 390, height: 844 });
+  test.skip(!adminEmail || !mailpitUrl || !supabaseUrl || !serviceKey || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth, Mailpit and database");
+  const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data: owner, error: ownerError } = await admin.from("admin_profiles").select("user_id,email").eq("role", "owner").eq("status", "active").single();
+  if (ownerError || !owner) throw new Error(ownerError?.message || "Local E2E owner is unavailable");
+  const memberFixture = await createLocalTeamMember(admin, "mobile-member", owner.user_id, owner.email);
+  const name = `Mobilny uczestnik ${memberFixture.id.slice(0, 8)}`;
+  const linkName = `Mobilny link ${memberFixture.id.slice(0, 8)}`;
+  try {
+    await loginWithMagicEmail(page, request, adminEmail!);
+    await page.setViewportSize({ width: 390, height: 844 });
 
-  await page.goto("/admin/team");
-  const member = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Zmień rolę" }) }).first();
-  await expect(member.getByText("Status:")).toBeVisible();
-  await expect(member.getByRole("button", { name: "Zmień rolę" })).toBeInViewport();
-  expect(await member.getByRole("button", { name: "Zmień rolę" }).evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    await page.goto("/admin/team");
+    const member = page.getByRole("row").filter({ hasText: memberFixture.email });
+    await expect(member.getByText("Status:")).toBeVisible();
+    const changeRole = member.getByRole("button", { name: "Zmień rolę" });
+    await changeRole.scrollIntoViewIfNeeded();
+    await expect(changeRole).toBeInViewport();
+    expect(await changeRole.evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
 
-  await page.goto("/admin/referrals");
-  const name = `Mobilny uczestnik ${Date.now().toString(36)}`;
-  const linkName = `Mobilny link ${Date.now().toString(36)}`;
-  await page.getByRole("button", { name: "Dodaj uczestnika" }).click();
-  await page.getByLabel("Nazwa wyświetlana").fill(name);
-  await page.getByRole("button", { name: "Dodaj uczestnika", exact: true }).click();
-  const participant = page.getByRole("row").filter({ hasText: name }).filter({ has: page.getByRole("button", { name: "Nowy link" }) });
-  await expect(participant.getByText("Status:")).toBeVisible();
-  await expect(participant).toContainText("aktywny");
-  await participant.getByRole("button", { name: "Nowy link" }).click();
-  await page.getByLabel("Nazwa linku").fill(linkName);
-  await page.getByRole("button", { name: "Utwórz link" }).click();
-  const link = page.getByRole("row").filter({ hasText: linkName });
-  await expect(link).toBeVisible();
-  await expect(page.getByRole("table").first()).toBeVisible();
-  await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(2);
-  await expect(link.getByText("Status:")).toBeVisible();
-  await expect(link).toContainText("Aktywny");
-  await link.getByRole("button", { name: "Kopiuj" }).scrollIntoViewIfNeeded();
-  await expect(link.getByRole("button", { name: "Kopiuj" })).toBeInViewport();
-  expect(await link.getByRole("button", { name: "Kopiuj" }).evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-  expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+    await page.goto("/admin/referrals");
+    await page.getByRole("button", { name: "Dodaj uczestnika" }).click();
+    await page.getByLabel("Nazwa wyświetlana").fill(name);
+    await page.getByRole("button", { name: "Dodaj uczestnika", exact: true }).click();
+    const participant = page.getByRole("row").filter({ hasText: name }).filter({ has: page.getByRole("button", { name: "Nowy link" }) });
+    await expect(participant.getByText("Status:")).toBeVisible();
+    await expect(participant).toContainText("aktywny");
+    await participant.getByRole("button", { name: "Nowy link" }).click();
+    await page.getByLabel("Nazwa linku").fill(linkName);
+    await page.getByRole("button", { name: "Utwórz link" }).click();
+    const link = page.getByRole("row").filter({ hasText: linkName });
+    await expect(link).toBeVisible();
+    await expect(page.getByRole("table").first()).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(2);
+    await expect(link.getByText("Status:")).toBeVisible();
+    await expect(link).toContainText("Aktywny");
+    const copy = link.getByRole("button", { name: "Kopiuj" });
+    await copy.scrollIntoViewIfNeeded();
+    await expect(copy).toBeInViewport();
+    expect(await copy.evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("clipboard blocked"); } } }));
+    await copy.click();
+    await expect(link.getByRole("alert")).toContainText("Zaznacz adres");
+    await expect(link.getByRole("textbox", { name: "Adres linku do ręcznego skopiowania" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+  } finally {
+    try {
+      const { data: link, error: linkReadError } = await admin.from("tracking_links").select("id,active").eq("label", linkName).maybeSingle();
+      if (linkReadError) throw new Error(linkReadError.message);
+      if (link?.active) {
+        const { error } = await admin.rpc("admin_tracking_link_toggle_v1", {
+          p_actor_user_id: owner.user_id,
+          p_actor_email: owner.email,
+          p_tracking_link_id: link.id,
+        });
+        if (error) throw new Error(error.message);
+      }
+    } finally {
+      try {
+        const { data: participant, error: participantReadError } = await admin.from("referral_participants").select("id,status").eq("display_name", name).maybeSingle();
+        if (participantReadError) throw new Error(participantReadError.message);
+        if (participant?.status === "active") {
+          const { error } = await admin.rpc("admin_referral_participant_update_v1", {
+            p_actor_user_id: owner.user_id,
+            p_actor_email: owner.email,
+            p_participant_id: participant.id,
+            p_display_name: name,
+            p_status: "inactive",
+            p_linked_user_id: null,
+          });
+          if (error) throw new Error(error.message);
+        }
+      } finally {
+        await memberFixture.cleanup();
+      }
+    }
+  }
 });
 
 test("database membership authorizes viewer and admin while rejecting inactive, non-member, and stale roles", async ({ browser, request }, testInfo) => {
@@ -501,10 +546,6 @@ test("admin sidebar collapses, persists, identifies active routes, and behaves a
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/admin/team");
   await expect(page.getByRole("heading", { name: "Zespół i dostęp" })).toBeVisible();
-  const memberWithActions = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Zmień rolę" }) }).first();
-  await expect(memberWithActions.getByRole("button", { name: "Zmień rolę" })).toBeInViewport();
-  expect(await memberWithActions.getByRole("button", { name: "Zmień rolę" }).evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-  await expect(memberWithActions.getByText("Status:")).toBeVisible();
   const mobileTrigger = page.locator('[data-slot="sidebar-trigger"]');
   await expect(mobileTrigger).toHaveAttribute("aria-expanded", "false");
   await mobileTrigger.click();
@@ -513,21 +554,22 @@ test("admin sidebar collapses, persists, identifies active routes, and behaves a
   await expect(mobileNavigation).toBeVisible();
   await expect(mobileNavigation.getByRole("button", { name: "Zamknij" })).toBeVisible();
   await expect.poll(() => mobileNavigation.evaluate((node) => getComputedStyle(node).opacity)).toBe("1");
-  expect(await mobileNavigation.evaluate((node) => getComputedStyle(node).backgroundColor)).toBe("rgb(23, 19, 23)");
+  const sidebarColor = await mobileNavigation.evaluate((node) => {
+    const actual = getComputedStyle(node).backgroundColor;
+    const token = getComputedStyle(document.documentElement).getPropertyValue("--sidebar");
+    const swatch = document.createElement("div");
+    swatch.style.backgroundColor = token;
+    document.body.append(swatch);
+    const expected = getComputedStyle(swatch).backgroundColor;
+    swatch.remove();
+    return { actual, expected };
+  });
+  expect(sidebarColor.actual).toBe(sidebarColor.expected);
   await page.screenshot({ path: testInfo.outputPath("admin-mobile-sheet.png") });
   await mobileNavigation.getByRole("link", { name: "Kampanie" }).click();
   await expect(page).toHaveURL(/\/admin\/campaigns$/);
   await expect(mobileNavigation).toBeHidden();
   await expect(page.getByRole("heading", { name: "Kampanie", level: 1 })).toBeVisible();
-  await page.goto("/admin/referrals");
-  const linkWithCopy = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Kopiuj" }) }).first();
-  await linkWithCopy.scrollIntoViewIfNeeded();
-  await expect(linkWithCopy.getByRole("button", { name: "Kopiuj" })).toBeInViewport();
-  expect(await linkWithCopy.getByRole("button", { name: "Kopiuj" }).evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-  await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("clipboard blocked"); } } }));
-  await linkWithCopy.getByRole("button", { name: "Kopiuj" }).click();
-  await expect(linkWithCopy.getByRole("alert")).toContainText("Zaznacz adres");
-  await expect(linkWithCopy.getByRole("textbox", { name: "Adres linku do ręcznego skopiowania" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
   await page.setViewportSize({ width: 390, height: 450 });
   await page.goto("/admin/team");
