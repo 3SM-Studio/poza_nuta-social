@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   Users,
   Waypoints,
+  Layers3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -49,6 +50,7 @@ const groups = [
       { href: "/admin/acquisition", label: "Analiza pozyskania", icon: Megaphone },
       { href: "/admin/key-events", label: "Key Events", icon: Target },
       { href: "/admin/attribution", label: "Attribution", icon: ScanSearch },
+      { href: "/admin/segments", label: "Segmenty", icon: Layers3 },
       { href: "/admin/funnels", label: "Funnele", icon: GitBranch },
       { href: "/admin/paths", label: "Ścieżki stron", icon: Waypoints },
       { href: "/admin/realtime", label: "Realtime", icon: Radio },
