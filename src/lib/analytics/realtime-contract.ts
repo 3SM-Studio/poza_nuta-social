@@ -1,4 +1,4 @@
-import type { AnalyticsEventName } from "@/lib/analytics-taxonomy";
+import { EVENT_NAMES, type AnalyticsEventName } from "@/lib/analytics-taxonomy";
 import { REPORTING_SCOPE_LABELS, type ReportingScope } from "./reporting-scope";
 
 export const REALTIME_WINDOWS = [5, 30, 60] as const;
@@ -64,6 +64,32 @@ export type RealtimeReport = {
   topDestinations: Array<{ label: string; count: number }>;
   qualityExceptions: number;
 };
+
+const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
+const count = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+const ranking = (value: unknown) => Array.isArray(value) && value.length <= 5 && value.every((row) =>
+  record(row) && typeof row.label === "string" && count(row.count));
+
+export function isRealtimeReport(value: unknown, scope: ReportingScope, minutes: RealtimeWindow, now: Date): value is RealtimeReport {
+  if (!record(value) || value.scope !== scope || typeof value.windowStart !== "string"
+    || typeof value.windowEnd !== "string" || typeof value.refreshedAt !== "string") return false;
+  const start = Date.parse(value.windowStart);
+  const end = Date.parse(value.windowEnd);
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end !== now.getTime() || end - start !== minutes * 60_000
+    || Date.parse(value.refreshedAt) !== end) return false;
+  if (!count(value.totalEvents) || !count(value.cookielessEvents) || !count(value.consentedEvents)
+    || !count(value.consentedSessionsWithActivity) || !count(value.qualityExceptions)
+    || value.totalEvents !== value.cookielessEvents + value.consentedEvents
+    || value.consentedSessionsWithActivity > value.consentedEvents || !record(value.eventCounts)) return false;
+  const eventCounts = Object.entries(value.eventCounts);
+  if (!eventCounts.every(([name, events]) => EVENT_NAMES.includes(name as AnalyticsEventName) && count(events))
+    || eventCounts.reduce((total, [, events]) => total + (events as number), 0) !== value.totalEvents) return false;
+  return ranking(value.topPages) && ranking(value.topCampaigns) && ranking(value.topTrackingLinks)
+    && ranking(value.topDestinations) && Array.isArray(value.observedSources) && value.observedSources.length <= 5
+    && value.observedSources.every((row) => record(row) && typeof row.label === "string" && count(row.count)
+      && (row.mode === "cookieless" || row.mode === "consented")
+      && (row.kind === "utm_source" || row.kind === "referrer_host" || row.kind === "observed_context"));
+}
 
 export function realtimeMetricValue(report: RealtimeReport, key: keyof typeof REALTIME_METRICS): number {
   if (key === "events") return report.totalEvents;
