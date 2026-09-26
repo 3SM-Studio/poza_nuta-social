@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { StructuredData } from "@/components/structured-data";
 import { buttonVariants } from "@/components/ui/button";
 import { getPublicDestinations } from "@/lib/destinations";
@@ -15,24 +15,24 @@ const textLink = "inline-flex min-h-11 items-center gap-2 font-bold text-foregro
 
 export default async function HomePage() {
   const destinations = await getPublicDestinations();
-  const leadDestination = destinations[0];
 
   return (
     <>
       <StructuredData data={publicPageGraph(publicPage.home, "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
       <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
-        <section className="flex min-h-[min(43rem,calc(100svh-6rem))] flex-col justify-between border-b py-12 sm:py-16 lg:py-20" aria-labelledby="hero-title">
+        <section className="flex min-h-[min(36rem,calc(100svh-6rem))] flex-col justify-between border-b py-6 sm:min-h-[min(43rem,calc(100svh-6rem))] sm:py-16 lg:py-20" aria-labelledby="hero-title">
           <div className="flex items-start justify-between gap-6 border-t border-accent pt-4 text-sm font-bold uppercase tracking-[0.13em] text-muted-foreground">
             <span>Karaoke i muzyka</span><span className="text-right">Trójmiasto</span>
           </div>
-          <div className="grid gap-9 py-14 md:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.65fr)] md:items-end md:gap-12 lg:py-20">
-            <h1 id="hero-title" className="font-display min-w-0 text-[clamp(5rem,13vw,6rem)] leading-[0.84] tracking-[-0.025em] text-foreground">Poza<br /><span className="text-accent">Nutą</span></h1>
+          <div className="grid gap-4 py-8 sm:gap-9 sm:py-14 md:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.65fr)] md:items-end md:gap-12 lg:py-20">
+            <h1 id="hero-title" className="font-display min-w-0 text-[clamp(4.5rem,13vw,6rem)] leading-[0.84] tracking-[-0.025em] text-foreground">Poza<br /><span className="text-accent">Nutą</span></h1>
             <div className="max-w-md md:pb-1">
               <p className="text-[clamp(1.5rem,2.6vw,2.25rem)] font-bold leading-[1.17] tracking-tight">Karaoke i wydarzenia muzyczne w Trójmieście.</p>
-              <p className="mt-5 max-w-sm text-base leading-7 text-muted-foreground">Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać. Sprawdź, jak to działa i gdzie znaleźć aktualne daty.</p>
-              <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "xl" }), "mt-8 w-full justify-between whitespace-normal sm:w-auto sm:min-w-64")}>
+              <p className="mt-4 max-w-sm text-base leading-7 text-muted-foreground">Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać. Sprawdź, jak to działa i gdzie znaleźć aktualne daty.</p>
+              <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "xl" }), "mt-5 w-full justify-between whitespace-normal sm:mt-8 sm:w-auto sm:min-w-64")}>
                 Informacje o karaoke <ArrowRight aria-hidden="true" />
               </Link>
+              <Link href={publicPage.links} className={cn(textLink, "mt-3")}>Sprawdź aktualne daty <ArrowRight className="size-4" aria-hidden="true" /></Link>
             </div>
           </div>
           <div className="flex items-center justify-between gap-4 border-t pt-4 text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">
@@ -79,7 +79,6 @@ export default async function HomePage() {
             <p className="mt-5 text-base leading-7 text-muted-foreground">Po ustaleniu szczegółów z lokalem to Poza Nutą przekazuje informacje o wydarzeniu. Aktywne kanały znajdziesz w jednym miejscu. Przed wyjściem sprawdź najnowszy komunikat.</p>
             <div className="mt-7 flex flex-col items-start gap-2 sm:flex-row sm:flex-wrap sm:gap-x-8">
               <Link href={publicPage.links} className={textLink}>Wszystkie oficjalne linki <ArrowRight className="size-4" aria-hidden="true" /></Link>
-              {leadDestination ? <Link href={"/go/" + encodeURIComponent(leadDestination.slug)} target="_blank" rel="noopener noreferrer" className={textLink}>Otwórz {leadDestination.label} <ArrowUpRight className="size-4" aria-hidden="true" /></Link> : null}
             </div>
           </div>
         </section>

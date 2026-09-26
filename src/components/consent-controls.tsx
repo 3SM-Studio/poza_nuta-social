@@ -68,12 +68,12 @@ export function ConsentBanner() {
     <>
       <p role="status" className="sr-only">{statusMessage}</p>
       {visible ? <>
-        <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-4 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
-          <p className="text-sm font-bold">Twoja prywatność</p>
-          <p className="mt-1 text-sm leading-6 text-muted-foreground">Bez zgody mierzymy ograniczone zdarzenia bez cookies analitycznych i bez łączenia wizyt. Za Twoją zgodą możemy mierzyć również sesje i powroty tej przeglądarki. Wybór zmienisz w każdej chwili.{" "}<Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
-          <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
-            <Button type="button" variant="outline" onClick={() => choose(false)}>Odrzuć analitykę</Button>
-            <Button type="button" variant="outline" onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
+        <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-3 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
+          <p className="text-sm leading-5 text-muted-foreground"><strong className="font-bold text-foreground">Twoja prywatność. </strong>Bez zgody mierzymy ograniczone zdarzenia bez cookies analitycznych i łączenia wizyt. Za zgodą możemy mierzyć sesje i powroty tej przeglądarki. Wybór zmienisz w każdej chwili.</p>
+          <p className="mt-1 text-sm leading-5"><Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <Button type="button" variant="outline" className="h-auto min-h-12 whitespace-normal px-2 py-2 text-center" onClick={() => choose(false)}>Odrzuć analitykę</Button>
+            <Button type="button" variant="outline" className="h-auto min-h-12 whitespace-normal px-2 py-2 text-center" onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
           </div>
         </aside>
       </> : null}

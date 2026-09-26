@@ -25,6 +25,14 @@ export default function KaraokePage() {
           <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Możesz słuchać, spędzać czas z innymi i dołączyć do zabawy bez występu. Jeśli masz ochotę chwycić za mikrofon, nie musisz umieć śpiewać ani zapisywać się przez Poza Nutą przed przyjściem.</p>
         </div>
 
+        <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="channels-heading">
+          <h2 id="channels-heading" className="font-display text-4xl leading-none sm:text-5xl">Gdzie sprawdzić daty i miejsca?</h2>
+          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Po uzgodnieniu szczegółów z lokalem Poza Nutą przekazuje informacje o wydarzeniu. Na stronie z linkami znajdziesz nasze aktywne oficjalne profile. Sprawdź najnowszy komunikat przed wyjściem.</p>
+          <Link href={publicPage.links} className={`${buttonVariants({ variant: "accent", size: "xl" })} mt-7 w-full justify-between whitespace-normal sm:w-auto`}>
+            Przejdź do oficjalnych kanałów <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </section>
+
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="singing-heading">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Dla chętnych do śpiewania</p>
           <h2 id="singing-heading" className="font-display mt-3 max-w-[13ch] text-4xl leading-none sm:text-5xl">Jak zgłosić utwór?</h2>
@@ -42,14 +50,6 @@ export default function KaraokePage() {
             ))}
           </ol>
           <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">Szczegóły udziału w konkretnym wieczorze sprawdź w jego aktualnym komunikacie.</p>
-        </section>
-
-        <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="channels-heading">
-          <h2 id="channels-heading" className="font-display text-4xl leading-none sm:text-5xl">Gdzie sprawdzić daty i miejsca?</h2>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Po uzgodnieniu szczegółów z lokalem Poza Nutą przekazuje informacje o wydarzeniu. Na stronie z linkami znajdziesz nasze aktywne oficjalne profile. Sprawdź najnowszy komunikat przed wyjściem.</p>
-          <Link href={publicPage.links} className={`${buttonVariants({ variant: "accent", size: "xl" })} mt-7 w-full justify-between whitespace-normal sm:w-auto`}>
-            Zobacz oficjalne profile <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
         </section>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="venue-heading">

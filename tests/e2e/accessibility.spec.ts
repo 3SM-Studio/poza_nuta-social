@@ -33,6 +33,7 @@ test("public not-found state has a named recovery path", async ({ page }, testIn
 test("privacy settings remain reachable before the first choice", async ({ page }, testInfo) => {
   await page.goto("/");
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
+  const headerTop = await page.getByRole("banner").evaluate((element) => element.getBoundingClientRect().top);
   await page.keyboard.press("Tab");
   const skipLink = page.getByRole("link", { name: "Przejdź do treści" });
   if (testInfo.project.name === "desktop-webkit") {
@@ -42,6 +43,14 @@ test("privacy settings remain reachable before the first choice", async ({ page 
   } else {
     await expect(skipLink).toBeFocused();
   }
+  const skipGeometry = await skipLink.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    const style = getComputedStyle(element);
+    return { left: rect.left, top: rect.top, outline: parseFloat(style.outlineWidth) + parseFloat(style.outlineOffset) };
+  });
+  expect(skipGeometry.left).toBeGreaterThan(skipGeometry.outline);
+  expect(skipGeometry.top).toBeGreaterThan(skipGeometry.outline);
+  expect(await page.getByRole("banner").evaluate((element) => element.getBoundingClientRect().top)).toBeCloseTo(headerTop, 0);
   await page.keyboard.press("Enter");
   await expect(page.getByRole("main")).toBeFocused();
   const control = page.getByRole("contentinfo").getByRole("button", { name: "Ustawienia prywatności" });

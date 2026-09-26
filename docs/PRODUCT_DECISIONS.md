@@ -1,5 +1,9 @@
 # Approved product decisions — discovery 1–82
 
+## Public Marketing V2 — conversion friction continuation, 2026-09-26
+
+The owner confirms hello@pozanuta.pl as the general public contact address for both venue enquiries and participant questions. Current event dates and places remain in official channels through /linki; /kontakt is not their canonical source. The implementation may give visitors a faster, lower-emphasis path to /linki while retaining one dominant participant CTA. Media, owned event pages and analytics/consent semantics remain outside this continuation.
+
 ## Public Marketing V2 — owner continuation after Slice 1, 2026-09-25
 
 This later owner instruction supersedes the earlier factual holds on non-singer attendance, joining flow, B2B contact and the permission to name a venue case. It authorizes the experience-clarity and B2B-proof code slice while leaving media, event pages, pricing and Admin out of scope.

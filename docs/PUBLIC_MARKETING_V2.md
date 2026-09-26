@@ -21,7 +21,7 @@ Commission one dedicated event documentation session before media-led homepage w
 - `/`: experience and evidence first, one dominant participant action, clear secondary navigation toward B2B.
 - `/karaoke-trojmiasto`: practical participation, including optional singing and the QR → six-digit session code → song → queue flow, plus the authoritative path to current dates until owned event pages exist. CTA language must accurately describe its destination; never present the independent karaoke platform as brand-owned technology.
 - `/dla-lokali`: per-venue scope and responsibilities, a factual iGranie w Lochu realization without invented outcomes or testimonial, risk-reducing answers and first-party contact.
-- `/kontakt`: one usable first-party collaboration route with the owner-approved hello@pozanuta.pl address.
+- `/kontakt`: one usable first-party route with the owner-approved hello@pozanuta.pl address for venue enquiries and general participant questions. Date/place questions point to current official channels through `/linki`.
 - `/linki`: ordered official social channels and contact, optimized for a phone after bio/QR entry; never a generic CTA builder or second homepage.
 - `/wydarzenia` and `/wydarzenia/[slug]`: conceptually approved **future** surfaces, not part of the initial implementation. Gate: authoritative maintained event source, named update owner, date, place, status, cancellation/change workflow and archive semantics. No empty directory or automatic Stage dependency.
 - `/prywatnosc` and `/cookies`: preserve existing consent and disclosure access.
