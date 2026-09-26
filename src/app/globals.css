@@ -14,33 +14,33 @@
 @custom-variant admin (&:is(:root:has(.admin-theme) *));
 
 :root {
-  --background: #0d0b0d;
-  --foreground: #fff8fc;
-  --card: #171317;
-  --card-foreground: #fff8fc;
-  --popover: #171317;
-  --popover-foreground: #fff8fc;
-  --primary: #fff8fc;
-  --primary-foreground: #0d0b0d;
-  --secondary: #211a20;
-  --secondary-foreground: #fff8fc;
-  --muted: #211a20;
-  --muted-foreground: #cdbfc8;
+  --background: #080808;
+  --foreground: #f7f7f7;
+  --card: #141414;
+  --card-foreground: #f7f7f7;
+  --popover: #141414;
+  --popover-foreground: #f7f7f7;
+  --primary: #f7f7f7;
+  --primary-foreground: #080808;
+  --secondary: #1c1c1c;
+  --secondary-foreground: #f7f7f7;
+  --muted: #1c1c1c;
+  --muted-foreground: #b7b7b7;
   --accent: #ff4fa3;
-  --accent-foreground: #0d0b0d;
+  --accent-foreground: #080808;
   --destructive: #ff6b6b;
-  --border: #3b2d36;
-  --input: #3b2d36;
+  --border: #3b3b3b;
+  --input: #3b3b3b;
   --ring: #ff4fa3;
-  --sidebar: #171317;
-  --sidebar-foreground: #fff8fc;
+  --sidebar: #141414;
+  --sidebar-foreground: #f7f7f7;
   --sidebar-primary: #ff4fa3;
-  --sidebar-primary-foreground: #0d0b0d;
-  --sidebar-accent: #30212b;
-  --sidebar-accent-foreground: #fff8fc;
-  --sidebar-border: #3b2d36;
+  --sidebar-primary-foreground: #080808;
+  --sidebar-accent: #252525;
+  --sidebar-accent-foreground: #f7f7f7;
+  --sidebar-border: #3b3b3b;
   --sidebar-ring: #ff4fa3;
-  --radius: 1rem;
+  --radius: 0.25rem;
 }
 
 /* Admin-only Nova / Neutral / Rose theme. The route marker also reaches Base UI portals on body. */

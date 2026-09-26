@@ -37,9 +37,9 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page,
   await page.goto("/");
   await page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first().click();
   await expect(page).toHaveURL(/\/karaoke-trojmiasto$/);
-  await page.getByRole("link", { name: "Przejdź do oficjalnych kanałów" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Oficjalne kanały i aktualności" }).click();
   await expect(page).toHaveURL(/\/linki$/);
-  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true })).toHaveAttribute("href", "/go/instagram");
+  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram w nowej karcie", exact: true })).toHaveAttribute("href", "/go/instagram");
 });
 
 test("mobile menu keeps link semantics, restores focus, and follows a route", async ({ page }, testInfo) => {
@@ -58,10 +58,10 @@ test("mobile menu keeps link semantics, restores focus, and follows a route", as
   await trigger.click();
   await navigation.getByRole("link", { name: "Dla lokali" }).click();
   await expect(page).toHaveURL(/\/dla-lokali$/);
-  await expect(page.getByRole("heading", { name: "Współpraca z lokalami" })).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1, name: /Muzyka w Twoim lokalu/ })).toBeVisible();
 });
 
-test("V2 participant path keeps its first action visible and public theme isolated", async ({ page }, testInfo) => {
+test("redesigned participant path keeps its first action visible and public theme isolated", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium");
   await page.goto("/");
   await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
@@ -91,27 +91,28 @@ test("participant and venue journeys answer the first decision and reach the rig
   await page.goto("/");
   await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
   await expect(page.getByRole("main").getByText("Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać.", { exact: false })).toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first().click();
   await expect(page).toHaveURL(/\/linki$/);
-  await expect(page.getByText("Daty i miejsca ogłaszamy w oficjalnych kanałach.", { exact: false })).toBeVisible();
+  await expect(page.getByText("komunikat o dacie i miejscu przed wyjściem.", { exact: false })).toBeVisible();
   await page.goto("/");
   await page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first().click();
-  await expect(page.getByText("Śpiewanie jest Twoim wyborem.", { exact: false })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Gdzie sprawdzić daty i miejsca?" })).toBeVisible();
-  const steps = page.getByRole("list").filter({ has: page.getByRole("heading", { name: "Zeskanuj QR na miejscu" }) });
-  await expect(steps.getByRole("listitem")).toHaveCount(4);
-  await expect(page.getByText("Wpisz sześciocyfrowy kod sesji dostępny podczas wydarzenia.")).toBeVisible();
-  await page.getByRole("link", { name: "Przejdź do oficjalnych kanałów" }).click();
+  await expect(page.getByRole("heading", { name: "Czy muszę śpiewać?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Gdzie i kiedy?" })).toBeVisible();
+  const steps = page.getByRole("list", { name: "Jak zgłosić utwór podczas wydarzenia" });
+  await expect(steps.getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByText("Kod QR znajdziesz na miejscu. Wpisz sześciocyfrowy kod sesji wydarzenia.")).toBeVisible();
+  await page.getByRole("link", { name: "Oficjalne kanały i aktualności" }).click();
   await expect(page).toHaveURL(/\/linki$/);
 
   await page.goto("/dla-lokali");
-  await expect(page.getByRole("heading", { name: "Co możemy wziąć na siebie?" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "iGranie w Lochu, Gdynia" })).toBeVisible();
-  await expect(page.getByText("Poza Nutą prowadzi tam cykliczne wieczory karaoke.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Każde miejsce ma własny rytm." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "iGranie w Lochu." })).toBeVisible();
+  await expect(page.getByText("W tym gdyńskim lokalu Poza Nutą prowadzi cykliczne wieczory karaoke.")).toBeVisible();
   await page.getByRole("main").getByRole("link", { name: "Kontakt / współpraca" }).click();
   await expect(page).toHaveURL(/\/kontakt$/);
-  await expect(page.getByRole("link", { name: /kontakt@pozanuta\.test/ })).toHaveAttribute("href", "mailto:kontakt@pozanuta.test");
-  await expect(page.getByText("Masz pytanie o Poza Nutą lub pomysł na wydarzenie?")).toBeVisible();
+  const contactEmail = process.env.CONTACT_EMAIL || "hello@pozanuta.pl";
+  await expect(page.getByRole("link", { name: contactEmail })).toHaveAttribute("href", `mailto:${contactEmail}`);
+  await expect(page.getByText("Masz pytanie o karaoke albo pomysł na wspólne wydarzenie? Napisz do nas.")).toBeVisible();
   await page.getByRole("main").getByRole("link", { name: "Przejdź do oficjalnych kanałów" }).click();
   await expect(page).toHaveURL(/\/linki$/);
 });
@@ -125,6 +126,9 @@ test("mobile first-visit consent leaves the participant action visible and treat
   const bannerTop = await banner.evaluate((element) => element.getBoundingClientRect().top);
   const primaryBottom = await primary.evaluate((element) => element.getBoundingClientRect().bottom);
   expect(primaryBottom, "consent banner must not cover the primary participant action").toBeLessThan(bannerTop);
+  const dates = page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first();
+  const datesBottom = await dates.evaluate((element) => element.getBoundingClientRect().bottom);
+  expect(datesBottom, "consent banner must not cover the current-date path").toBeLessThan(bannerTop);
   const reject = banner.getByRole("button", { name: "Odrzuć analitykę" });
   const accept = banner.getByRole("button", { name: "Zgadzam się na analitykę" });
   await expect(reject).toBeVisible();
@@ -133,9 +137,17 @@ test("mobile first-visit consent leaves the participant action visible and treat
   expect(Math.abs(sizes[0].width - sizes[1].width)).toBeLessThan(2);
   expect(Math.abs(sizes[0].height - sizes[1].height)).toBeLessThan(2);
   await page.screenshot({ path: `test-results/consent-first-visit-${testInfo.project.name}.png` });
+  for (const [route, label] of [["/karaoke-trojmiasto", "Gdzie sprawdzić daty"], ["/dla-lokali", "Porozmawiajmy o współpracy"]]) {
+    await page.goto(route);
+    await expect(banner).toBeVisible();
+    const actionBottom = await page.getByRole("main").getByRole("link", { name: label }).first().evaluate((element) => element.getBoundingClientRect().bottom);
+    const overlayTop = await banner.evaluate((element) => element.getBoundingClientRect().top);
+    expect(actionBottom, `consent banner must not cover the first action on ${route}`).toBeLessThan(overlayTop);
+  }
   await reject.click();
   await expect(banner).toBeHidden();
-  await expect(page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" })).toBeVisible();
+  await page.goto("/");
+  await expect(dates).toBeVisible();
   await page.screenshot({ path: `test-results/consent-rejected-${testInfo.project.name}.png` });
 });
 
@@ -145,12 +157,12 @@ test("accepted mobile consent keeps the hero and current-information route usabl
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Zgadzam się na analitykę" }).click();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first().click();
   await expect(page).toHaveURL(/\/linki$/);
   await page.screenshot({ path: "test-results/consent-accepted-linki-mobile-390.png" });
 });
 
-test("documentary media stays below the hero and loads motion only when useful", async ({ page }, testInfo) => {
+test("documentary stills support the story without unnecessary video transfer", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium");
   await page.setViewportSize({ width: 390, height: 844 });
   const videoRequests: string[] = [];
@@ -158,29 +170,23 @@ test("documentary media stays below the hero and loads motion only when useful",
     if (request.url().includes("experience-group-loop.mp4")) videoRequests.push(request.url());
   });
   await page.goto("/");
-  await expect(page.locator('section[aria-labelledby="hero-title"] img, section[aria-labelledby="hero-title"] video')).toHaveCount(0);
-  const proofTop = await page.locator('section[aria-labelledby="karaoke-heading"] figure').evaluate((element) => element.getBoundingClientRect().top);
-  expect(proofTop, "documentary proof should appear at the end of the first mobile viewport").toBeLessThan(844);
+  await expect(page.locator('section[aria-labelledby="hero-title"] img')).toHaveCount(1);
+  await expect(page.locator('section[aria-labelledby="hero-title"] video')).toHaveCount(0);
+  const proofTop = await page.locator('section[aria-labelledby="hero-title"] figure').evaluate((element) => element.getBoundingClientRect().top);
+  expect(proofTop, "documentary proof should enter the first mobile viewport").toBeLessThan(844);
   await expect(page.locator("video")).toHaveCount(0);
   expect(videoRequests).toHaveLength(0);
 
-  await page.locator('section[aria-labelledby="karaoke-heading"] figure').scrollIntoViewIfNeeded();
-  const video = page.locator("video");
-  await expect(video).toHaveCount(1);
-  await expect(video).toHaveAttribute("preload", "none");
-  await expect(video).toHaveAttribute("playsinline", "");
-  await expect.poll(() => video.evaluate((element) => !(element as HTMLVideoElement).paused)).toBe(true);
-  expect(videoRequests.length).toBeGreaterThan(0);
-  await page.locator('section[aria-labelledby="hero-title"]').scrollIntoViewIfNeeded();
-  await expect(video).toHaveCount(0);
-
+  await page.locator('section[aria-labelledby="field-note-heading"] figure').scrollIntoViewIfNeeded();
+  await expect(page.locator('section[aria-labelledby="field-note-heading"]').getByAltText("Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie.")).toBeVisible();
+  await expect(page.locator("video")).toHaveCount(0);
+  expect(videoRequests).toHaveLength(0);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.locator('section[aria-labelledby="karaoke-heading"] figure').scrollIntoViewIfNeeded();
-  await expect(video).toHaveCount(0);
-  await expect(page.getByAltText("Dwie osoby śpiewają razem podczas wieczoru Poza Nutą.")).toBeVisible();
+  await expect(page.locator("video")).toHaveCount(0);
+  await expect(page.locator('section[aria-labelledby="hero-title"]').getByAltText("Dwie osoby śpiewają razem podczas wieczoru Poza Nutą.")).toBeVisible();
   await expect(page.getByAltText("Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą.")).toHaveCount(1);
   await page.goto("/karaoke-trojmiasto");
-  await expect(page.getByAltText("Uczestnik śpiewa z mikrofonem w lokalu podczas karaoke Poza Nutą.")).toHaveCount(1);
+  await expect(page.getByAltText("Uczestnik śpiewa do mikrofonu podczas wydarzenia Poza Nutą w lokalu.")).toHaveCount(1);
   await page.goto("/dla-lokali");
   await expect(page.getByAltText("Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie.")).toHaveCount(1);
 });

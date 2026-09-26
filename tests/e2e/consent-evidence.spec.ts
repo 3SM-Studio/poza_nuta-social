@@ -10,6 +10,7 @@ test("local consent evidence records grant and withdrawal without request metada
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto("/");
+  await page.waitForLoadState("networkidle");
   const grant = await context.request.post("/api/consent", { data: { analytics: true } });
   expect(grant.status()).toBe(200);
   const visitorCookie = (await context.cookies()).find((cookie) => cookie.name === "pn_visitor");

@@ -165,3 +165,7 @@ Referral participants are a separate internal attribution dimension with optiona
 ## Cookieless analytics foundation — 2026-09-24
 
 The owner-authorized cookieless slice supersedes the earlier statement that no product event is stored before analytics consent. Without server-confirmed consent, public page views, contact views/clicks, tracking-link entries and outbound choices may be measured as independent, identity-free events. This mode creates no visitor, session or acquisition state and never joins earlier events to a later consented visitor. Server-confirmed consent enables the existing full visitor/session/acquisition model for new events. The current application owns the `poza_nuta` project key; Trójmiasto remains a service area, not a global event location.
+
+## Public creative direction refinement — 2026-09-26
+
+The owner-selected Public Marketing V2 direction is Culture Editorial across `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/linki`. Public UI uses neutral black, Poza Nutą pink `#ff4fa3`, off-white and neutral grays; the previous wine/burgundy direction is superseded. The homepage is participant-first, combines strong typography with sourced event stills, and varies black, pink and light editorial chapters. This visual decision does not approve a final slogan, new event pages, invented social proof, or publication of recognizable people or venue material. The rights gate in `docs/PUBLIC_MARKETING_V2_MEDIA.md` remains active before public deployment.

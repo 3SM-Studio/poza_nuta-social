@@ -1,9 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import type { Metadata } from "next";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ArrowUpRight } from "lucide-react";
 import { StructuredData } from "@/components/structured-data";
-import { DocumentaryLoop } from "@/components/documentary-loop";
 import { buttonVariants } from "@/components/ui/button";
 import { getPublicDestinations } from "@/lib/destinations";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -13,113 +12,134 @@ import { cn } from "cn";
 const homeDescription = "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście. Poznaj nas, sprawdź informacje dla uczestników i lokali oraz skontaktuj się z nami.";
 export const metadata: Metadata = publicMetadata(publicPage.home, "Poza Nutą — karaoke i wydarzenia muzyczne w Trójmieście", homeDescription);
 
-const textLink = "inline-flex min-h-11 items-center gap-2 font-bold text-foreground underline decoration-accent underline-offset-4 transition-colors hover:text-accent";
+const container = "mx-auto w-full max-w-[96rem] px-5 sm:px-8 lg:px-12";
+const editorialLink = "inline-flex min-h-11 items-center gap-2 font-bold text-foreground underline decoration-accent decoration-2 underline-offset-4 transition-colors hover:text-accent";
+const primaryAction = cn(buttonVariants({ variant: "accent", size: "xl" }), "min-w-0 justify-between rounded-none px-6 text-left sm:min-w-64");
 
 export default async function HomePage() {
   const destinations = await getPublicDestinations();
-
   return (
     <>
       <StructuredData data={publicPageGraph(publicPage.home, "Poza Nutą", homeDescription, { includeOrganization: true, destinations })} />
       <main id="main-content" tabIndex={-1} className="flex flex-1 flex-col">
-        <section className="flex min-h-[min(36rem,calc(100svh-6rem))] flex-col justify-between border-b py-6 sm:min-h-[min(40rem,calc(100svh-6rem))] sm:py-16 lg:py-12" aria-labelledby="hero-title">
-          <div className="flex items-start justify-between gap-6 border-t border-accent pt-4 text-sm font-bold uppercase tracking-[0.13em] text-muted-foreground">
-            <span>Karaoke i muzyka</span><span className="text-right">Trójmiasto</span>
-          </div>
-          <div className="grid gap-4 py-8 sm:gap-9 sm:py-14 md:grid-cols-[minmax(0,1.35fr)_minmax(15rem,0.65fr)] md:items-end md:gap-12 lg:py-12">
-            <h1 id="hero-title" className="font-display min-w-0 text-[clamp(4.5rem,13vw,6rem)] leading-[0.84] tracking-[-0.025em] text-foreground">Poza<br /><span className="text-accent">Nutą</span></h1>
-            <div className="max-w-md md:pb-1">
-              <p className="text-[clamp(1.5rem,2.6vw,2.25rem)] font-bold leading-[1.17] tracking-tight">Karaoke i wydarzenia muzyczne w Trójmieście.</p>
-              <p className="mt-4 max-w-sm text-base leading-7 text-muted-foreground">Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać.</p>
-              <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "xl" }), "mt-5 w-full justify-between whitespace-normal sm:mt-8 sm:w-auto sm:min-w-64")}>
-                Informacje o karaoke <ArrowRight aria-hidden="true" />
-              </Link>
-              <Link href={publicPage.links} className={cn(textLink, "mt-3")}>Daty w oficjalnych kanałach <ArrowRight className="size-4" aria-hidden="true" /></Link>
+        <section aria-labelledby="hero-title" className="overflow-hidden border-b border-border">
+          <div className={container}>
+            <h1 id="hero-title" className="font-display whitespace-nowrap pb-1 pt-4 text-center text-[clamp(4.4rem,20.8vw,14rem)] uppercase leading-[0.76] tracking-[-0.025em] text-accent sm:pt-9 md:pt-6 md:text-[clamp(4.4rem,18.5vw,14rem)]"><span>Poza</span>{" "}<span>Nutą</span></h1>
+            <div className="mt-3 flex items-center justify-between gap-4 border-y border-border py-3 text-xs font-bold uppercase tracking-[0.12em] sm:mt-5 sm:tracking-[0.15em]">
+              <span>Karaoke i wydarzenia muzyczne</span><span>Trójmiasto</span>
             </div>
-          </div>
-          <div className="flex items-center justify-between gap-4 border-t pt-4 text-xs font-bold uppercase tracking-[0.13em] text-muted-foreground">
-            <span>Poza Nutą</span><span>Karaoke · Trójmiasto</span>
+            <div className="grid grid-cols-[minmax(0,1fr)_8rem] gap-x-4 gap-y-3 pb-12 pt-1 min-[380px]:grid-cols-[minmax(0,1fr)_9.5rem] sm:grid-cols-[minmax(0,1fr)_10rem] sm:gap-x-8 sm:gap-y-6 sm:pt-7 md:grid-cols-[minmax(0,0.9fr)_minmax(0,1fr)] md:gap-10 md:pb-16 lg:gap-16">
+              <div className="contents md:flex md:flex-col md:items-start">
+                <div className="col-start-1 row-start-1 min-w-0 md:col-auto md:row-auto">
+                  <h2 className="font-display text-[3rem] leading-[0.85] sm:text-[clamp(3.5rem,9vw,6.25rem)] md:max-w-[8ch]">Przyjdź <span className="block">dla muzyki.</span></h2>
+                  <p className="mt-4 max-w-md text-base font-medium leading-7 sm:mt-5 sm:text-lg">Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać.</p>
+                </div>
+                <div className="col-span-2 row-start-2 flex w-full flex-col items-start gap-2 md:col-auto md:row-auto md:mt-6">
+                  <Link href={publicPage.karaoke} className={cn(primaryAction, "w-full sm:w-auto")}>Informacje o karaoke <ArrowUpRight aria-hidden="true" /></Link>
+                  <Link href={publicPage.links} className={editorialLink}>Daty w oficjalnych kanałach <ArrowRight className="size-4" aria-hidden="true" /></Link>
+                </div>
+              </div>
+              <figure className="col-start-2 row-start-1 w-[9.5rem] min-w-0 justify-self-end md:col-auto md:row-auto md:w-auto">
+                <div className="border border-border bg-card p-1 sm:p-2 md:p-3">
+                  <Image src="/media/events/2026-08-16-igranie/experience-group-poster.webp" alt="Dwie osoby śpiewają razem podczas wieczoru Poza Nutą." width={720} height={1280} sizes="(max-width: 639px) 128px, (max-width: 767px) 160px, (max-width: 1279px) 45vw, 36vw" loading="eager" fetchPriority="high" className="h-[12rem] w-full object-cover object-[center_30%] sm:h-[16rem] md:h-[35rem] lg:h-[39rem]" />
+                </div>
+                <figcaption className="mt-2 max-w-md text-xs font-bold uppercase leading-4 tracking-[0.08em] text-muted-foreground md:mt-3 md:leading-5 md:tracking-[0.13em]">iGranie w Lochu · 16.08.2026</figcaption>
+              </figure>
+            </div>
           </div>
         </section>
 
-        <section className="border-b pb-16 pt-8 sm:pb-20 sm:pt-12 lg:pb-24 lg:pt-16" aria-labelledby="karaoke-heading">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Dla chętnych do śpiewania</p>
-          <div className="mt-5 grid gap-9 md:grid-cols-[minmax(0,1.2fr)_minmax(15rem,0.8fr)] md:items-end md:gap-12 lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.65fr)] lg:gap-16">
-            <figure className="w-full max-w-[23rem] justify-self-end md:order-2">
-              <DocumentaryLoop />
-              <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">iGranie w Lochu · Gdynia · 16.08.2026</figcaption>
+        <section aria-labelledby="belonging-heading" className="bg-accent text-accent-foreground">
+          <div className={cn(container, "grid gap-10 py-16 md:grid-cols-[minmax(0,1.15fr)_minmax(15rem,0.7fr)] md:items-center md:gap-16 md:py-20")}>
+            <div>
+              <p className="border-b border-black/35 pb-3 text-xs font-bold uppercase tracking-[0.16em]">Druga strona tego samego wieczoru</p>
+              <h2 id="belonging-heading" className="font-display mt-7 max-w-[9ch] text-[clamp(4.5rem,10vw,9rem)] leading-[0.85]">Możesz po prostu być.</h2>
+              <p className="mt-6 max-w-lg text-xl font-bold leading-snug sm:text-2xl">Nie musisz występować, żeby uczestniczyć w wieczorze.</p>
+            </div>
+            <figure className="w-full max-w-[20rem] justify-self-end">
+              <Image src="/media/events/2026-08-16-igranie/experience-social.webp" alt="Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą." width={720} height={1280} sizes="(max-width: 640px) 320px, 352px" loading="lazy" fetchPriority="low" className="h-auto w-full" />
+              <figcaption className="mt-3 border-t border-black/35 pt-3 text-xs font-bold uppercase leading-5 tracking-[0.13em]">Ten sam wieczór · iGranie w Lochu</figcaption>
             </figure>
-            <div className="flex flex-col items-start md:order-1 md:min-h-[28rem] md:justify-between lg:min-h-[34rem]">
-              <h2 id="karaoke-heading" className="font-display max-w-[11ch] text-[clamp(3.75rem,7vw,6rem)] leading-[0.88] tracking-[-0.025em]">Nie musisz umieć śpiewać. <span className="text-accent">Musisz chcieć śpiewać.</span></h2>
-              <div className="mt-8 max-w-lg md:mt-0">
-                <p className="text-xl font-bold leading-snug sm:text-2xl">Karaoke to wspólny czas przy muzyce, nie konkurs wokalny.</p>
-                <Link href={publicPage.karaoke} className={cn(textLink, "mt-5")}>Poznaj karaoke Poza Nutą <ArrowRight className="size-4" aria-hidden="true" /></Link>
+          </div>
+        </section>
+
+        <section aria-labelledby="participation-heading" className="border-b border-border">
+          <div className={cn(container, "py-20 md:py-28")}>
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,0.65fr)_minmax(0,1.35fr)] lg:gap-20">
+              <div>
+                <p className="border-b border-border pb-3 text-xs font-bold uppercase tracking-[0.16em] text-accent">Dla chętnych do mikrofonu</p>
+                <h2 id="participation-heading" className="font-display mt-7 max-w-[10ch] text-[clamp(3.8rem,6vw,6.5rem)] leading-[0.88]">Od wejścia do występu.</h2>
+              </div>
+              <div>
+                <ol className="border-t border-accent">
+                  {[
+                    ["01", "Przyjdź", "Nie rezerwujesz występu przez Poza Nutą przed przyjściem."],
+                    ["02", "Zgłoś utwór", "Na miejscu zeskanuj QR, wpisz sześciocyfrowy kod sesji i wybierz lub dodaj piosenkę."],
+                    ["03", "Poczekaj na wywołanie", "Utwór trafia do kolejki. Kiedy nadejdzie Twoja kolej, możesz zaśpiewać."],
+                  ].map(([number, heading, body]) => (
+                    <li key={number} className="grid gap-3 border-b border-border py-6 sm:grid-cols-[3rem_minmax(0,0.6fr)_minmax(0,1fr)] sm:gap-5">
+                      <span className="text-xs font-bold tracking-[0.15em] text-accent">{number}</span>
+                      <h3 className="text-xl font-bold tracking-tight">{heading}</h3>
+                      <p className="max-w-md text-sm leading-6 text-muted-foreground">{body}</p>
+                    </li>
+                  ))}
+                </ol>
+                <Link href={publicPage.karaoke} className={cn(editorialLink, "mt-5")}>Udział krok po kroku <ArrowRight className="size-4" aria-hidden="true" /></Link>
               </div>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-10 border-b py-16 sm:py-20 lg:grid-cols-[minmax(16rem,0.7fr)_minmax(0,1fr)] lg:items-center lg:gap-20" aria-labelledby="no-pressure-heading">
-          <figure className="w-full max-w-[16rem] justify-self-end sm:max-w-[22rem] lg:justify-self-start">
-            <Image src="/media/events/2026-08-16-igranie/experience-social.webp" alt="Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą." width={720} height={1280} sizes="(max-width: 640px) 256px, 352px" className="h-auto w-full" loading="lazy" fetchPriority="low" />
-            <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Ten sam wieczór · iGranie w Lochu</figcaption>
-          </figure>
-          <div className="max-w-xl border-t border-accent pt-7">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Bez presji</p>
-            <h2 id="no-pressure-heading" className="font-display mt-4 max-w-[11ch] text-[clamp(3.5rem,6vw,5.5rem)] leading-[0.9]">Możesz po prostu być.</h2>
-            <p className="mt-6 text-xl font-bold leading-snug sm:text-2xl">Nie musisz występować, żeby uczestniczyć w wieczorze.</p>
+        <section aria-labelledby="field-note-heading" className="bg-foreground text-background">
+          <div className={cn(container, "py-16 md:py-24")}>
+            <div className="flex flex-wrap items-center justify-between gap-3 border-y border-background/40 py-3 text-xs font-bold uppercase tracking-[0.16em]">
+              <span>Zapis wieczoru / archiwum</span><span>Gdynia · 16.08.2026</span>
+            </div>
+            <div className="grid gap-10 pt-10 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-end md:gap-16 lg:gap-24">
+              <figure className="w-full max-w-[30rem] md:order-1">
+                <Image src="/media/events/2026-08-16-igranie/igranie-case-study.webp" alt="Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie." width={720} height={1280} sizes="(max-width: 767px) calc(100vw - 40px), 38vw" loading="lazy" className="aspect-[4/5] w-full object-cover object-[center_34%]" />
+                <figcaption className="mt-3 border-t border-background/40 pt-3 text-xs font-bold uppercase leading-5 tracking-[0.12em]">Kadr z wydarzenia · iGranie w Lochu</figcaption>
+              </figure>
+              <div className="md:order-2 md:pb-5">
+                <p className="font-display text-[clamp(5rem,12vw,12rem)] leading-[0.78]" aria-label="16 sierpnia">16 / 08</p>
+                <h2 id="field-note-heading" className="font-display mt-8 max-w-[10ch] text-[clamp(4.2rem,8vw,8rem)] leading-[0.85]">iGranie<br />w Lochu.</h2>
+                <p className="mt-7 max-w-[32ch] text-xl font-bold leading-snug sm:text-2xl">Poza Nutą prowadzi w tym gdyńskim lokalu cykliczne wieczory karaoke.</p>
+                <p className="mt-4 max-w-md text-base leading-7">Ten kadr pochodzi z wydarzenia 16 sierpnia 2026 r.</p>
+              </div>
+            </div>
+            <div className="mt-14 grid gap-6 border-t border-background/40 pt-7 md:mt-20 md:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] md:items-center md:gap-16 lg:gap-24">
+              <p className="font-display text-[clamp(3.5rem,5vw,6rem)] leading-[0.87]">Co teraz?</p>
+              <div>
+                <p className="max-w-xl text-lg font-bold leading-snug sm:text-xl">Daty i miejsca ogłaszamy w oficjalnych kanałach Poza Nutą.</p>
+                <p className="mt-2 text-sm leading-6">Sprawdź najnowszy komunikat przed wyjściem.</p>
+                <Link href={publicPage.links} className={cn(primaryAction, "mt-5 w-full sm:w-auto")}>Daty w oficjalnych kanałach <ArrowUpRight aria-hidden="true" /></Link>
+              </div>
+            </div>
           </div>
         </section>
 
-        <section className="border-b py-16 sm:py-20" aria-labelledby="steps-heading">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,0.8fr)_minmax(0,1fr)] lg:gap-20">
+        <section aria-labelledby="venue-heading" className="border-b border-border">
+          <div className={cn(container, "grid gap-8 py-20 md:grid-cols-[minmax(0,1fr)_minmax(0,0.7fr)] md:items-end md:gap-20 md:py-24")}>
             <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Jeśli chcesz zaśpiewać</p>
-              <h2 id="steps-heading" className="font-display mt-4 max-w-[11ch] text-[clamp(3.5rem,6vw,5.5rem)] leading-[0.9]">Od przyjścia do mikrofonu.</h2>
+              <p className="border-b border-border pb-3 text-xs font-bold uppercase tracking-[0.16em] text-accent">Osobna droga dla lokalu</p>
+              <h2 id="venue-heading" className="font-display mt-7 max-w-[10ch] text-[clamp(3.7rem,7vw,7rem)] leading-[0.88]">Muzyka w Twoim lokalu?</h2>
             </div>
-            <div className="border-t border-accent pt-6">
-              <ol className="grid gap-5 sm:grid-cols-3">
-              {[
-                ["01", "Przyjdź"],
-                ["02", "Zgłoś utwór"],
-                ["03", "Zaśpiewaj"],
-              ].map(([number, heading]) => (
-                <li key={number} className="border-b pb-5">
-                  <span className="text-xs font-black tracking-[0.15em] text-accent">{number}</span>
-                  <h3 className="mt-3 text-xl font-bold tracking-tight">{heading}</h3>
-                </li>
-              ))}
-              </ol>
-              <Link href={publicPage.karaoke} className={cn(textLink, "mt-5")}>Jak wziąć udział krok po kroku <ArrowRight className="size-4" aria-hidden="true" /></Link>
+            <div>
+              <p className="max-w-xl text-lg leading-8 text-muted-foreground">Poza Nutą prowadzi cykliczne wieczory karaoke w iGranie w Lochu w Gdyni. Zakres każdej współpracy ustalamy z lokalem osobno.</p>
+              <Link href={publicPage.venues} className={cn(editorialLink, "mt-5")}>Współpraca z lokalami <ArrowRight className="size-4" aria-hidden="true" /></Link>
             </div>
           </div>
         </section>
 
-        <section className="grid gap-5 border-b py-12 sm:py-16 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)] lg:items-start lg:gap-20" aria-labelledby="current-heading">
-          <h2 id="current-heading" className="font-display max-w-[12ch] text-[clamp(2.5rem,4vw,3.5rem)] leading-[0.95]">Aktualne informacje</h2>
-          <div className="max-w-xl border-t border-accent pt-5">
-            <p className="text-lg font-bold leading-snug sm:text-xl">Daty i miejsca ogłaszamy w oficjalnych kanałach Poza Nutą.</p>
-            <p className="mt-3 text-base leading-7 text-muted-foreground">Przed wyjściem sprawdź najnowszy komunikat.</p>
-            <Link href={publicPage.links} className={cn(textLink, "mt-4")}>Przejdź do kanałów <ArrowRight className="size-4" aria-hidden="true" /></Link>
+        <section aria-labelledby="closing-heading" className="border-t border-accent">
+          <div className={cn(container, "py-20 md:py-28")}>
+            <p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Poza Nutą / Trójmiasto</p>
+            <h2 id="closing-heading" className="font-display mt-6 max-w-[13ch] text-[clamp(3.8rem,10vw,9.5rem)] leading-[0.82]"><span className="text-accent">Do zobaczenia</span><br /> przy muzyce.</h2>
+            <div className="mt-10 flex flex-col items-start gap-5 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-lg text-base leading-7 text-muted-foreground">Sprawdź, jak wygląda udział w karaoke Poza Nutą.</p>
+              <Link href={publicPage.karaoke} className={cn(primaryAction, "w-full sm:w-auto")}>Informacje o karaoke <ArrowUpRight aria-hidden="true" /></Link>
+            </div>
           </div>
-        </section>
-
-        <section className="grid gap-10 border-b py-20 sm:py-28 lg:grid-cols-[minmax(0,1fr)_minmax(18rem,0.65fr)] lg:items-end lg:gap-20" aria-labelledby="venue-heading">
-          <div>
-            <h2 id="venue-heading" className="font-display max-w-[11ch] text-[clamp(3.5rem,6vw,5.5rem)] leading-[0.9]">Muzyka w Twoim lokalu?</h2>
-            <p className="mt-6 max-w-xl text-base leading-7 text-muted-foreground">Prowadzisz lokal w Trójmieście? Możemy wspólnie ustalić format wydarzenia, jego prowadzenie i promocję oraz podział zadań na miejscu.</p>
-          </div>
-          <Link href={publicPage.venues} className={cn(textLink, "lg:justify-self-end")}>Współpraca z lokalami <ArrowRight className="size-4" aria-hidden="true" /></Link>
-        </section>
-
-        <section className="flex flex-col items-start gap-8 py-20 sm:py-28 lg:flex-row lg:items-end lg:justify-between" aria-labelledby="final-heading">
-          <div>
-            <h2 id="final-heading" className="font-display max-w-[12ch] text-[clamp(3.5rem,7vw,6rem)] leading-[0.9]">Do zobaczenia przy muzyce.</h2>
-            <p className="mt-5 max-w-lg text-base leading-7 text-muted-foreground">Zobacz informacje dla uczestników i przejdź do aktualnych kanałów Poza Nutą.</p>
-          </div>
-          <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "xl" }), "w-full justify-between whitespace-normal sm:w-auto")}>
-            Informacje o karaoke <ArrowRight aria-hidden="true" />
-          </Link>
         </section>
       </main>
     </>

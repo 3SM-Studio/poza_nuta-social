@@ -3,19 +3,19 @@ import { expect, test } from "@playwright/test";
 test("homepage introduces Poza Nutą and routes both audiences", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
-  await expect(page.getByRole("main").getByText("Karaoke i wydarzenia muzyczne w Trójmieście.", { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Karaoke i wydarzenia muzyczne", { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Trójmiasto", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toHaveAttribute("href", "/karaoke-trojmiasto");
   await expect(page.getByRole("main").getByRole("link", { name: "Współpraca z lokalami" })).toHaveAttribute("href", "/dla-lokali");
-  await expect(page.getByRole("link", { name: "Wszystkie oficjalne linki" })).toHaveAttribute("href", "/linki");
-  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram" })).toHaveAttribute("href", "/go/instagram");
-  await expect(page.getByRole("link", { name: "Współpraca z lokalami" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first()).toHaveAttribute("href", "/linki");
+  await expect(page.getByRole("main").getByRole("link", { name: "Współpraca z lokalami" })).toBeVisible();
   await expect(page.getByText(/Stage/i)).toHaveCount(0);
 });
 
 test("link hub uses the official destination route and returns to the marketing site", async ({ page, request }) => {
   await page.goto("/linki");
-  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
-  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true })).toHaveAttribute("href", "/go/instagram");
+  await expect(page.getByRole("heading", { name: "Oficjalne kanały.", level: 1 })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram w nowej karcie", exact: true })).toHaveAttribute("href", "/go/instagram");
   const outbound = await request.get("/go/instagram", { maxRedirects: 0 });
   expect(outbound.status()).toBe(302);
   expect(outbound.headers().location).toMatch(/^https:\/\/(www\.)?instagram\.com\//);
@@ -32,7 +32,7 @@ test("contact is a first-party page", async ({ page }) => {
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   const contactView = page.waitForRequest((request) => request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "contact_view");
   await page.goto("/kontakt");
-  await expect(page.getByRole("heading", { name: "Kontakt / współpraca" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Kontakt.", level: 1 })).toBeVisible();
   await contactView;
 });
 
@@ -265,7 +265,7 @@ test("public surface preserves responsive and keyboard accessibility invariants"
   expect(layout.headings[0]).toBe("H1");
   expect(layout.headings.slice(1)).toEqual(["H2", "H2", "H2"]);
 
-  const focused = page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true });
+  const focused = page.getByRole("main").getByRole("link", { name: "Otwórz Instagram w nowej karcie", exact: true });
   await focused.focus();
   await expect(focused).toBeFocused();
   const focusStyle = await focused.evaluate((element) => {

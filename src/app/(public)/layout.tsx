@@ -7,7 +7,7 @@ export const revalidate = 60;
 
 export default function PublicLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="mx-auto flex min-h-svh w-full max-w-7xl flex-col px-5 pt-2 sm:px-8 lg:px-12">
+    <div className="flex min-h-svh w-full flex-col">
       <Analytics />
       <PublicHeader />
       {children}

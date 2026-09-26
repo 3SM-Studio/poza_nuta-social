@@ -181,7 +181,7 @@ test("accessibility tree exposes navigation, destinations, and consent state", a
   const navTree = await page.getByRole("navigation", { name: "Nawigacja główna" }).ariaSnapshot();
   expect(navTree).toContain("Nawigacja główna");
   expect(navTree).toContain("Karaoke");
-  const destinationTree = await page.getByRole("main").getByRole("link", { name: "Otwórz Instagram", exact: true }).ariaSnapshot();
+  const destinationTree = await page.getByRole("main").getByRole("link", { name: "Otwórz Instagram w nowej karcie", exact: true }).ariaSnapshot();
   expect(destinationTree).toContain("Otwórz Instagram");
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Odrzuć analitykę" }).click();
   await page.getByRole("button", { name: "Ustawienia prywatności" }).click();

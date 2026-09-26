@@ -1,18 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Camera,
-  ExternalLink,
-  Globe2,
-  Music2,
-  Play,
-  Users,
-} from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import type { Destination } from "@/lib/types";
+import { ArrowUpRight, Camera, ExternalLink, Globe2, Music2, Play, Users } from "lucide-react";
+import { cn } from "cn";
 import { recordOutboundChoice } from "@/lib/analytics";
+import type { Destination } from "@/lib/types";
 
 const icons = {
   instagram: Camera,
@@ -23,39 +15,47 @@ const icons = {
   "external-link": ExternalLink,
 };
 
+function priority(slug: string) {
+  if (slug === "instagram") return 0;
+  if (slug === "tiktok") return 1;
+  return 2;
+}
+
 export function SocialHub({ destinations }: { destinations: Destination[] }) {
+  const ordered = [...destinations].sort((a, b) => priority(a.slug) - priority(b.slug) || a.sort_order - b.sort_order);
+
   return (
-    <div className="grid min-w-0 grid-cols-1 gap-3" aria-label="Oficjalne linki Poza Nutą">
-      {destinations.map((destination, index) => {
-        const Icon = icons[destination.icon as keyof typeof icons] || ExternalLink;
-        return (
-          <Link
-            key={destination.id}
-            href={`/go/${encodeURIComponent(destination.slug)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              buttonVariants({ variant: index === 0 ? "accent" : "secondary", size: "xl" }),
-              "group w-full min-w-0 justify-between whitespace-normal text-left",
-            )}
-            aria-label={`Otwórz ${destination.label}`}
-            onClick={() => recordOutboundChoice(destination.slug)}
-          >
-            <span className="flex min-w-0 items-center gap-3">
-              <Icon className="size-5 shrink-0" aria-hidden="true" />
-              <span className="min-w-0">
-                <span className="block break-words">{destination.label}</span>
-                {destination.description ? (
-                  <span className="mt-0.5 block break-words text-xs font-medium">
-                    {destination.description}
+    <nav aria-label="Oficjalne linki Poza Nutą">
+      <ul>
+        {ordered.map((destination) => {
+          const Icon = icons[destination.icon as keyof typeof icons] || ExternalLink;
+          return (
+            <li key={destination.id}>
+              <Link
+                href={`/go/${encodeURIComponent(destination.slug)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  "group flex min-h-20 min-w-0 items-center justify-between gap-4 border-b border-border py-4 text-left text-foreground transition-colors hover:border-accent hover:text-accent focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  destination.slug === "instagram" && "text-accent",
+                  destination.slug === "facebook" && "text-muted-foreground",
+                )}
+                aria-label={`Otwórz ${destination.label} w nowej karcie`}
+                onClick={() => recordOutboundChoice(destination.slug)}
+              >
+                <span className="flex min-w-0 items-center gap-4">
+                  <Icon className="size-5 shrink-0" aria-hidden="true" />
+                  <span className="min-w-0">
+                    <span className="block break-words text-lg font-semibold">{destination.label}</span>
+                    {destination.description ? <span className="mt-1 block break-words text-sm text-muted-foreground">{destination.description}</span> : null}
                   </span>
-                ) : null}
-              </span>
-            </span>
-            <ExternalLink className="size-4 shrink-0 opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-          </Link>
-        );
-      })}
-    </div>
+                </span>
+                <ArrowUpRight className="size-5 shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

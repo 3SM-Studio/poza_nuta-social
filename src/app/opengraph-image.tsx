@@ -6,7 +6,7 @@ export const contentType = "image/png";
 
 export default function Image() {
   return new ImageResponse(
-    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#0d0b0d", color: "#fff8fc", padding: 72 }}>
+    <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#080808", color: "#f7f7f7", padding: 72 }}>
       <div style={{ color: "#ff4fa3", fontSize: 26, fontWeight: 800, letterSpacing: 5 }}>TRÓJMIASTO</div>
       <div style={{ display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", flexDirection: "column", fontSize: 132, lineHeight: 0.85, letterSpacing: -9, fontWeight: 900 }}>

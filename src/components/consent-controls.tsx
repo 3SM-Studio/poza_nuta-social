@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Cookie } from "lucide-react";
@@ -57,8 +57,8 @@ export function ConsentBanner() {
       focusAfterChoiceRef.current = false;
     }
   }, [consentMissing]);
-  function choose(analytics: boolean) {
-    focusAfterChoiceRef.current = true;
+  function choose(analytics: boolean, event: MouseEvent<HTMLButtonElement>) {
+    focusAfterChoiceRef.current = event.detail === 0;
     chooseConsent(analytics);
     setStatusMessage(analytics ? "Wybór zapisany. Pełna analityka włączy się po potwierdzeniu serwera." : "Pełna analityka została wyłączona.");
     setConsentMissing(false);
@@ -68,12 +68,12 @@ export function ConsentBanner() {
     <>
       <p role="status" className="sr-only">{statusMessage}</p>
       {visible ? <>
-        <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-3 shadow-xl sm:bottom-5 sm:p-5" aria-label="Wybór analityki">
-          <p className="text-sm leading-5 text-muted-foreground"><strong className="font-bold text-foreground">Twoja prywatność. </strong>Bez zgody mierzymy ograniczone zdarzenia bez cookies analitycznych i łączenia wizyt. Za zgodą możemy mierzyć sesje i powroty tej przeglądarki. Wybór zmienisz w każdej chwili.</p>
-          <p className="mt-1 text-sm leading-5"><Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link>{" · "}<Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
-          <div className="mt-3 grid grid-cols-2 gap-2">
-            <Button type="button" variant="outline" className="h-auto min-h-12 whitespace-normal px-2 py-2 text-center" onClick={() => choose(false)}>Odrzuć analitykę</Button>
-            <Button type="button" variant="outline" className="h-auto min-h-12 whitespace-normal px-2 py-2 text-center" onClick={() => choose(true)}>Zgadzam się na analitykę</Button>
+        <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-3 shadow-xl sm:inset-x-auto sm:right-5 sm:bottom-5 sm:mx-0 sm:max-w-[26rem] sm:p-5" aria-label="Wybór analityki">
+          <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm leading-5"><strong className="font-bold text-foreground">Twoja prywatność</strong><Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link><Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
+          <p className="mt-1 text-sm leading-5 text-muted-foreground">Bez zgody: pomiar bez cookies analitycznych i łączenia wizyt. Za zgodą: sesje i powroty tej przeglądarki. Wybór możesz zmienić.</p>
+          <div className="mt-2 grid grid-cols-2 gap-2">
+            <Button type="button" variant="outline" className="h-auto min-h-12 whitespace-normal px-2 py-2 text-center" onClick={(event) => choose(false, event)}>Odrzuć analitykę</Button>
+            <Button type="button" variant="outline" className="h-auto min-h-12 whitespace-normal px-2 py-2 text-center" onClick={(event) => choose(true, event)}>Zgadzam się na analitykę</Button>
           </div>
         </aside>
       </> : null}

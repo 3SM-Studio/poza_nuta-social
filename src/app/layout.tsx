@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   ...(process.env.VERCEL_ENV === "preview" ? { robots: { index: false, follow: false } } : {}),
 };
 
-export const viewport: Viewport = { themeColor: "#0d0b0d", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#080808", colorScheme: "dark" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="pl" className={`${display.variable} ${body.variable}`}><body><PublicSkipLink /><ConsentBanner />{children}</body></html>;

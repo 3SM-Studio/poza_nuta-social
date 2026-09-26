@@ -13,7 +13,10 @@ test("privacy banner leaves footer reachable and closes on local denial during s
   await expect(analytics).toBeVisible();
   const firstChoice = await necessary.boundingBox();
   const secondChoice = await analytics.boundingBox();
-  if (testInfo.project.name.startsWith("mobile")) expect(firstChoice!.y).toBeLessThan(secondChoice!.y);
+  if (testInfo.project.name.startsWith("mobile")) {
+    expect(Math.abs(firstChoice!.y - secondChoice!.y)).toBeLessThan(2);
+    expect(Math.abs(firstChoice!.height - secondChoice!.height)).toBeLessThan(2);
+  }
   await necessary.focus();
   await expect(necessary).toBeFocused();
   await page.keyboard.press("Tab");

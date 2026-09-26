@@ -1,6 +1,6 @@
 # Public Marketing V2 — canonical implementation brief
 
-Status: **product and creative direction approved 2026-09-25; public foundation implemented in 6bedd501; participant clarity and factual B2B proof are the current continuation; media production pending**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. The practical event shoot, factual gate, permissions manifest and next-slice handoff live in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
+Status: **Culture Editorial selected for the public creative rebuild on 2026-09-26; real-media publication rights remain unresolved and block deployment**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. The asset inventory and current rights gate live in `docs/PUBLIC_MARKETING_V2_MEDIA.md`; the practical production and permissions brief lives in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
 
 ## Product thesis and audience
 
@@ -10,7 +10,7 @@ The homepage is **consumer-first**: help a guest understand the experience, beli
 
 ## Creative and content contract
 
-**Documentary event experience + live-poster brand language.** Use the supplied logo, Bebas Neue/Space Grotesk foundation and pink accent with strong type, deliberate poster rhythm and bold compositions. Pair them with genuine event people, reactions, host, place and process. Media proves what a visitor would experience; it is not decorative. Avoid a Mate Academy look, SaaS/shadcn marketing template, generic black-luxury site, cyberpunk or neon overload. Keep `/linki` compact for QR/bio use and keep `socials.pozanuta.pl` in that role; the root domain carries the full brand story.
+**Culture Editorial with documentary event evidence.** Use the supplied logo, Bebas Neue/Space Grotesk foundation, neutral black `#080808`, off-white `#f7f7f7`, and Poza Nutą pink `#ff4fa3`. Vary editorial scale, spatial density and black/pink/white chapters. Pair the type with genuine event people, reactions, place and process; media proves what a visitor would experience. Avoid a Mate Academy look, SaaS/shadcn marketing template, generic black-luxury site, cyberpunk or neon overload. Keep `/linki` compact for QR/bio use and keep `socials.pozanuta.pl` in that role; the root domain carries the full brand story.
 
 Homepage photography and short video are approved for V2. Hero video is optional, and a strong real still outranks weak footage. No stock or generated substitute karaoke photography. Do not publish invented testimonials, numbers, venue names/logos, events, case studies or mock media. Each proof item requires a source, factual check and publication rights/consent. An absent proof section stays absent until material exists.
 
@@ -58,7 +58,7 @@ The result is premium when a guest understands the offer and next action in the 
 ## Coherent implementation slices
 
 1. **Public foundation and path accuracy — implemented in 6bedd501, independent of photo readiness.** The public type/spacing/layout and responsive page shell use the approved live-poster grammar; consumer-first navigation and CTA wording promise the destinations they reach; the B2B route and `/linki` remain. This slice prepares the structure for real media without presenting a substitute final design.
-2. **Experience clarity and factual B2B proof — current continuation, independent of media.** Explain optional singing, no Poza Nutą booking, the on-site song flow and official information path. Develop `/dla-lokali` with the owner-confirmed iGranie realization, per-venue scope and a working contact path; strengthen the homepage bridge. Do not fill absent media or testimonial slots.
+2. **Experience clarity and factual B2B proof — implemented.** Explain optional singing, no Poza Nutą booking, the on-site song flow and official information path. `/dla-lokali` uses the owner-confirmed iGranie realization, per-venue scope and a working contact path. Do not fill absent testimonial or metric slots.
 3. **Documentary content and media production.** Shoot, select, clear rights, caption and optimize real assets. Check event-specific variations and publication permissions. This is a content gate, not a dependency-install slice.
 4. **Media-led consumer and venue storytelling, conditional.** Add approved event moments and verified voices to the existing narrative. Keep appropriate stills and reduced-motion behavior. Omit any proof that lacks source or permission.
 5. **Owned events, conditional.** Only after the event-source gate, implement list/detail, lifecycle states, metadata/structured data and public-path/analytics contract changes. Until then, retain the official-channel path.

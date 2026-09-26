@@ -3,7 +3,7 @@
 This document describes the public marketing site prepared for `pozanuta.pl` and its compact `/linki` hub. `docs/PUBLIC_MARKETING_V2.md` is the canonical V2 implementation brief; the Admin theme below is unchanged.
 
 ## Overview
-Public Marketing V2 combines **documentary event experience + live-poster brand language**: real event people, reactions and venues meet expressive Poza Nutą typography, the canonical logo, the pink accent and deliberate poster-like pacing. The homepage is consumer-first, with venue collaboration visible in navigation and a meaningful section that leads to `/dla-lokali`. `/linki` remains a compact official-channels hub, not a second homepage or a generic Linktree clone. Mate Academy is a benchmark for marketing mechanics, not visual identity.
+The selected public direction is **Culture Editorial**: a music-culture publication rhythm built from the real Poza Nutą logo, strong typography, genuine event evidence, black and white fields, and structural pink. The homepage is consumer-first; the venue path is visible but subordinate to the participant invitation. `/linki` remains a compact official-channels hub. Mate Academy informs marketing mechanics, not visual identity. The selected direction supersedes the earlier live-poster exploration without changing the product contract.
 
 Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component system. The current shadcn base is `base-nova` using Base UI. Do not introduce a competing component library.
 
@@ -11,9 +11,8 @@ Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component syst
 
 These colors apply to the public marketing routes; Admin has the separate scoped theme below.
 
-- Dark neutral background is the default surface.
-- Foreground is high-contrast off-white.
-- Pink is the single branded accent.
+- Public UI palette: neutral black `#080808`, off-white `#f7f7f7`, Poza Nutą pink `#ff4fa3`, and neutral grays. White editorial fields may interrupt the black ground.
+- Pink is structural: a full visual chapter, typographic emphasis, and primary action color. It is not a burgundy, wine, plum, or purple-red palette.
 - Use semantic shadcn tokens (`background`, `foreground`, `card`, `border`, `muted`, `accent`, etc.), not scattered hex values in components.
 - Do not use decorative gradients or neon glow soup.
 - Destructive/success/status colors are functional only and must not compete with the branded accent.
@@ -32,15 +31,16 @@ These font choices apply to the public marketing routes; Admin uses Geist as spe
 - Display: Bebas Neue for the Poza Nutą wordmark-style headline treatment where appropriate.
 - Interface/body: Space Grotesk.
 - Do not replace the typography with generic Inter/system-font styling unless the brand system is intentionally changed.
-- Maintain a clear hierarchy; avoid excessive all-caps outside labels/eyebrows.
+- Maintain a clear hierarchy. Compact uppercase metadata and captions have a 12px minimum; body copy and actions remain comfortably readable.
 - Treat text as a visual element when it improves the story, while keeping practical information and calls to action easy to scan.
 
 ## Layout
 - Mobile-first.
-- The homepage uses a wider editorial composition on large screens; information pages and `/linki` remain narrow and readable.
+- The homepage moves through distinct compositions: typographic brand opening with an early real-event still, pink low-pressure invitation, compressed participation steps, a light archival field note, a quieter venue bridge, and a full-width closing statement. Avoid repeating label → giant heading → paragraph → link as the default section recipe.
+- The same editorial system adapts to mobile through deliberate re-composition, not a simple stacked desktop grid. Information pages and `/linki` remain narrower and readable.
 - Touch targets must remain at least comfortably tappable (roughly 44px+).
 - Use spacing rhythm from the shadcn/Tailwind token system.
-- Authentic event photography and short event video are allowed on the homepage as evidence, not decoration. Hero video is optional; a strong real still is better than weak motion. Never use stock or generated substitute karaoke photographs.
+- Authentic event photography is evidence with visible event context and captions, not decoration. Video remains optional; the selected homepage favors distinct still moments and avoids repeating its hero frame lower on the page. Never use stock or generated substitute karaoke photographs.
 - Art-direct horizontal and vertical compositions separately. Capture venue/crowd context, a performer mid-shot, audience reactions, friends, host and host/participant interaction, with natural atmosphere and negative space where copy needs it. Do not assume one crop works on desktop and mobile.
 - Homepage sections progress from brand/experience to real evidence, practical participation, a current-information path, venue collaboration, objections and a clear close. Each section must add a distinct marketing job; do not pad the page to imitate a benchmark.
 - Public pages share a responsive branded header and full footer. The supplied canonical SVG is the logo asset; its geometry is preserved verbatim and rendered in the shell through a color mask.
@@ -48,7 +48,7 @@ These font choices apply to the public marketing routes; Admin uses Geist as spe
 
 ## Media
 
-- Every published image or video, testimonial, venue/partner logo, number and case study needs a verified source plus the relevant publication rights or consent. Missing proof is never filled with a placeholder.
+- Every published image or video, testimonial, venue/partner logo, number and case study needs a verified source plus the relevant publication rights or consent. The current real-media rights gate in `docs/PUBLIC_MARKETING_V2_MEDIA.md` is unresolved and blocks public deployment. Missing proof is never filled with a placeholder.
 - Begin with optimized native video, a poster and static fallback. Muted `playsInline` loops may support the story; defer offscreen video, provide captions/transcripts for speech and a static reduced-motion alternative.
 - Consider Mux or `next-video` only when a real video library requires additional infrastructure.
 
