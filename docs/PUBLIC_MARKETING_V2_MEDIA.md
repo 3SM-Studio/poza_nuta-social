@@ -12,6 +12,8 @@ Status: **wyłącznie lokalna integracja i podgląd wewnętrzny**. Źródło: wy
 
 `experience-duet.webp` (C0017.MP4) pozostał poza repo i stroną: interakcję wspólnego śpiewania pokazuje już pętla, a dodatkowy podobny kadr osłabiłby selektywny rytm dokumentalny.
 
+Opis cyklicznych wieczorów karaoke w case study wynika z kontynuacji decyzji właściciela dla Public Marketing V2. Sam kadr z 16.08.2026 dokumentuje jeden wieczór i nie jest samodzielnym dowodem cykliczności.
+
 ## Bramka publikacji
 
 **Blokada przed publicznym wdrożeniem:** należy potwierdzić akceptowalną podstawę publikacji i zakres użycia wizerunku każdej rozpoznawalnej osoby w wybranych kadrach oraz wymagane uprawnienia dotyczące lokalu i materiału. Obecność plików w paczce lub na Drive tego nie potwierdza. Decyzje i dowody uprawnień przechowywać poza repozytorium; tutaj odnotować wyłącznie końcowy status oraz zakres. Do zamknięcia bramki nie publikować tej wersji strony.

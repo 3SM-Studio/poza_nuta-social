@@ -23,7 +23,7 @@ export default function KaraokePage() {
         <div className="border-t border-accent pt-6">
           <h1 className="font-display max-w-[11ch] text-[clamp(3.75rem,11vw,6rem)] leading-[0.88] tracking-[-0.025em] text-foreground">Karaoke w Trójmieście</h1>
           <p className="mt-8 max-w-xl text-xl font-bold leading-snug sm:text-2xl">Przyjdź dla muzyki i ludzi. Śpiewanie jest Twoim wyborem.</p>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Możesz słuchać, spędzać czas z innymi i dołączyć do zabawy bez występu. Jeśli masz ochotę chwycić za mikrofon, nie musisz umieć śpiewać ani zapisywać się przez Poza Nutą przed przyjściem.</p>
+          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Jeśli masz ochotę chwycić za mikrofon, nie potrzebujesz doświadczenia. Na miejscu zgłaszasz utwór w kilku krokach.</p>
         </div>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="channels-heading">
@@ -52,7 +52,6 @@ export default function KaraokePage() {
                   </li>
                 ))}
               </ol>
-              <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">Szczegóły udziału w konkretnym wieczorze sprawdź w jego aktualnym komunikacie.</p>
             </div>
             <figure className="w-full max-w-[22rem]">
               <Image src="/media/events/2026-08-16-igranie/experience-solo.webp" alt="Uczestnik śpiewa z mikrofonem w lokalu podczas karaoke Poza Nutą." width={720} height={1280} sizes="(max-width: 1024px) 100vw, 28vw" className="h-auto w-full" loading="lazy" />

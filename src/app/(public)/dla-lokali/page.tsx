@@ -29,6 +29,31 @@ export default function VenuesPage() {
           </Link>
         </div>
 
+        <section className="mt-14 border-t border-accent pt-6 sm:mt-20 sm:pt-8" aria-labelledby="case-heading">
+          <div className="grid gap-10 lg:grid-cols-[minmax(14rem,0.62fr)_minmax(0,1fr)] lg:items-start lg:gap-14">
+            <div className="lg:order-2">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Rzeczywista współpraca</p>
+              <h2 id="case-heading" className="font-display mt-3 text-4xl leading-none sm:text-5xl">iGranie w Lochu, Gdynia</h2>
+              <p className="mt-5 max-w-xl text-xl font-bold leading-snug sm:text-2xl">Poza Nutą prowadzi tam cykliczne wieczory karaoke.</p>
+              <div className="mt-7 border-t border-accent">
+                <div className="grid gap-2 border-b py-4 sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-6">
+                  <h3 className="font-bold">Poza Nutą</h3>
+                  <p className="text-base leading-7 text-muted-foreground">Prowadzenie wieczoru, obsługa zgłoszeń utworów i kolejki występów.</p>
+                </div>
+                <div className="grid gap-2 border-b py-4 sm:grid-cols-[7rem_minmax(0,1fr)] sm:gap-6">
+                  <h3 className="font-bold">Lokal</h3>
+                  <p className="text-base leading-7 text-muted-foreground">Nagłośnienie, mikrofony i projektory w tej realizacji.</p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">To przykład współpracy w jednym miejscu. Warunki dla Twojego lokalu ustalimy osobno.</p>
+            </div>
+            <figure className="w-full max-w-[22rem] lg:order-1">
+              <Image src="/media/events/2026-08-16-igranie/igranie-case-study.webp" alt="Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie." width={720} height={1280} sizes="(max-width: 1024px) 100vw, 28vw" className="h-auto w-full" loading="lazy" />
+              <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Realizacja Poza Nutą · 16.08.2026</figcaption>
+            </figure>
+          </div>
+        </section>
+
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="scope-heading">
           <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Możliwy zakres</p>
           <h2 id="scope-heading" className="font-display mt-3 text-4xl leading-none sm:text-5xl">Co możemy wziąć na siebie?</h2>
@@ -52,21 +77,6 @@ export default function VenuesPage() {
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="conditions-heading">
           <h2 id="conditions-heading" className="font-display text-4xl leading-none sm:text-5xl">Ustalamy podział zadań.</h2>
           <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Przed wydarzeniem sprawdzamy przestrzeń, dostępne nagłośnienie i sprzęt, plan promocji oraz odpowiedzialność każdej strony. Podział techniczny zależy od lokalu; nie zakładamy jednego modelu dla wszystkich miejsc.</p>
-        </section>
-
-        <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="case-heading">
-          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,0.55fr)] lg:items-start lg:gap-14">
-            <div>
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Rzeczywista współpraca</p>
-              <h2 id="case-heading" className="font-display mt-3 text-4xl leading-none sm:text-5xl">iGranie w Lochu, Gdynia</h2>
-              <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Poza Nutą współpracuje z iGranie w Lochu przy wydarzeniach karaoke. W tej realizacji lokal zapewnia nagłośnienie, mikrofony i projektory. Poza Nutą prowadzi wieczór, obsługuje zgłoszenia utworów i kolejkę oraz może uzupełnić wyposażenie własnym sprzętem.</p>
-              <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">To przykład podziału pracy w jednym miejscu. Warunki dla Twojego lokalu ustalimy osobno.</p>
-            </div>
-            <figure className="w-full max-w-[22rem]">
-              <Image src="/media/events/2026-08-16-igranie/igranie-case-study.webp" alt="Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie." width={720} height={1280} sizes="(max-width: 1024px) 100vw, 28vw" className="h-auto w-full" loading="lazy" />
-              <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Realizacja Poza Nutą · 16.08.2026</figcaption>
-            </figure>
-          </div>
         </section>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="message-heading">

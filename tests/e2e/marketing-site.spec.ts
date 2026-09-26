@@ -91,7 +91,7 @@ test("participant and venue journeys answer the first decision and reach the rig
   await page.goto("/");
   await page.getByRole("button", { name: "Odrzuć analitykę" }).click();
   await expect(page.getByRole("main").getByText("Przyjdź posłuchać, spędzić czas z innymi albo zaśpiewać.", { exact: false })).toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: "Sprawdź aktualne daty" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).click();
   await expect(page).toHaveURL(/\/linki$/);
   await expect(page.getByText("Daty i miejsca ogłaszamy w oficjalnych kanałach.", { exact: false })).toBeVisible();
   await page.goto("/");
@@ -107,6 +107,7 @@ test("participant and venue journeys answer the first decision and reach the rig
   await page.goto("/dla-lokali");
   await expect(page.getByRole("heading", { name: "Co możemy wziąć na siebie?" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "iGranie w Lochu, Gdynia" })).toBeVisible();
+  await expect(page.getByText("Poza Nutą prowadzi tam cykliczne wieczory karaoke.")).toBeVisible();
   await page.getByRole("main").getByRole("link", { name: "Kontakt / współpraca" }).click();
   await expect(page).toHaveURL(/\/kontakt$/);
   await expect(page.getByRole("link", { name: /kontakt@pozanuta\.test/ })).toHaveAttribute("href", "mailto:kontakt@pozanuta.test");
@@ -134,7 +135,7 @@ test("mobile first-visit consent leaves the participant action visible and treat
   await page.screenshot({ path: `test-results/consent-first-visit-${testInfo.project.name}.png` });
   await reject.click();
   await expect(banner).toBeHidden();
-  await expect(page.getByRole("main").getByRole("link", { name: "Sprawdź aktualne daty" })).toBeVisible();
+  await expect(page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" })).toBeVisible();
   await page.screenshot({ path: `test-results/consent-rejected-${testInfo.project.name}.png` });
 });
 
@@ -144,7 +145,7 @@ test("accepted mobile consent keeps the hero and current-information route usabl
   await page.getByRole("complementary", { name: "Wybór analityki" }).getByRole("button", { name: "Zgadzam się na analitykę" }).click();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toBeVisible();
-  await page.getByRole("main").getByRole("link", { name: "Sprawdź aktualne daty" }).click();
+  await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).click();
   await expect(page).toHaveURL(/\/linki$/);
   await page.screenshot({ path: "test-results/consent-accepted-linki-mobile-390.png" });
 });
@@ -158,10 +159,12 @@ test("documentary media stays below the hero and loads motion only when useful",
   });
   await page.goto("/");
   await expect(page.locator('section[aria-labelledby="hero-title"] img, section[aria-labelledby="hero-title"] video')).toHaveCount(0);
+  const proofTop = await page.locator('section[aria-labelledby="karaoke-heading"] figure').evaluate((element) => element.getBoundingClientRect().top);
+  expect(proofTop, "documentary proof should appear at the end of the first mobile viewport").toBeLessThan(844);
   await expect(page.locator("video")).toHaveCount(0);
   expect(videoRequests).toHaveLength(0);
 
-  await page.locator('section[aria-labelledby="karaoke-heading"]').scrollIntoViewIfNeeded();
+  await page.locator('section[aria-labelledby="karaoke-heading"] figure').scrollIntoViewIfNeeded();
   const video = page.locator("video");
   await expect(video).toHaveCount(1);
   await expect(video).toHaveAttribute("preload", "none");
@@ -172,7 +175,7 @@ test("documentary media stays below the hero and loads motion only when useful",
   await expect(video).toHaveCount(0);
 
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.locator('section[aria-labelledby="karaoke-heading"]').scrollIntoViewIfNeeded();
+  await page.locator('section[aria-labelledby="karaoke-heading"] figure').scrollIntoViewIfNeeded();
   await expect(video).toHaveCount(0);
   await expect(page.getByAltText("Dwie osoby śpiewają razem podczas wieczoru Poza Nutą.")).toBeVisible();
   await expect(page.getByAltText("Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą.")).toHaveCount(1);

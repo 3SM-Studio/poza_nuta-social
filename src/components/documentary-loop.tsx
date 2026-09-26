@@ -17,8 +17,8 @@ export function DocumentaryLoop() {
     updateMotion();
     motionQuery.addEventListener("change", updateMotion);
 
-    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
-      rootMargin: "100px 0px",
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.intersectionRatio >= 0.5), {
+      threshold: [0, 0.5],
     });
     if (frameRef.current) observer.observe(frameRef.current);
 
@@ -37,6 +37,7 @@ export function DocumentaryLoop() {
         alt="Dwie osoby śpiewają razem podczas wieczoru Poza Nutą."
         fill
         sizes="(max-width: 1024px) 100vw, 36vw"
+        loading="eager"
         className="object-contain"
       />
       {showVideo && (
@@ -50,7 +51,7 @@ export function DocumentaryLoop() {
           poster={`${mediaPath}/experience-group-poster.webp`}
           width="720"
           height="1280"
-          className={`absolute inset-0 h-full w-full object-contain ${playing ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-contain motion-safe:transition-opacity motion-safe:duration-500 ${playing ? "opacity-100" : "opacity-0"}`}
           onPlaying={() => setPlaying(true)}
         >
           <source src={`${mediaPath}/experience-group-loop.mp4`} type="video/mp4" />

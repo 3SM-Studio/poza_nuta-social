@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowUpRight, Menu } from "lucide-react";
 import { BrandLogo } from "@/components/brand-logo";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,6 +14,8 @@ import { publicPage } from "@/lib/public-paths";
 export function PublicHeader() {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const pathname = usePathname();
+  const karaokeLinkVariant = pathname === publicPage.venues ? "outline" : "accent";
 
   return (
     <header className="flex min-h-20 items-center justify-between gap-5 border-b py-2 sm:min-h-24 lg:grid lg:grid-cols-[auto_1fr_auto] lg:gap-10">
@@ -24,7 +27,7 @@ export function PublicHeader() {
           <Link key={href} href={href} className="inline-flex min-h-11 items-center text-muted-foreground transition-colors hover:text-foreground">{label}</Link>
         ))}
       </nav>
-      <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "hidden lg:inline-flex lg:justify-self-end")}>
+      <Link href={publicPage.karaoke} className={cn(buttonVariants({ variant: karaokeLinkVariant, size: "lg" }), "hidden lg:inline-flex lg:justify-self-end")}>
         Informacje o karaoke <ArrowUpRight aria-hidden="true" />
       </Link>
       <Sheet open={open} onOpenChange={(next) => {
@@ -44,7 +47,7 @@ export function PublicHeader() {
               <Link key={href} href={href} onClick={() => setOpen(false)} className="flex min-h-14 items-center border-b text-xl font-bold text-foreground hover:text-accent">{label}</Link>
             ))}
           </nav>
-          <Link href={publicPage.karaoke} onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: "accent", size: "lg" }), "mt-5 w-full justify-between")}>
+          <Link href={publicPage.karaoke} onClick={() => setOpen(false)} className={cn(buttonVariants({ variant: karaokeLinkVariant, size: "lg" }), "mt-5 w-full justify-between")}>
             Informacje o karaoke <ArrowUpRight aria-hidden="true" />
           </Link>
         </SheetContent>
