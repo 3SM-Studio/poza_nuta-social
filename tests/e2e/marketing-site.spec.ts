@@ -148,3 +148,36 @@ test("accepted mobile consent keeps the hero and current-information route usabl
   await expect(page).toHaveURL(/\/linki$/);
   await page.screenshot({ path: "test-results/consent-accepted-linki-mobile-390.png" });
 });
+
+test("documentary media stays below the hero and loads motion only when useful", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium");
+  await page.setViewportSize({ width: 390, height: 844 });
+  const videoRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("experience-group-loop.mp4")) videoRequests.push(request.url());
+  });
+  await page.goto("/");
+  await expect(page.locator('section[aria-labelledby="hero-title"] img, section[aria-labelledby="hero-title"] video')).toHaveCount(0);
+  await expect(page.locator("video")).toHaveCount(0);
+  expect(videoRequests).toHaveLength(0);
+
+  await page.locator('section[aria-labelledby="karaoke-heading"]').scrollIntoViewIfNeeded();
+  const video = page.locator("video");
+  await expect(video).toHaveCount(1);
+  await expect(video).toHaveAttribute("preload", "none");
+  await expect(video).toHaveAttribute("playsinline", "");
+  await expect.poll(() => video.evaluate((element) => !(element as HTMLVideoElement).paused)).toBe(true);
+  expect(videoRequests.length).toBeGreaterThan(0);
+  await page.locator('section[aria-labelledby="hero-title"]').scrollIntoViewIfNeeded();
+  await expect(video).toHaveCount(0);
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.locator('section[aria-labelledby="karaoke-heading"]').scrollIntoViewIfNeeded();
+  await expect(video).toHaveCount(0);
+  await expect(page.getByAltText("Dwie osoby śpiewają razem podczas wieczoru Poza Nutą.")).toBeVisible();
+  await expect(page.getByAltText("Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą.")).toHaveCount(1);
+  await page.goto("/karaoke-trojmiasto");
+  await expect(page.getByAltText("Uczestnik śpiewa z mikrofonem w lokalu podczas karaoke Poza Nutą.")).toHaveCount(1);
+  await page.goto("/dla-lokali");
+  await expect(page.getByAltText("Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie.")).toHaveCount(1);
+});

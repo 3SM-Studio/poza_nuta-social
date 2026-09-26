@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicPageMain } from "@/components/public-page-main";
@@ -16,7 +17,7 @@ export default function KaraokePage() {
   return (
     <>
       <StructuredData data={publicPageGraph(publicPage.karaoke, title, description)} />
-      <PublicPageMain>
+      <PublicPageMain className="max-w-4xl">
       <PublicBreadcrumb current={title} />
       <article className="flex-1 pb-20 pt-10 sm:pb-28 sm:pt-14">
         <div className="border-t border-accent pt-6">
@@ -34,22 +35,30 @@ export default function KaraokePage() {
         </section>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="singing-heading">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Dla chętnych do śpiewania</p>
-          <h2 id="singing-heading" className="font-display mt-3 max-w-[13ch] text-4xl leading-none sm:text-5xl">Jak zgłosić utwór?</h2>
-          <ol className="mt-8 border-t border-accent">
-            {[
-              ["01", "Przyjdź na wydarzenie", "Przed przyjściem nie rezerwujesz występu przez Poza Nutą."],
-              ["02", "Zeskanuj QR na miejscu", "Wpisz sześciocyfrowy kod sesji dostępny podczas wydarzenia."],
-              ["03", "Wybierz lub dodaj utwór", "Zgłoszony utwór trafia do kolejki."],
-              ["04", "Poczekaj na swoją kolej", "Po wywołaniu możesz zaśpiewać wybraną piosenkę."],
-            ].map(([number, heading, body]) => (
-              <li key={number} className="grid gap-2 border-b py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5">
-                <span className="pt-1 text-xs font-black tracking-[0.15em] text-accent">{number}</span>
-                <div><h3 className="text-lg font-bold tracking-tight">{heading}</h3><p className="mt-1 max-w-lg text-base leading-7 text-muted-foreground">{body}</p></div>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">Szczegóły udziału w konkretnym wieczorze sprawdź w jego aktualnym komunikacie.</p>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,0.55fr)] lg:items-start lg:gap-14">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Dla chętnych do śpiewania</p>
+              <h2 id="singing-heading" className="font-display mt-3 max-w-[13ch] text-4xl leading-none sm:text-5xl">Jak zgłosić utwór?</h2>
+              <ol className="mt-8 border-t border-accent">
+                {[
+                  ["01", "Przyjdź na wydarzenie", "Przed przyjściem nie rezerwujesz występu przez Poza Nutą."],
+                  ["02", "Zeskanuj QR na miejscu", "Wpisz sześciocyfrowy kod sesji dostępny podczas wydarzenia."],
+                  ["03", "Wybierz lub dodaj utwór", "Zgłoszony utwór trafia do kolejki."],
+                  ["04", "Poczekaj na swoją kolej", "Po wywołaniu możesz zaśpiewać wybraną piosenkę."],
+                ].map(([number, heading, body]) => (
+                  <li key={number} className="grid gap-2 border-b py-5 sm:grid-cols-[3rem_minmax(0,1fr)] sm:gap-5">
+                    <span className="pt-1 text-xs font-black tracking-[0.15em] text-accent">{number}</span>
+                    <div><h3 className="text-lg font-bold tracking-tight">{heading}</h3><p className="mt-1 max-w-lg text-base leading-7 text-muted-foreground">{body}</p></div>
+                  </li>
+                ))}
+              </ol>
+              <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground">Szczegóły udziału w konkretnym wieczorze sprawdź w jego aktualnym komunikacie.</p>
+            </div>
+            <figure className="w-full max-w-[22rem]">
+              <Image src="/media/events/2026-08-16-igranie/experience-solo.webp" alt="Uczestnik śpiewa z mikrofonem w lokalu podczas karaoke Poza Nutą." width={720} height={1280} sizes="(max-width: 1024px) 100vw, 28vw" className="h-auto w-full" loading="lazy" />
+              <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Kadr z wieczoru · iGranie w Lochu, Gdynia</figcaption>
+            </figure>
+          </div>
         </section>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="venue-heading">

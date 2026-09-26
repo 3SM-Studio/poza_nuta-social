@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { PublicBreadcrumb } from "@/components/public-breadcrumb";
 import { PublicPageMain } from "@/components/public-page-main";
@@ -16,7 +17,7 @@ export default function VenuesPage() {
   return (
     <>
       <StructuredData data={publicPageGraph(publicPage.venues, title, description)} />
-      <PublicPageMain>
+      <PublicPageMain className="max-w-4xl">
       <PublicBreadcrumb current={title} />
       <article className="flex-1 pb-20 pt-10 sm:pb-28 sm:pt-14">
         <div className="border-t border-accent pt-6">
@@ -54,10 +55,18 @@ export default function VenuesPage() {
         </section>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="case-heading">
-          <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Rzeczywista współpraca</p>
-          <h2 id="case-heading" className="font-display mt-3 text-4xl leading-none sm:text-5xl">iGranie w Lochu, Gdynia</h2>
-          <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Poza Nutą współpracuje z iGranie w Lochu przy wydarzeniach karaoke. W tej realizacji lokal zapewnia nagłośnienie, mikrofony i projektory. Poza Nutą prowadzi wieczór, obsługuje zgłoszenia utworów i kolejkę oraz może uzupełnić wyposażenie własnym sprzętem.</p>
-          <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">To przykład podziału pracy w jednym miejscu. Warunki dla Twojego lokalu ustalimy osobno.</p>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(14rem,0.55fr)] lg:items-start lg:gap-14">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Rzeczywista współpraca</p>
+              <h2 id="case-heading" className="font-display mt-3 text-4xl leading-none sm:text-5xl">iGranie w Lochu, Gdynia</h2>
+              <p className="mt-5 max-w-xl text-base leading-7 text-muted-foreground">Poza Nutą współpracuje z iGranie w Lochu przy wydarzeniach karaoke. W tej realizacji lokal zapewnia nagłośnienie, mikrofony i projektory. Poza Nutą prowadzi wieczór, obsługuje zgłoszenia utworów i kolejkę oraz może uzupełnić wyposażenie własnym sprzętem.</p>
+              <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground">To przykład podziału pracy w jednym miejscu. Warunki dla Twojego lokalu ustalimy osobno.</p>
+            </div>
+            <figure className="w-full max-w-[22rem]">
+              <Image src="/media/events/2026-08-16-igranie/igranie-case-study.webp" alt="Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie." width={720} height={1280} sizes="(max-width: 1024px) 100vw, 28vw" className="h-auto w-full" loading="lazy" />
+              <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Realizacja Poza Nutą · 16.08.2026</figcaption>
+            </figure>
+          </div>
         </section>
 
         <section className="mt-16 border-t pt-8 sm:mt-20" aria-labelledby="message-heading">

@@ -1,0 +1,17 @@
+# Public Marketing V2 — media z iGranie w Lochu
+
+Status: **wyłącznie lokalna integracja i podgląd wewnętrzny**. Źródło: wydarzenie Poza Nutą, 16.08.2026, iGranie w Lochu, Gdynia. Pliki w `public/media/events/2026-08-16-igranie/` są zoptymalizowanymi eksportami z pakietu przekazanego przez właściciela, nie oryginalnym materiałem filmowym. Repozytorium nie przechowuje dokumentów uprawnień ani danych osób z kadrów.
+
+| Plik w repo | Źródło z manifestu | Użycie w podglądzie |
+| --- | --- | --- |
+| `experience-group-loop.mp4` | C0020.MP4 | Jedyna wyciszona pętla w sekcji doświadczenia na stronie głównej; ładowana dopiero przy wejściu sekcji w pobliże widoku. |
+| `experience-group-poster.webp` | C0020.MP4 | Plakat i stały obraz alternatywny pętli, również przy `prefers-reduced-motion`. |
+| `experience-social.webp` | C0015.MP4 | Strona główna: rzeczywisty kadr uczestniczek spędzających czas bez występu. |
+| `experience-solo.webp` | C0016.MP4 | `/karaoke-trojmiasto`: występ w kontekście lokalu obok praktycznej instrukcji udziału. |
+| `igranie-case-study.webp` | C0014.MP4 | `/dla-lokali`: ilustracja opisanej realizacji, bez cytatu lub obietnicy wyniku. |
+
+`experience-duet.webp` (C0017.MP4) pozostał poza repo i stroną: interakcję wspólnego śpiewania pokazuje już pętla, a dodatkowy podobny kadr osłabiłby selektywny rytm dokumentalny.
+
+## Bramka publikacji
+
+**Blokada przed publicznym wdrożeniem:** należy potwierdzić akceptowalną podstawę publikacji i zakres użycia wizerunku każdej rozpoznawalnej osoby w wybranych kadrach oraz wymagane uprawnienia dotyczące lokalu i materiału. Obecność plików w paczce lub na Drive tego nie potwierdza. Decyzje i dowody uprawnień przechowywać poza repozytorium; tutaj odnotować wyłącznie końcowy status oraz zakres. Do zamknięcia bramki nie publikować tej wersji strony.

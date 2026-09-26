@@ -1,7 +1,9 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { StructuredData } from "@/components/structured-data";
+import { DocumentaryLoop } from "@/components/documentary-loop";
 import { buttonVariants } from "@/components/ui/button";
 import { getPublicDestinations } from "@/lib/destinations";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
@@ -40,12 +42,34 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="grid gap-10 border-b py-20 sm:py-28 lg:grid-cols-[minmax(0,1.2fr)_minmax(16rem,0.8fr)] lg:items-end lg:gap-20" aria-labelledby="karaoke-heading">
-          <h2 id="karaoke-heading" className="font-display max-w-[11ch] text-[clamp(3.75rem,7vw,6rem)] leading-[0.88] tracking-[-0.025em]">Nie musisz umieć śpiewać. <span className="text-accent">Musisz chcieć śpiewać.</span></h2>
-          <div className="max-w-md lg:pb-1">
-            <p className="text-xl font-bold leading-snug sm:text-2xl">Karaoke to wspólny czas przy muzyce, nie konkurs wokalny.</p>
-            <p className="mt-5 text-base leading-7 text-muted-foreground">Możesz być częścią wieczoru bez występu. Jeśli zechcesz zaśpiewać, nie potrzebujesz doświadczenia ani wcześniejszych zapisów przez Poza Nutą.</p>
-            <Link href={publicPage.karaoke} className={cn(textLink, "mt-7")}>Poznaj karaoke Poza Nutą <ArrowRight className="size-4" aria-hidden="true" /></Link>
+        <section className="grid gap-12 border-b py-20 sm:py-28 lg:grid-cols-[minmax(0,1.35fr)_minmax(16rem,0.65fr)] lg:items-end lg:gap-16" aria-labelledby="karaoke-heading">
+          <div className="flex flex-col items-start lg:min-h-[34rem] lg:justify-between">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Z prawdziwego wieczoru</p>
+              <h2 id="karaoke-heading" className="font-display mt-5 max-w-[11ch] text-[clamp(3.75rem,7vw,6rem)] leading-[0.88] tracking-[-0.025em]">Nie musisz umieć śpiewać. <span className="text-accent">Musisz chcieć śpiewać.</span></h2>
+            </div>
+            <div className="mt-10 max-w-lg lg:mt-0">
+              <p className="text-xl font-bold leading-snug sm:text-2xl">Karaoke to wspólny czas przy muzyce, nie konkurs wokalny.</p>
+              <p className="mt-5 text-base leading-7 text-muted-foreground">Jeśli zechcesz zaśpiewać, nie potrzebujesz doświadczenia ani wcześniejszych zapisów przez Poza Nutą.</p>
+              <Link href={publicPage.karaoke} className={cn(textLink, "mt-7")}>Poznaj karaoke Poza Nutą <ArrowRight className="size-4" aria-hidden="true" /></Link>
+            </div>
+          </div>
+          <figure className="w-full max-w-[23rem] justify-self-end">
+            <DocumentaryLoop />
+            <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">iGranie w Lochu · Gdynia · 16.08.2026</figcaption>
+          </figure>
+        </section>
+
+        <section className="grid gap-10 border-b py-20 sm:py-28 lg:grid-cols-[minmax(16rem,0.7fr)_minmax(0,1fr)] lg:items-center lg:gap-20" aria-labelledby="no-pressure-heading">
+          <figure className="w-full max-w-[16rem] justify-self-end sm:max-w-[22rem] lg:justify-self-start">
+            <Image src="/media/events/2026-08-16-igranie/experience-social.webp" alt="Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą." width={720} height={1280} sizes="(max-width: 1024px) 100vw, 34vw" className="h-auto w-full" loading="lazy" />
+            <figcaption className="mt-3 border-t pt-3 text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">Ten sam wieczór · iGranie w Lochu</figcaption>
+          </figure>
+          <div className="max-w-xl border-t border-accent pt-7">
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-accent">Bez presji</p>
+            <h2 id="no-pressure-heading" className="font-display mt-4 max-w-[11ch] text-[clamp(3.5rem,6vw,5.5rem)] leading-[0.9]">Możesz po prostu być.</h2>
+            <p className="mt-6 text-xl font-bold leading-snug sm:text-2xl">Przyjdź posłuchać i spędzić czas z innymi.</p>
+            <p className="mt-4 text-base leading-7 text-muted-foreground">Nie musisz występować, żeby uczestniczyć w wieczorze. Śpiewanie jest Twoim wyborem.</p>
           </div>
         </section>
 
