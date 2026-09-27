@@ -502,7 +502,7 @@
 
 .editorial-site .ed-footer__link {
   display: inline-flex;
-  min-height: 38px;
+  min-height: 44px;
   align-items: center;
   gap: 4px;
   color: var(--ed-white);
@@ -532,11 +532,14 @@
 }
 
 .editorial-site .ed-footer__settings {
+  max-width: 100%;
   margin-top: 16px;
 }
 
 .editorial-site .ed-footer__settings button {
+  max-width: 100%;
   min-height: 44px;
+  white-space: normal;
   border: 1px solid #686765;
   border-radius: 0;
   background: transparent;

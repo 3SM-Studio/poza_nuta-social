@@ -1,6 +1,6 @@
 # Public Marketing V2 — canonical implementation brief
 
-Status: **Digital Music Editorial is the current public art direction (2026-09-27); real-media publication rights remain unresolved and block deployment**. The earlier Culture Editorial and live-poster layouts are superseded as visual instructions. This brief translates the owner decisions in `docs/PRODUCT_DECISIONS.md` into route and content requirements. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and current visual rules. The asset inventory and rights gate live in `docs/PUBLIC_MARKETING_V2_MEDIA.md`; the production and permissions brief lives in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
+Status: **Digital Music Editorial is the current public art direction (2026-09-27); real-media publication rights remain unresolved and block deployment**. The earlier Culture Editorial and live-poster layouts are superseded as visual instructions. This brief translates the owner decisions in `docs/PRODUCT_DECISIONS.md` into route and content requirements. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and current visual rules. The asset inventory and rights gate live in `docs/PUBLIC_MARKETING_V2_MEDIA.md`; the production and permissions brief lives in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`; the current rendered site's photo/video shot brief lives in `docs/PUBLIC_MARKETING_MEDIA_PRODUCTION_BRIEF.md`. Admin Platform is out of scope.
 
 ## Product thesis and audience
 

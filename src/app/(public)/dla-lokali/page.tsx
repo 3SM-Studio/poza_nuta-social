@@ -20,7 +20,7 @@ export default function VenuesPage() {
       <main id="main-content" tabIndex={-1} className="ed-page ed-venues">
         <div className="ed-shell ed-venues-breadcrumb"><PublicBreadcrumb current={title} /></div>
         <article>
-          <header className="ed-venues-hero" aria-labelledby="venues-title">
+          <header className="ed-venues-hero">
             <div className="ed-shell">
               <div className="ed-venues-rule ed-meta"><span>Poza Nutą / współpraca</span><span>Trójmiasto</span></div>
               <h1 id="venues-title" className="ed-serif">Twój lokal.<br /><em>Wspólny wieczór.</em></h1>

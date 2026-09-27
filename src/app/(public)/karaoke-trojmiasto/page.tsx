@@ -28,7 +28,7 @@ export default function KaraokePage() {
       <main id="main-content" tabIndex={-1} className="ed-page ed-karaoke">
         <div className="ed-shell ed-karaoke-breadcrumb"><PublicBreadcrumb current={title} /></div>
         <article>
-          <header className="ed-karaoke-hero" aria-labelledby="karaoke-title">
+          <header className="ed-karaoke-hero">
             <div className="ed-shell ed-karaoke-hero-grid">
               <div className="ed-karaoke-hero-copy">
                 <div className="ed-karaoke-topline ed-meta"><span>Poza Nutą / przewodnik</span><span>Trójmiasto</span></div>
