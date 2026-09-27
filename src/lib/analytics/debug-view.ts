@@ -4,6 +4,7 @@ import { ANALYTICS_PROJECT_KEY } from "@/lib/analytics-project";
 import { EVENT_NAMES, normalizedHost, sanitizeTaxonomyValue, TRAFFIC_CLASSES, type AnalyticsEventName } from "@/lib/analytics-taxonomy";
 import { isPublicPath } from "@/lib/public-paths";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { CLIENT_EVENT_NAMES } from "./contract";
 import { QUALITY_SURFACES, type QualityOutcome, type QualityReason, type QualitySurface } from "./data-quality";
 
 export type DebugOutcome = "accepted" | QualityOutcome;
@@ -89,14 +90,14 @@ function safeUuid(value: unknown) {
 function acceptedSurface(name: AnalyticsEventName | null): DebugSurface {
   if (name === "tracking_entry") return "tracking_redirect";
   if (name === "outbound_click") return "outbound_redirect";
-  if (name && ["page_view", "contact_view", "contact_click", "hub_resumed"].includes(name)) return "api_track";
+  if (name && (CLIENT_EVENT_NAMES as readonly string[]).includes(name)) return "api_track";
   return "unknown";
 }
 
 function acceptedNames(surface: DebugSurface | null): AnalyticsEventName[] | null {
   if (surface === "tracking_redirect") return ["tracking_entry"];
   if (surface === "outbound_redirect") return ["outbound_click"];
-  if (surface === "api_track") return ["page_view", "contact_view", "contact_click", "hub_resumed"];
+  if (surface === "api_track") return [...CLIENT_EVENT_NAMES];
   return surface === "unknown" ? [] : null;
 }
 

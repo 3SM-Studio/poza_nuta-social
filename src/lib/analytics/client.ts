@@ -50,7 +50,7 @@ export function trackPageEntry(path: string, search: string, initialDocumentEntr
 function dispatch(eventName: unknown, properties: unknown, path: string, entry?: PageEntry): void {
   try {
     if (typeof window === "undefined" || !isClientEventName(eventName) || !isClientEventPayload(eventName, properties)) return;
-    if (eventName === "hub_resumed" && !analyticsAllowed()) return;
+    if ((eventName === "hub_resumed" || eventName === "cta_click" || eventName === "section_view") && !analyticsAllowed()) return;
     const payload = JSON.stringify({ eventId: crypto.randomUUID(), eventName, path, ...entry, ...(properties === undefined ? {} : { properties }) });
     if (eventName !== "page_view" && eventName !== "contact_view" && navigator.sendBeacon) {
       try {

@@ -35,7 +35,7 @@ export default function KaraokePage() {
                 <h1 id="karaoke-title" className="ed-serif">Karaoke<br />w Trójmieście<span className="ed-karaoke-title-stop">.</span></h1>
                 <p className="ed-karaoke-lead">Możesz przyjść dla muzyki i ludzi. Mikrofon bierzesz tylko wtedy, gdy masz ochotę.</p>
                 <div className="ed-karaoke-hero-bottom">
-                  <Link href={publicPage.links} className="ed-action ed-karaoke-action">Gdzie sprawdzić daty <ArrowUpRight aria-hidden="true" size={20} /></Link>
+                  <Link href={publicPage.links} data-cta-id="karaoke.hero_dates" className="ed-action ed-karaoke-action">Gdzie sprawdzić daty <ArrowUpRight aria-hidden="true" size={20} /></Link>
                   <p>Daty i miejsca podajemy w oficjalnych kanałach Poza Nutą.</p>
                 </div>
               </div>
@@ -76,11 +76,11 @@ export default function KaraokePage() {
           <section className="ed-karaoke-dates" aria-labelledby="dates-title">
             <div className="ed-shell ed-karaoke-dates-inner">
               <h2 id="dates-title" className="ed-serif">Gdzie i kiedy<br />się widzimy?</h2>
-              <div className="ed-karaoke-dates-copy"><p>Aktualne terminy i miejsca ogłaszamy przez oficjalne kanały. Sprawdź najnowszą informację przed wyjściem.</p><Link href={publicPage.links} className="ed-action ed-karaoke-dates-action">Przejdź do oficjalnych kanałów <ArrowUpRight aria-hidden="true" size={20} /></Link></div>
+              <div className="ed-karaoke-dates-copy"><p>Aktualne terminy i miejsca ogłaszamy przez oficjalne kanały. Sprawdź najnowszą informację przed wyjściem.</p><Link href={publicPage.links} data-cta-id="karaoke.current_dates" className="ed-action ed-karaoke-dates-action">Przejdź do oficjalnych kanałów <ArrowUpRight aria-hidden="true" size={20} /></Link></div>
             </div>
           </section>
 
-          <aside className="ed-karaoke-venue-bridge" aria-labelledby="venue-bridge-title"><div className="ed-shell ed-karaoke-venue-bridge-inner"><div><h2 id="venue-bridge-title">Prowadzisz lokal?</h2><p>Zobacz, jak rozmawiamy o wspólnym wydarzeniu w Trójmieście.</p></div><Link href={publicPage.venues} className="ed-text-link">Informacje dla lokali <ArrowUpRight aria-hidden="true" size={18} /></Link></div></aside>
+          <aside className="ed-karaoke-venue-bridge" aria-labelledby="venue-bridge-title"><div className="ed-shell ed-karaoke-venue-bridge-inner"><div><h2 id="venue-bridge-title">Prowadzisz lokal?</h2><p>Zobacz, jak rozmawiamy o wspólnym wydarzeniu w Trójmieście.</p></div><Link href={publicPage.venues} data-cta-id="karaoke.venue_bridge" className="ed-text-link">Informacje dla lokali <ArrowUpRight aria-hidden="true" size={18} /></Link></div></aside>
         </article>
       </main>
     </>

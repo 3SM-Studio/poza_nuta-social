@@ -27,6 +27,7 @@ export function TrackingLinkForm({ campaigns }: { campaigns: { id: string; name:
     <AdminInputField label="Medium" name="medium" defaultValue={state.values.medium ?? "qr"} error={state.fieldErrors.medium} required />
     <AdminInputField label="Asset" name="asset" placeholder="pink-v2" defaultValue={state.values.asset ?? ""} error={state.fieldErrors.asset} />
     <AdminInputField label="Placement" name="placement" placeholder="entrance" defaultValue={state.values.placement ?? ""} error={state.fieldErrors.placement} />
+    <AdminInputField label="Jednostka dystrybucji" name="distributionUnit" placeholder="poster-007" defaultValue={state.values.distributionUnit ?? ""} error={state.fieldErrors.distributionUnit} />
     <AdminNativeSelectField label="Landing" name="landingPath" defaultValue={state.values.landingPath ?? "/"} error={state.fieldErrors.landingPath}>
       <NativeSelectOption value="/">Strona główna</NativeSelectOption>
       <NativeSelectOption value="/kontakt">Kontakt</NativeSelectOption>

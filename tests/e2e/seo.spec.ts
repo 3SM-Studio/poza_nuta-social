@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 
 const publicRoutes = [
   { path: "/", heading: "Zanim ktoś chwyci mikrofon." },
-  { path: "/karaoke-trojmiasto", heading: "Karaoke w Trójmieście." },
+  { path: "/karaoke", heading: "Karaoke w Trójmieście." },
   { path: "/dla-lokali", heading: "Twój lokal. Wspólny wieczór." },
   { path: "/kontakt", heading: "Napisz do nas." },
   { path: "/linki", heading: "Oficjalne kanały." },
@@ -45,7 +45,7 @@ for (const { path, heading } of publicRoutes) {
 test("new routes remain readable without JavaScript and expose internal links", async ({ browser }) => {
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 360, height: 800 } });
   const page = await context.newPage();
-  await page.goto("/karaoke-trojmiasto");
+  await page.goto("/karaoke");
   await expect(page.getByRole("heading", { name: "Karaoke w Trójmieście." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Informacje dla lokali" })).toHaveAttribute("href", "/dla-lokali");
   await page.goto("/dla-lokali");

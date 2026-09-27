@@ -2,8 +2,9 @@ import { NextResponse, type NextRequest } from "next/server";
 import { trackEventBestEffort } from "@/lib/analytics/server";
 import { effectiveAnalyticsMode } from "@/lib/analytics-mode";
 import { trackCookielessBestEffort } from "@/lib/cookieless-analytics";
-import { acquisitionFromRequest, sanitizePagePath } from "@/lib/analytics-taxonomy";
+import { acquisitionFromRequest } from "@/lib/analytics-taxonomy";
 import { isClientEventName, isClientEventPayload } from "@/lib/analytics/contract";
+import { marketingCta, marketingSection } from "@/lib/analytics/marketing-journey";
 import { getSiteUrl } from "@/lib/env";
 import { validVisitId } from "@/lib/attribution";
 import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
@@ -39,20 +40,26 @@ export async function POST(request: NextRequest) {
     await recordQualityException({ surface: "api_track", eventName, outcome: "rejected", reason: "invalid_event_id" });
     return reply({ error: "invalid-event-id" }, 400);
   }
-  const path = sanitizePagePath(typeof body.path === "string" ? body.path : "/");
+  if (!isPublicPath(body.path)) {
+    await recordQualityException({ surface: "api_track", eventName, outcome: "rejected", reason: "invalid_path" });
+    return reply({ error: "invalid-path" }, 400);
+  }
+  const path = body.path;
   if ((eventName === "contact_view" || eventName === "contact_click") && path !== "/kontakt") {
     await recordQualityException({ surface: "api_track", eventName, outcome: "rejected", reason: "invalid_path" });
     return reply({ error: "invalid-contact-path" }, 400);
   }
+  const cta = eventName === "cta_click" ? marketingCta((body.properties as { ctaId: string }).ctaId) : null;
+  const section = eventName === "section_view" ? marketingSection((body.properties as { sectionId: string }).sectionId) : null;
+  if ((cta && cta.sourcePath !== path) || (section && section.sourcePath !== path)) {
+    await recordQualityException({ surface: "api_track", eventName, outcome: "rejected", reason: "invalid_path" });
+    return reply({ error: "invalid-journey-path" }, 400);
+  }
   const mode = await effectiveAnalyticsMode(request);
   if (mode === "cookieless") {
-    if (eventName === "hub_resumed") {
+    if (eventName === "hub_resumed" || eventName === "cta_click" || eventName === "section_view") {
       await recordQualityException({ surface: "api_track", mode, eventName, outcome: "filtered", reason: "unsupported_mode" });
       return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store" } });
-    }
-    if (!isPublicPath(body.path)) {
-      await recordQualityException({ surface: "api_track", mode, eventName, outcome: "rejected", reason: "invalid_path" });
-      return reply({ error: "invalid-path" }, 400);
     }
     const currentPage = currentPageUrl(request, path);
     try {
@@ -75,7 +82,10 @@ export async function POST(request: NextRequest) {
   });
   const { context, cookies } = await buildTrackingContext(request, observed);
   try {
-    await trackEventBestEffort({ eventId, eventName, path, context, qualitySurface: "api_track", metadata: body.properties as Record<string, unknown> | undefined });
+    await trackEventBestEffort({ eventId, eventName, path, context, qualitySurface: "api_track", metadata: cta
+      ? { ctaId: (body.properties as { ctaId: string }).ctaId, ctaLocation: cta.location, sourcePath: cta.sourcePath, destinationPath: cta.destinationPath, journey: cta.journey, audience: cta.audience }
+      : section ? { sectionId: (body.properties as { sectionId: string }).sectionId, sourcePath: section.sourcePath, journey: section.journey, audience: section.audience }
+      : body.properties as Record<string, unknown> | undefined });
   } catch {
     console.error("analytics request failed", { surface: "api_track", reason: "primary_ingest_failure" });
   }

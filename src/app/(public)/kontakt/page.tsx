@@ -41,14 +41,14 @@ export default function ContactPage() {
             <section aria-labelledby="contact-venues-heading">
               <h2 id="contact-venues-heading" className="ed-serif ed-contact-routing-title">Wspólne wydarzenie?</h2>
               <p>Jeśli piszesz w imieniu lokalu, podaj jego nazwę, miasto i pomysł. Termin oraz zakres współpracy ustalimy w rozmowie.</p>
-              <Link href={publicPage.venues} className="ed-contact-text-link">
+              <Link href={publicPage.venues} data-cta-id="contact.venues" className="ed-contact-text-link">
                 Informacje dla lokali <ArrowRight aria-hidden="true" />
               </Link>
             </section>
             <section aria-labelledby="contact-dates-heading">
               <h2 id="contact-dates-heading" className="ed-serif ed-contact-routing-title">Szukasz daty lub miejsca?</h2>
               <p>Aktualne informacje podajemy w oficjalnych kanałach. Sprawdź najnowszy komunikat przed wyjściem.</p>
-              <Link href={publicPage.links} className="ed-contact-text-link">
+              <Link href={publicPage.links} data-cta-id="contact.official_channels" className="ed-contact-text-link">
                 Zobacz oficjalne kanały <ArrowRight aria-hidden="true" />
               </Link>
             </section>

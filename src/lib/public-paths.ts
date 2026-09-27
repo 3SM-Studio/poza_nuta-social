@@ -2,7 +2,7 @@
 // Referral landings and redirect endpoints have separate contracts.
 export const publicPage = {
   home: "/",
-  karaoke: "/karaoke-trojmiasto",
+  karaoke: "/karaoke",
   venues: "/dla-lokali",
   contact: "/kontakt",
   links: "/linki",

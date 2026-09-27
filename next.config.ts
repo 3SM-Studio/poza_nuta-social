@@ -15,6 +15,9 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   // The public consent UI intentionally occupies the lower corners in development.
   devIndicators: false,
+  async redirects() {
+    return [{ source: "/karaoke-trojmiasto", destination: "/karaoke", permanent: true }];
+  },
   async headers() {
     return [
       { source: "/(.*)", headers: securityHeaders },

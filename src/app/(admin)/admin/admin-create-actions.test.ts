@@ -46,15 +46,21 @@ describe("Admin create Server Actions", () => {
   });
 
   it("creates a link with the existing defaults and routing rules", async () => {
-    const result = await createTrackingLinkAction(initialAdminFormState, form({ label: "  Plakat  ", campaignId: "", channelGroup: "offline", source: "POSTER", medium: "QR", landingPath: "/kontakt" }));
+    const result = await createTrackingLinkAction(initialAdminFormState, form({ label: "  Plakat  ", campaignId: "", channelGroup: "offline", source: "POSTER", medium: "QR", distributionUnit: " poster-007 ", landingPath: "/kontakt" }));
     expect(result.status).toBe("saved");
-    expect(mocks.rpc).toHaveBeenCalledWith("admin_tracking_link_create_v1", expect.objectContaining({ p_label: "Plakat", p_campaign_id: null, p_source: "poster", p_medium: "qr", p_landing_path: "/kontakt", p_code: "tracking-code" }));
+    expect(mocks.rpc).toHaveBeenCalledWith("admin_tracking_link_create_v3", expect.objectContaining({ p_label: "Plakat", p_campaign_id: null, p_source: "poster", p_medium: "qr", p_distribution_unit: "poster-007", p_landing_path: "/kontakt", p_code: "tracking-code" }));
     expect(mocks.revalidate).toHaveBeenCalledWith("/admin/links");
   });
 
   it("returns link field errors before mutation", async () => {
     const result = await createTrackingLinkAction(initialAdminFormState, form({ label: "", campaignId: "not-a-uuid", channelGroup: "unknown" }));
     expect(result.fieldErrors).toMatchObject({ label: expect.any(String), campaignId: expect.any(String), channelGroup: expect.any(String) });
+    expect(mocks.rpc).not.toHaveBeenCalled();
+  });
+
+  it("rejects malformed distribution-unit labels before mutation", async () => {
+    const result = await createTrackingLinkAction(initialAdminFormState, form({ label: "Plakat", distributionUnit: "first\nsecond" }));
+    expect(result.fieldErrors.distributionUnit).toBeTruthy();
     expect(mocks.rpc).not.toHaveBeenCalled();
   });
 
@@ -70,7 +76,7 @@ describe("Admin create Server Actions", () => {
     const result = await createTrackingLinkAction(initialAdminFormState, form({ label: "Plakat" }));
     expect(result.status).toBe("saved");
     expect(mocks.rpc).toHaveBeenCalledTimes(2);
-    expect(mocks.rpc).toHaveBeenLastCalledWith("admin_tracking_link_create_v1", expect.objectContaining({ p_code: "second-code", p_label: "Plakat" }));
+    expect(mocks.rpc).toHaveBeenLastCalledWith("admin_tracking_link_create_v3", expect.objectContaining({ p_code: "second-code", p_label: "Plakat" }));
   });
 
   it("creates an official destination with its domain and order rules", async () => {

@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
-const routes = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/linki", "/prywatnosc", "/cookies"] as const;
+const routes = ["/", "/karaoke", "/dla-lokali", "/kontakt", "/linki", "/prywatnosc", "/cookies"] as const;
 
 test("consented public page views retain their path after API validation and database persistence", async ({ page }, testInfo) => {
   test.setTimeout(90_000);
@@ -27,12 +27,10 @@ test("consented public page views retain their path after API validation and dat
 
   const invalidId = crypto.randomUUID();
   const invalid = await page.context().request.post("/api/track", { data: { eventName: "page_view", eventId: invalidId, path: "/admin" } });
-  expect(invalid.status()).toBe(204);
-  await expect.poll(async () => {
-    const { data, error } = await admin.from("analytics_events_v2").select("path").eq("event_id", invalidId).maybeSingle();
-    expect(error).toBeNull();
-    return data?.path;
-  }).toBe("/");
+  expect(invalid.status()).toBe(400);
+  const { data: invalidStored, error: invalidReadError } = await admin.from("analytics_events_v2").select("path").eq("event_id", invalidId).maybeSingle();
+  expect(invalidReadError).toBeNull();
+  expect(invalidStored).toBeNull();
 
   const contactId = crypto.randomUUID();
   const invalidContact = await page.context().request.post("/api/track", { data: { eventName: "contact_view", eventId: contactId, path: "/admin" } });

@@ -5,7 +5,7 @@ test("homepage introduces Poza Nutą and routes both audiences", async ({ page }
   await expect(page.getByRole("heading", { name: /Zanim ktoś.*mikrofon/, level: 1 })).toBeVisible();
   await expect(page.getByRole("main").getByText("Karaoke i spotkania muzyczne", { exact: true })).toBeVisible();
   await expect(page.getByRole("main").getByText("Poza Nutą / Trójmiasto", { exact: true }).first()).toBeVisible();
-  await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toHaveAttribute("href", "/karaoke-trojmiasto");
+  await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toHaveAttribute("href", "/karaoke");
   await expect(page.getByRole("main").getByRole("link", { name: "Współpraca z lokalami" })).toHaveAttribute("href", "/dla-lokali");
   await expect(page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first()).toHaveAttribute("href", "/linki");
   await expect(page.getByRole("main").getByRole("link", { name: "Współpraca z lokalami" })).toBeVisible();

@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const routes = ["/", "/linki", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/prywatnosc", "/cookies"] as const;
+const routes = ["/", "/linki", "/karaoke", "/dla-lokali", "/kontakt", "/prywatnosc", "/cookies"] as const;
 
 test("marketing pages stay navigable and fit mobile and desktop", async ({ page, context }, testInfo) => {
   await page.goto("/");
@@ -36,7 +36,7 @@ test("marketing pages stay navigable and fit mobile and desktop", async ({ page,
 
   await page.goto("/");
   await page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first().click();
-  await expect(page).toHaveURL(/\/karaoke-trojmiasto$/);
+  await expect(page).toHaveURL(/\/karaoke$/);
   await page.getByRole("main").getByRole("link", { name: "Przejdź do oficjalnych kanałów" }).click();
   await expect(page).toHaveURL(/\/linki$/);
   await expect(page.getByRole("main").getByRole("link", { name: "Otwórz Instagram w nowej karcie", exact: true })).toHaveAttribute("href", "/go/instagram");
@@ -51,7 +51,7 @@ test("mobile menu keeps link semantics, restores focus, and follows a route", as
   await page.keyboard.press("Enter");
   const navigation = page.getByRole("navigation", { name: "Nawigacja główna" });
   await expect(navigation).toBeVisible();
-  await expect(navigation.getByRole("link", { name: "Karaoke" })).toHaveAttribute("href", "/karaoke-trojmiasto");
+  await expect(navigation.getByRole("link", { name: "Karaoke" })).toHaveAttribute("href", "/karaoke");
   await page.keyboard.press("Escape");
   await expect(navigation).toBeHidden();
   await expect(trigger).toBeFocused();
@@ -137,7 +137,7 @@ test("mobile first-visit consent leaves the participant action visible and treat
   expect(Math.abs(sizes[0].width - sizes[1].width)).toBeLessThan(2);
   expect(Math.abs(sizes[0].height - sizes[1].height)).toBeLessThan(2);
   await page.screenshot({ path: `test-results/consent-first-visit-${testInfo.project.name}.png` });
-  for (const [route, label] of [["/karaoke-trojmiasto", "Gdzie sprawdzić daty"], ["/dla-lokali", "Porozmawiajmy o współpracy"]]) {
+  for (const [route, label] of [["/karaoke", "Gdzie sprawdzić daty"], ["/dla-lokali", "Porozmawiajmy o współpracy"]]) {
     await page.goto(route);
     await expect(banner).toBeVisible();
     const actionBottom = await page.getByRole("main").getByRole("link", { name: label }).first().evaluate((element) => element.getBoundingClientRect().bottom);
@@ -185,7 +185,7 @@ test("documentary stills support the story without unnecessary video transfer", 
   await expect(page.locator("video")).toHaveCount(0);
   await expect(page.locator('section[aria-labelledby="hero-title"]').getByAltText("Dwie osoby śpiewają razem podczas wieczoru Poza Nutą.")).toBeVisible();
   await expect(page.getByAltText("Uczestniczki spędzają czas przy stoliku podczas wieczoru Poza Nutą.")).toHaveCount(1);
-  await page.goto("/karaoke-trojmiasto");
+  await page.goto("/karaoke");
   await expect(page.getByAltText("Uczestnik śpiewa do mikrofonu podczas iGrania w Lochu w Gdyni.")).toHaveCount(1);
   await page.goto("/dla-lokali");
   await expect(page.getByAltText("Uczestniczka śpiewa podczas iGrania w Lochu; w tle widać ekran i nagłośnienie.")).toHaveCount(1);

@@ -29,7 +29,7 @@ The system is intentionally different from the earlier dark-first poster site. L
 - The homepage moves from a recognizable local invitation and real-event frame into the choice to listen or sing, a setlist-like participation sequence, one factual iGranie archive artifact, and a truthful official-channel close.
 - The setlist is a brand-specific way to explain the on-site flow. It must remain a readable ordered list: come, scan, enter code, choose a song, join the queue, sing. It is for guests who opt to perform; attendance itself requires none of it.
 - The iGranie treatment joins date, place, photograph and confirmed responsibility facts as one archival object. It does not infer turnout, results, endorsement or exclusivity.
-- Secondary pages have distinct jobs: `/karaoke-trojmiasto` explains participation and current-information access; `/dla-lokali` explains per-venue collaboration and the documented realization; `/kontakt` makes `hello@pozanuta.pl` immediately usable; `/linki` is a short, ordered official-channel hub.
+- Secondary pages have distinct jobs: `/karaoke` explains participation and current-information access; `/dla-lokali` explains per-venue collaboration and the documented realization; `/kontakt` makes `hello@pozanuta.pl` immediately usable; `/linki` is a short, ordered official-channel hub.
 
 ## Media
 

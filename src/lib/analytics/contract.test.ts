@@ -5,7 +5,7 @@ import { track } from "./client";
 
 describe("canonical client analytics contract", () => {
   it("covers every current client event and rejects server-only/unsupported names", () => {
-    expect(CLIENT_EVENT_NAMES).toEqual(["page_view", "contact_view", "contact_click", "hub_resumed"]);
+    expect(CLIENT_EVENT_NAMES).toEqual(["page_view", "contact_view", "contact_click", "hub_resumed", "cta_click", "section_view"]);
     for (const name of CLIENT_EVENT_NAMES) {
       expect(EVENT_NAMES).toContain(name);
       expect(isClientEventName(name)).toBe(true);
@@ -18,10 +18,15 @@ describe("canonical client analytics contract", () => {
     expect(isClientEventPayload("contact_view", {})).toBe(true);
     expect(isClientEventPayload("contact_click", { contactType: "email" })).toBe(true);
     expect(isClientEventPayload("hub_resumed", { priorDestination: "instagram", resumeSignal: "pageshow", elapsedBucket: "2-10s", bfcache: true })).toBe(true);
+    expect(isClientEventPayload("cta_click", { ctaId: "home.hero_karaoke" })).toBe(true);
+    expect(isClientEventPayload("section_view", { sectionId: "home.case_study" })).toBe(true);
     expect(isClientEventPayload("page_view", { arbitrary: true })).toBe(false);
     expect(isClientEventPayload("contact_click", { contactType: "phone" })).toBe(false);
     expect(isClientEventPayload("contact_click", { contactType: "email", project_key: "other" })).toBe(false);
     expect(isClientEventPayload("hub_resumed", { priorDestination: "instagram" })).toBe(false);
+    expect(isClientEventPayload("cta_click", { ctaId: "unknown" })).toBe(false);
+    expect(isClientEventPayload("section_view", { sectionId: "home.hero" })).toBe(false);
+    expect(isClientEventPayload("cta_click", { ctaId: "home.hero_karaoke", userId: "x" })).toBe(false);
   });
 
   it("keeps compile-time event payloads narrow", () => {

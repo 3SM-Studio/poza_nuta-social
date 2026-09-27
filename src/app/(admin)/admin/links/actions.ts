@@ -7,7 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { sanitizeReferralLandingPath, sanitizeTaxonomyValue } from "@/lib/analytics-taxonomy";
 import { createTrackingCode } from "@/lib/tracking-code";
 
-type TrackingLinkField = "label" | "campaignId" | "channelGroup" | "source" | "medium" | "asset" | "placement" | "landingPath";
+type TrackingLinkField = "label" | "campaignId" | "channelGroup" | "source" | "medium" | "asset" | "placement" | "distributionUnit" | "landingPath";
 
 export async function createTrackingLinkAction(previous: AdminFormState<TrackingLinkField>, formData: FormData): Promise<AdminFormState<TrackingLinkField>> {
   const actor = await requireEditor();
@@ -19,6 +19,7 @@ export async function createTrackingLinkAction(previous: AdminFormState<Tracking
     medium: String(formData.get("medium") || "qr"),
     asset: String(formData.get("asset") || ""),
     placement: String(formData.get("placement") || ""),
+    distributionUnit: String(formData.get("distributionUnit") || ""),
     landingPath: String(formData.get("landingPath") || "/"),
   };
   const label = values.label.trim();
@@ -28,11 +29,13 @@ export async function createTrackingLinkAction(previous: AdminFormState<Tracking
   const medium = sanitizeTaxonomyValue(values.medium, 64) || "qr";
   const asset = values.asset.trim() || null;
   const placement = values.placement.trim() || null;
+  const distributionUnit = values.distributionUnit.trim() || null;
   const landingPath = sanitizeReferralLandingPath(values.landingPath.trim());
   const fieldErrors: Partial<Record<TrackingLinkField, string>> = {};
   if (!label || label.length > 120) fieldErrors.label = "Podaj nazwę linku (maksymalnie 120 znaków).";
   if (campaignId && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(campaignId)) fieldErrors.campaignId = "Wybierz poprawną kampanię.";
   if (!["offline", "organic_social", "ai_referral", "referral"].includes(channelGroup)) fieldErrors.channelGroup = "Wybierz dostępny kanał.";
+  if (distributionUnit && (distributionUnit.length > 80 || /[\r\n]/.test(distributionUnit))) fieldErrors.distributionUnit = "Podaj oznaczenie egzemplarza (maksymalnie 80 znaków, bez nowej linii).";
   if (Object.keys(fieldErrors).length) return invalidAdminForm(previous, values, fieldErrors);
 
   const admin = createAdminClient();
@@ -40,7 +43,7 @@ export async function createTrackingLinkAction(previous: AdminFormState<Tracking
 
   for (let attempt = 0; attempt < 6; attempt++) {
     const code = createTrackingCode();
-    const { error } = await admin.rpc("admin_tracking_link_create_v1", {
+    const { error } = await admin.rpc("admin_tracking_link_create_v3", {
       p_actor_user_id: actor.id,
       p_actor_email: actor.email || null,
       p_code: code,
@@ -53,6 +56,7 @@ export async function createTrackingLinkAction(previous: AdminFormState<Tracking
       p_asset_slug: asset ? slugify(asset) : null,
       p_placement: placement,
       p_placement_slug: placement ? slugify(placement) : null,
+      p_distribution_unit: distributionUnit,
       p_landing_path: landingPath,
     });
     if (!error) { revalidatePath("/admin/links"); return savedAdminForm(previous); }

@@ -39,6 +39,7 @@ export async function trackEvent(input: TrackEventInput) {
     ...(link ? {
       trackingLinkCode: link.code,
       trackingLinkLabel: link.label,
+      distributionUnit: link.distribution_unit,
       campaignLabel: link.campaign?.name || null,
       campaignSlug: link.campaign?.slug || null,
       assetLabel: link.asset_entity?.label || link.asset || null,

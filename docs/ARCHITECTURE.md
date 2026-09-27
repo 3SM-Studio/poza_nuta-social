@@ -5,7 +5,7 @@ This Poza Nutą application is independent and prepared for the future canonical
 
 ## Public surfaces
 - `/` — main Poza Nutą marketing introduction and routes for participants and venues.
-- `/karaoke-trojmiasto` — participant information and pointer to current official updates.
+- `/karaoke` — participant information and pointer to current official updates.
 - `/dla-lokali` — collaboration information for venues and organizers.
 - `/linki` — compact official destination hub using the same records as `/go/[slug]`.
 - `/kontakt` — first-party business/collaboration contact surface.

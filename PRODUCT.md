@@ -35,7 +35,7 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 
 ## Public information hierarchy
 1. `/`: consumer-first Poza Nutą brand experience and factual introduction to karaoke and musical events in Trójmiasto, with a distinct venue path.
-2. `/karaoke-trojmiasto`: information for participants and where to find current dates and places.
+2. `/karaoke`: information for participants and where to find current dates and places.
 3. `/dla-lokali`: collaboration information for venues and organizers.
 4. `/kontakt`: one first-party contact route.
 5. `/linki`: compact official destinations from the existing destination model, with Instagram first and TikTok second when active.

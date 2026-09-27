@@ -40,7 +40,7 @@ export default async function LinksPage() {
               )}
             </div>
 
-            <Link href={publicPage.contact} className="ed-links-contact">
+            <Link href={publicPage.contact} data-cta-id="links.contact" className="ed-links-contact">
               <span>
                 <strong>Kontakt / współpraca</strong>
                 <small>Pytania i propozycje współpracy</small>

@@ -1,5 +1,9 @@
 # Codex handoff — locally verified repository
 
+## Current public IA, 2026-09-27
+
+`/karaoke` is the canonical participant page. `/karaoke-trojmiasto` permanently redirects to it; current navigation, canonical metadata and sitemap use `/karaoke`. The dated checkpoint below records the earlier route state.
+
 ## Root-domain marketing-site checkpoint, 2026-09-24
 
 The owner selected `https://pozanuta.pl` as the future canonical origin. `/` is now the main marketing introduction; `/linki` is the compact official destination hub. `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/privacy` remain separate public pages with shared navigation. Destination URLs still come from `getPublicDestinations()`, and `/go/[slug]`, `/r/[code]`, Admin, referrals and Analytics retain their existing contracts. The earlier subdomain release checklist and open domain-choice notes below are historical. The production domain, privacy/consent model, accessibility target, and hosting selection require separate slices; see `docs/PRODUCT_DECISIONS.md`.

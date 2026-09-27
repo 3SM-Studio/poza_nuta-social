@@ -31,7 +31,7 @@ select throws_ok(
 );
 select throws_ok(
   $$select public.analytics_ingest_cookieless_v1(md5('bad-path')::uuid,'poza_nuta','page_view','development','external','/admin',null,null,null,null,null,null,null,null,null,null,null,null)$$,
-  '23514', null, 'internal path rejected at storage boundary'
+  'P0001', 'invalid_path', 'internal path rejected at ingest boundary'
 );
 select throws_ok(
   $$select public.analytics_ingest_cookieless_v1(md5('bad-contact')::uuid,'poza_nuta','contact_click','development','external','/',null,null,null,null,null,null,null,null,null,null,null,null)$$,

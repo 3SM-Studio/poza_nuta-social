@@ -63,15 +63,22 @@ describe("track quality outcomes", () => {
 
   it("rejects invalid path without persisting submitted URL", async () => {
     expect((await POST(request({ eventId: id, eventName: "page_view", path: "/admin?token=secret" }))).status).toBe(400);
-    expect(mocks.quality).toHaveBeenCalledWith({ surface: "api_track", mode: "cookieless", eventName: "page_view", outcome: "rejected", reason: "invalid_path" });
+    expect(mocks.quality).toHaveBeenCalledWith({ surface: "api_track", eventName: "page_view", outcome: "rejected", reason: "invalid_path" });
     expect(JSON.stringify(mocks.quality.mock.calls)).not.toContain("secret");
   });
 
-  it("preserves consented page path normalization to the canonical homepage", async () => {
+  it("rejects invalid consented paths instead of recording them as homepage views", async () => {
     mocks.mode = "consented";
-    expect((await POST(request({ eventId: id, eventName: "page_view", path: "/admin?token=secret" }))).status).toBe(204);
-    expect(mocks.consented).toHaveBeenCalledWith(expect.objectContaining({ eventName: "page_view", path: "/" }));
-    expect(mocks.quality).not.toHaveBeenCalled();
+    expect((await POST(request({ eventId: id, eventName: "page_view", path: "/karaoke-trojmiasto" }))).status).toBe(400);
+    expect(mocks.consented).not.toHaveBeenCalled();
+    expect(mocks.quality).toHaveBeenCalledWith({ surface: "api_track", eventName: "page_view", outcome: "rejected", reason: "invalid_path" });
+  });
+
+  it("requires a registered CTA ID on its matching source route", async () => {
+    mocks.mode = "consented";
+    expect((await POST(request({ eventId: id, eventName: "cta_click", path: "/dla-lokali", properties: { ctaId: "home.hero_karaoke" } }))).status).toBe(400);
+    expect(mocks.consented).not.toHaveBeenCalled();
+    expect(mocks.quality).toHaveBeenCalledWith({ surface: "api_track", eventName: "cta_click", outcome: "rejected", reason: "invalid_path" });
   });
 
   it("reports canonical event/path mismatch as invalid_path", async () => {

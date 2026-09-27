@@ -27,7 +27,7 @@ test("Realtime is guarded, reflects accepted events, refreshes safely and works 
   const sessionId = crypto.randomUUID();
   const { error: cookielessError } = await admin.from("analytics_cookieless_events").insert({
     event_id: cookielessId, project_key: ANALYTICS_PROJECT_KEY, event_name: "page_view",
-    environment: "production", traffic_class: "external", path: "/karaoke-trojmiasto", utm_source: "newsletter",
+    environment: "production", traffic_class: "external", path: "/karaoke", utm_source: "newsletter",
   });
   expect(cookielessError).toBeNull();
   const { error: technicalError } = await admin.from("analytics_cookieless_events").insert([

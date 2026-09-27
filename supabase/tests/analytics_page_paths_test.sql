@@ -14,7 +14,7 @@ do $$
 declare
   route text;
 begin
-  foreach route in array array['/','/karaoke-trojmiasto','/dla-lokali','/kontakt','/linki','/prywatnosc','/cookies'] loop
+  foreach route in array array['/','/karaoke','/dla-lokali','/kontakt','/linki','/prywatnosc','/cookies'] loop
     perform public.analytics_ingest_event_v1(
       md5('analytics-page-event-' || route)::uuid, 'page_view', md5('analytics-page-session-' || route)::uuid, null,
       'development', 'external', true, false, route,
@@ -26,7 +26,7 @@ end;
 $$;
 
 select is((select path from public.analytics_events_v2 where event_id=md5('analytics-page-event-/')::uuid), '/', 'homepage path is persisted');
-select is((select path from public.analytics_events_v2 where event_id=md5('analytics-page-event-/karaoke-trojmiasto')::uuid), '/karaoke-trojmiasto', 'karaoke path is persisted');
+select is((select path from public.analytics_events_v2 where event_id=md5('analytics-page-event-/karaoke')::uuid), '/karaoke', 'karaoke path is persisted');
 select is((select path from public.analytics_events_v2 where event_id=md5('analytics-page-event-/dla-lokali')::uuid), '/dla-lokali', 'venue path is persisted');
 select is((select path from public.analytics_events_v2 where event_id=md5('analytics-page-event-/kontakt')::uuid), '/kontakt', 'contact path is persisted');
 select is((select path from public.analytics_events_v2 where event_id=md5('analytics-page-event-/linki')::uuid), '/linki', 'link hub path is persisted');
@@ -50,7 +50,7 @@ select throws_ok(
   '23514', 'new row for relation "analytics_events_v2" violates check constraint "analytics_events_v2_path_check"', 'table constraint rejects a new legacy privacy event'
 );
 select is((select count(*)::int from public.analytics_events_v2 where event_id=md5('invalid-page-event')::uuid), 0, 'rejected event was not persisted');
-select is((select count(*)::int from public.analytics_events_v2 where event_id::text in (select md5('analytics-page-event-' || route)::uuid::text from unnest(array['/','/karaoke-trojmiasto','/dla-lokali','/kontakt','/linki','/prywatnosc','/cookies']) route)), 7, 'all seven public page events were stored');
+select is((select count(*)::int from public.analytics_events_v2 where event_id::text in (select md5('analytics-page-event-' || route)::uuid::text from unnest(array['/','/karaoke','/dla-lokali','/kontakt','/linki','/prywatnosc','/cookies']) route)), 7, 'all seven public page events were stored');
 
 select * from finish();
 rollback;

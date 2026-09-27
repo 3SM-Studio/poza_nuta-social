@@ -1,4 +1,3 @@
-import { isPublicPath } from "./public-paths";
 import { CLIENT_EVENT_NAMES } from "./analytics/contract";
 
 export const CHANNEL_GROUPS = ["direct", "offline", "ai_referral", "organic_search", "organic_social", "referral", "email", "paid_social", "paid_search", "other"] as const;
@@ -27,6 +26,10 @@ export type AcquisitionContext = {
 
 const KNOWN_REFERRERS: Array<{ domains: string[]; channelGroup: ChannelGroup; source: string; medium: string }> = [
   { domains: ["chatgpt.com", "chat.openai.com"], channelGroup: "ai_referral", source: "chatgpt", medium: "referral" },
+  { domains: ["perplexity.ai"], channelGroup: "ai_referral", source: "perplexity", medium: "referral" },
+  { domains: ["gemini.google.com"], channelGroup: "ai_referral", source: "gemini", medium: "referral" },
+  { domains: ["copilot.com", "copilot.microsoft.com", "copilot.cloud.microsoft"], channelGroup: "ai_referral", source: "copilot", medium: "referral" },
+  { domains: ["claude.ai"], channelGroup: "ai_referral", source: "claude", medium: "referral" },
   { domains: ["google.com", "google.pl"], channelGroup: "organic_search", source: "google", medium: "organic" },
   { domains: ["bing.com"], channelGroup: "organic_search", source: "bing", medium: "organic" },
   { domains: ["instagram.com"], channelGroup: "organic_social", source: "instagram", medium: "social" },
@@ -110,10 +113,6 @@ export function sanitizeTaxonomyValue(value?: string | null, limit = 96) {
   const normalized = value.trim().toLowerCase().normalize("NFKC");
   if (!normalized || /[@<>\r\n]/.test(normalized)) return null;
   return normalized.replace(/[^a-z0-9._:/+-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, limit) || null;
-}
-
-export function sanitizePagePath(value?: string | null) {
-  return isPublicPath(value) ? value : "/";
 }
 
 export function sanitizeReferralLandingPath(value?: string | null) {

@@ -102,6 +102,17 @@ describe("DebugView server read contract", () => {
     expect(mocks.calls.every((call) => call.filters.some(([name, value]) => name === "in:event_name" && (value as string[]).includes("tracking_entry")))).toBe(true);
   });
 
+  it("classifies V3 journey events as accepted API tracking", async () => {
+    mocks.rows.analytics_events_v2.push(
+      { ...base, event_id: "42345678-1234-4123-8123-123456789012", event_name: "cta_click", path: "/", analytics_consent: true },
+      { ...base, event_id: "52345678-1234-4123-8123-123456789012", event_name: "section_view", path: "/", analytics_consent: true },
+    );
+    const rows = await getDebugRecords(parseDebugFilters({ outcome: "accepted", surface: "api_track" }), now);
+    expect(rows?.find((row) => row.eventName === "cta_click")).toMatchObject({ surface: "api_track", analyticsMode: "consented" });
+    expect(rows?.find((row) => row.eventName === "section_view")).toMatchObject({ surface: "api_track", analyticsMode: "consented" });
+    expect(mocks.calls.find((call) => call.table === "analytics_events_v2")?.filters).toContainEqual(["in:event_name", expect.arrayContaining(["cta_click", "section_view"])]);
+  });
+
   it("shows only validated canonical fields and leaves missing values absent", async () => {
     mocks.rows.analytics_cookieless_events[0].path = "/admin?token=secret";
     mocks.rows.analytics_cookieless_events[0].referrer_host = "user@example.com";

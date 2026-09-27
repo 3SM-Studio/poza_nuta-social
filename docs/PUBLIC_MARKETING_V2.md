@@ -19,7 +19,7 @@ The current local build uses genuine event stills as preview evidence. Their pub
 ## Information and conversion architecture
 
 - `/`: experience and evidence first, one dominant participant action, clear secondary navigation toward B2B.
-- `/karaoke-trojmiasto`: practical participation, including optional singing and the QR → six-digit session code → song → queue flow, plus the authoritative path to current dates until owned event pages exist. CTA language must accurately describe its destination; never present the independent karaoke platform as brand-owned technology.
+- `/karaoke`: practical participation, including optional singing and the QR → six-digit session code → song → queue flow, plus the authoritative path to current dates until owned event pages exist. CTA language must accurately describe its destination; never present the independent karaoke platform as brand-owned technology.
 - `/dla-lokali`: per-venue scope and responsibilities, a factual iGranie w Lochu realization without invented outcomes or testimonial, risk-reducing answers and first-party contact.
 - `/kontakt`: one usable first-party route with the owner-approved hello@pozanuta.pl address for venue enquiries and general participant questions. Date/place questions point to current official channels through `/linki`.
 - `/linki`: ordered official social channels and contact, optimized for a phone after bio/QR entry; never a generic CTA builder or second homepage.
@@ -56,7 +56,7 @@ The result is premium when a guest understands the offer and next action in the 
 ## Coherent implementation slices
 
 1. **Public foundation, experience clarity and factual B2B proof — implemented.** Existing route, SEO, privacy, analytics and content contracts were established before the current art direction.
-2. **De-anchored public art direction — implemented locally.** Three independent full-page concepts were rendered. Digital Music Editorial was selected and applied to `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt` and `/linki`, with a new shell, type system, responsive composition, setlist and archive artifact. The media used here remains local preview material.
+2. **De-anchored public art direction — implemented locally.** Three independent full-page concepts were rendered. Digital Music Editorial was selected and applied to `/`, `/karaoke`, `/dla-lokali`, `/kontakt` and `/linki`, with a new shell, type system, responsive composition, setlist and archive artifact. The media used here remains local preview material.
 3. **Media publication gate — unresolved.** Clear rights/consent for people, venue and selected assets. Do not deploy the media-led pages before this is documented in `docs/PUBLIC_MARKETING_V2_MEDIA.md`.
 4. **Additional verified content, conditional.** Add future images, video, testimonials, numbers or event updates only with confirmed source and permission. Keep reduced-motion and static fallbacks.
 5. **Owned events, conditional.** Only after the event-source gate, implement list/detail, lifecycle states, metadata/structured data and public-path/analytics contract changes. Until then, retain the official-channel path.
