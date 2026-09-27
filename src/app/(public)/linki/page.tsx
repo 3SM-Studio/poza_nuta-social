@@ -25,7 +25,7 @@ export default async function LinksPage() {
           <PublicBreadcrumb current={title} />
 
           <section className="ed-links-content" aria-labelledby="links-heading">
-            <h1 id="links-heading" className="ed-serif ed-links-title">Oficjalne <em>kanały.</em></h1>
+            <h1 id="links-heading" className="ed-serif ed-links-title">Oficjalne kanały.</h1>
             <p className="ed-links-intro">
               {soleChannel
                 ? `Obecnie aktywny kanał: ${soleChannel.label}. Tam sprawdź komunikat o dacie i miejscu przed wyjściem.`

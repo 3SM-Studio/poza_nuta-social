@@ -39,7 +39,7 @@ export default async function HomePage() {
           </div>
         </div>
         <figure className="ed-home-hero-figure">
-          <Image src="/media/events/2026-08-16-igranie/experience-group-poster.webp" alt="Dwie osoby śpiewają razem podczas wieczoru Poza Nutą." fill priority sizes="(max-width: 700px) 100vw, 44vw" className="ed-home-hero-photo" />
+          <Image src="/media/events/2026-08-16-igranie/experience-group-chorus.webp" alt="Dwie osoby śpiewają razem podczas wieczoru Poza Nutą." fill priority sizes="(max-width: 700px) 100vw, 44vw" className="ed-home-hero-photo" />
           <figcaption className="ed-home-hero-caption ed-meta"><span>iGranie w Lochu<br />Gdynia · 16.08.2026</span><span>Kadr z wydarzenia</span></figcaption>
         </figure>
       </section>
@@ -61,7 +61,10 @@ export default async function HomePage() {
         <div className="ed-home-section-index ed-meta">Instrukcja dla chętnych do mikrofonu</div>
         <div className="ed-home-participation-body">
           <div className="ed-home-participation-heading"><h2 id="participation-title">A jeśli chcesz<br /><em>zaśpiewać?</em></h2><p>Wszystko zaczyna się na wydarzeniu. Sześć prostych kroków prowadzi od wejścia do Twojego utworu.</p></div>
-          <ol className="ed-home-setlist" aria-label="Jak zgłosić utwór podczas wydarzenia">{steps.map(([number, title, detail, cue]) => <li key={number}><span className="ed-home-setlist-number ed-serif">{number}</span><span className="ed-home-setlist-title">{title}</span><span className="ed-home-setlist-cue ed-meta">{cue}</span><span className="ed-home-setlist-detail">{detail}</span></li>)}</ol>
+          <div className="ed-home-setlist-sheet">
+            <div className="ed-home-setlist-cover" aria-hidden="true"><span className="ed-meta">Poza Nutą / kolejność na miejscu</span><strong className="ed-serif"><span>01</span><span>—</span><span>06</span></strong><span className="ed-home-setlist-cover-end ed-meta">Od wejścia<br />do mikrofonu</span></div>
+            <ol className="ed-home-setlist" aria-label="Jak zgłosić utwór podczas wydarzenia">{steps.map(([number, title, detail, cue]) => <li key={number}><span className="ed-home-setlist-number ed-serif">{number}</span><span className="ed-home-setlist-title">{title}</span><span className="ed-home-setlist-cue ed-meta">{cue}</span><span className="ed-home-setlist-detail">{detail}</span></li>)}</ol>
+          </div>
           <Link href={publicPage.karaoke} className="ed-text-link ed-home-setlist-link">Udział krok po kroku <ArrowUpRight aria-hidden="true" /></Link>
         </div>
       </section>
@@ -69,13 +72,13 @@ export default async function HomePage() {
       <section className="ed-home-case" aria-labelledby="case-title">
         <div className="ed-home-section-index ed-meta">Archiwum / prawdziwy wieczór</div>
         <div className="ed-home-case-body">
-          <div className="ed-home-case-head"><p className="ed-home-case-date ed-serif" aria-label="16 sierpnia 2026">16 <span>/</span> 08</p><h2 id="case-title" className="ed-serif">iGranie<br /><em>w Lochu.</em></h2><p>W tym gdyńskim lokalu Poza Nutą prowadzi cykliczne wieczory karaoke. Kadr dokumentuje wydarzenie z 16 sierpnia 2026 r.</p></div>
+          <div className="ed-home-case-head"><span className="ed-home-case-record ed-meta">Zapis wydarzenia / 2026</span><p className="ed-home-case-date ed-serif" aria-label="16 sierpnia 2026">16 <span>/</span> 08</p><p className="ed-home-case-location ed-meta">Gdynia · iGranie w Lochu</p><h2 id="case-title" className="ed-serif">iGranie<br />w Lochu.</h2><p>W tym gdyńskim lokalu Poza Nutą prowadzi cykliczne wieczory karaoke. Kadr dokumentuje wydarzenie z 16 sierpnia 2026 r.</p></div>
           <figure className="ed-home-case-figure"><div className="ed-home-case-image"><Image src="/media/events/2026-08-16-igranie/igranie-case-study.webp" alt="Uczestniczka śpiewa w lokalu iGranie w Lochu; widać ekran i nagłośnienie." fill sizes="(max-width: 700px) 100vw, 44vw" /></div><figcaption className="ed-meta">Gdynia · iGranie w Lochu · 16.08.2026</figcaption></figure>
           <div className="ed-home-case-facts"><p className="ed-home-case-lead">Jeden wieczór, dwa punkty widzenia: ludzie przy muzyce i miejsce, które ich gromadzi.</p><dl><div><dt>Poza Nutą</dt><dd>Prowadzenie wieczoru i obsługa zgłoszeń utworów oraz kolejki.</dd></div><div><dt>Lokal</dt><dd>Nagłośnienie, mikrofony i projektory w tej realizacji.</dd></div></dl><Link href={publicPage.venues} className="ed-text-link">Współpraca z lokalami <ArrowUpRight aria-hidden="true" /></Link></div>
         </div>
       </section>
 
-      <section className="ed-home-next" aria-labelledby="next-title"><div className="ed-home-next-meta ed-meta"><span>Co dalej?</span><span>Trójmiasto / Poza Nutą</span></div><h2 id="next-title" className="ed-serif">Dołącz do<br /><em>wieczoru.</em></h2><div className="ed-home-next-bottom"><p>Aktualne daty i miejsca spotkań znajdziesz w oficjalnych kanałach. Sprawdź najnowszy komunikat przed wyjściem.</p><Link href={publicPage.links} className="ed-home-next-link">Gdzie sprawdzić daty <ArrowDownRight aria-hidden="true" /></Link></div></section>
+      <section className="ed-home-next" aria-labelledby="next-title"><div className="ed-home-next-meta ed-meta"><span>Co dalej?</span><span>Trójmiasto / Poza Nutą</span></div><h2 id="next-title" className="ed-serif">Dołącz do<br />wieczoru.</h2><div className="ed-home-next-bottom"><p>Aktualne daty i miejsca spotkań znajdziesz w oficjalnych kanałach. Sprawdź najnowszy komunikat przed wyjściem.</p><Link href={publicPage.links} className="ed-home-next-link">Gdzie sprawdzić daty <ArrowDownRight aria-hidden="true" /></Link></div></section>
     </main>
   </>;
 }

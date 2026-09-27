@@ -22,9 +22,8 @@ export function PublicHeader({ fontClassName }: { fontClassName: string }) {
 
   return (
     <header className="ed-header">
-      <div className="ed-header__strap ed-shell ed-meta" aria-hidden="true">
-        <span>Poza Nutą / Trójmiasto</span>
-        <span>Karaoke i wydarzenia muzyczne</span>
+      <div className="ed-header__strap" aria-hidden="true">
+        <div className="ed-header__strap-inner ed-shell ed-meta"><span>Poza Nutą / Trójmiasto</span><span>Karaoke i wydarzenia muzyczne</span></div>
       </div>
       <div className="ed-header__main ed-shell">
         <Link href={publicPage.home} aria-label="Poza Nutą — strona główna" className="ed-header__brand">

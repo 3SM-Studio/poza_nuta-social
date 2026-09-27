@@ -5,7 +5,8 @@ Status: **wyłącznie lokalna integracja i podgląd wewnętrzny**. Źródło: wy
 | Plik w repo | Źródło z manifestu | Użycie w podglądzie |
 | --- | --- | --- |
 | `experience-group-loop.mp4` | C0020.MP4 | Zachowany lokalny eksport; obecny Digital Music Editorial nie ładuje wideo na stronie. |
-| `experience-group-poster.webp` | C0020.MP4 | Rzeczywisty kadr w hero strony głównej, także przy `prefers-reduced-motion`. |
+| `experience-group-poster.webp` | C0020.MP4 | Poprzedni kadr hero, zachowany jako istniejący eksport; nie jest ładowany przez obecną stronę. |
+| `experience-group-chorus.webp` | C0020.MP4, ok. 0,75 s | Rzeczywisty kadr w hero strony głównej z dwiema osobami śpiewającymi jednocześnie, także przy `prefers-reduced-motion`. Osobna nazwa zapobiega podaniu starej klatki z cache optymalizacji obrazu. |
 | `experience-social.webp` | C0015.MP4 | Strona główna: rzeczywisty kadr uczestniczek spędzających czas bez występu. |
 | `experience-solo.webp` | C0016.MP4 | `/karaoke-trojmiasto`: występ w kontekście lokalu obok praktycznej instrukcji udziału. |
 | `igranie-case-study.webp` | C0014.MP4 | Strona główna: archiwalny zapis wieczoru; `/dla-lokali`: kadr opisanej realizacji, bez cytatu lub obietnicy wyniku. |

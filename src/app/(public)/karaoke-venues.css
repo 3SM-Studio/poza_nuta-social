@@ -296,10 +296,6 @@
   gap: 3rem;
 }
 
-.ed-karaoke-dates h2 em {
-  color: var(--ed-page-ink);
-}
-
 .ed-karaoke-dates-copy p {
   max-width: 36ch;
   margin: 0 0 1.5rem;

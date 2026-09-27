@@ -44,12 +44,6 @@
   font-size: clamp(72px, 9.6vw, 148px);
 }
 
-.ed-contact-title em,
-.ed-links-title em {
-  color: var(--ed-ink-pink);
-  font-weight: 400;
-}
-
 .ed-contact-intro {
   max-width: 570px;
   margin: 28px 0 0;

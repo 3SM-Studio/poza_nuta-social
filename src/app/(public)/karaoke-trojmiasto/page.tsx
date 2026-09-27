@@ -75,7 +75,7 @@ export default function KaraokePage() {
 
           <section className="ed-karaoke-dates" aria-labelledby="dates-title">
             <div className="ed-shell ed-karaoke-dates-inner">
-              <h2 id="dates-title" className="ed-serif">Gdzie i kiedy<br /><em>się widzimy?</em></h2>
+              <h2 id="dates-title" className="ed-serif">Gdzie i kiedy<br />się widzimy?</h2>
               <div className="ed-karaoke-dates-copy"><p>Aktualne terminy i miejsca ogłaszamy przez oficjalne kanały. Sprawdź najnowszą informację przed wyjściem.</p><Link href={publicPage.links} className="ed-action ed-karaoke-dates-action">Przejdź do oficjalnych kanałów <ArrowUpRight aria-hidden="true" size={20} /></Link></div>
             </div>
           </section>

@@ -23,7 +23,7 @@ export default function ContactPage() {
           <section className="ed-contact-hero" aria-labelledby="contact-heading">
             <div className="ed-contact-heading-block">
               <h1 id="contact-heading" className="ed-serif ed-contact-title">
-                Napisz do <em>nas.</em>
+                Napisz do nas.
               </h1>
               <p className="ed-contact-intro">
                 Masz pytanie o karaoke, pomysł na wspólne wydarzenie albo prowadzisz lokal? Najprościej skontaktować się z nami mailowo.

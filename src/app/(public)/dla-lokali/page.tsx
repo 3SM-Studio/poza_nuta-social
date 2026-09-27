@@ -38,7 +38,7 @@ export default function VenuesPage() {
             </div>
           </section>
 
-          <section className="ed-venues-scope ed-inverse" aria-labelledby="scope-title"><div className="ed-shell ed-venues-scope-grid"><h2 id="scope-title" className="ed-serif">Każde miejsce<br />ma własny <em>rytm.</em></h2><div><p className="ed-venues-scope-lead">Zakres kolejnej współpracy ustalamy osobno z każdym lokalem.</p><p>Rozmawiamy o przestrzeni, charakterze wydarzenia, prowadzeniu i zapleczu technicznym. Wspólnie określamy, co leży po której stronie. Przykład iGrania w Lochu nie jest gotowym pakietem dla innych miejsc.</p></div></div></section>
+          <section className="ed-venues-scope ed-inverse" aria-labelledby="scope-title"><div className="ed-shell ed-venues-scope-grid"><h2 id="scope-title" className="ed-serif">Każde miejsce<br />ma własny rytm.</h2><div><p className="ed-venues-scope-lead">Zakres kolejnej współpracy ustalamy osobno z każdym lokalem.</p><p>Rozmawiamy o przestrzeni, charakterze wydarzenia, prowadzeniu i zapleczu technicznym. Wspólnie określamy, co leży po której stronie. Przykład iGrania w Lochu nie jest gotowym pakietem dla innych miejsc.</p></div></div></section>
 
           <section className="ed-venues-contact" aria-labelledby="contact-title"><div className="ed-shell ed-venues-contact-grid"><div><h2 id="contact-title" className="ed-serif">Opowiedz nam<br />o swoim miejscu.</h2><p>Napisz, gdzie działasz i jaki rodzaj wieczoru chcesz zorganizować. Ustalimy, czy i jak możemy współpracować.</p></div><Link href={publicPage.contact} className="ed-action ed-venues-contact-action">Przejdź do kontaktu <ArrowUpRight aria-hidden="true" size={20} /></Link></div></section>
         </article>
