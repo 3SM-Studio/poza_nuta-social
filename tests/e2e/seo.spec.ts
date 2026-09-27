@@ -1,10 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 const publicRoutes = [
-  { path: "/", heading: "Poza Nutą" },
-  { path: "/karaoke-trojmiasto", heading: "Karaoke w Trójmieście" },
-  { path: "/dla-lokali", heading: "Muzyka w Twoim lokalu." },
-  { path: "/kontakt", heading: "Kontakt." },
+  { path: "/", heading: "Zanim ktoś chwyci mikrofon." },
+  { path: "/karaoke-trojmiasto", heading: "Karaoke w Trójmieście." },
+  { path: "/dla-lokali", heading: "Twój lokal. Wspólny wieczór." },
+  { path: "/kontakt", heading: "Napisz do nas." },
   { path: "/linki", heading: "Oficjalne kanały." },
   { path: "/prywatnosc", heading: "Prywatność" },
   { path: "/cookies", heading: "Cookies na tej stronie" },
@@ -46,11 +46,11 @@ test("new routes remain readable without JavaScript and expose internal links", 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 360, height: 800 } });
   const page = await context.newPage();
   await page.goto("/karaoke-trojmiasto");
-  await expect(page.getByRole("heading", { name: "Karaoke w Trójmieście" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Karaoke w Trójmieście." })).toBeVisible();
   await expect(page.getByRole("link", { name: "Informacje dla lokali" })).toHaveAttribute("href", "/dla-lokali");
   await page.goto("/dla-lokali");
-  await expect(page.getByRole("heading", { name: "Muzyka w Twoim lokalu." })).toBeVisible();
-  await expect(page.getByRole("link", { name: "Kontakt / współpraca" })).toHaveAttribute("href", "/kontakt");
+  await expect(page.getByRole("heading", { name: "Twój lokal. Wspólny wieczór." })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Porozmawiajmy o współpracy" })).toHaveAttribute("href", "/kontakt");
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
   await context.close();
 });

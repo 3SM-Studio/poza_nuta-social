@@ -4,11 +4,11 @@ Status: **wyłącznie lokalna integracja i podgląd wewnętrzny**. Źródło: wy
 
 | Plik w repo | Źródło z manifestu | Użycie w podglądzie |
 | --- | --- | --- |
-| `experience-group-loop.mp4` | C0020.MP4 | Zachowany lokalny eksport; wybrana kompozycja Culture Editorial nie ładuje wideo na stronie. |
+| `experience-group-loop.mp4` | C0020.MP4 | Zachowany lokalny eksport; obecny Digital Music Editorial nie ładuje wideo na stronie. |
 | `experience-group-poster.webp` | C0020.MP4 | Rzeczywisty kadr w hero strony głównej, także przy `prefers-reduced-motion`. |
 | `experience-social.webp` | C0015.MP4 | Strona główna: rzeczywisty kadr uczestniczek spędzających czas bez występu. |
 | `experience-solo.webp` | C0016.MP4 | `/karaoke-trojmiasto`: występ w kontekście lokalu obok praktycznej instrukcji udziału. |
-| `igranie-case-study.webp` | C0014.MP4 | Strona główna: archiwalny zapis wieczoru; `/dla-lokali`: kadr w pierwszym ekranie opisanej realizacji, bez cytatu lub obietnicy wyniku. |
+| `igranie-case-study.webp` | C0014.MP4 | Strona główna: archiwalny zapis wieczoru; `/dla-lokali`: kadr opisanej realizacji, bez cytatu lub obietnicy wyniku. |
 
 `experience-duet.webp` (C0017.MP4) pozostał poza repo i stroną: drugi podobny kadr wspólnego śpiewania osłabiłby selektywny rytm dokumentalny. Pętla MP4 pozostała w repo jako istniejący eksport, lecz obecny projekt używa trzech odrębnych nieruchomych momentów. Brak odtwarzania wideo jest celowy i nie wymaga wariantu zastępczego dla reduced motion.
 

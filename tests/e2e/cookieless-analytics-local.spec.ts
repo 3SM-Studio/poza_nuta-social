@@ -160,8 +160,8 @@ test("privacy and cookies copy explains both modes", async ({ page }) => {
 test("analytics API failure does not interrupt the public page or contact action", async ({ page }) => {
   await page.route("**/api/track", (route) => route.abort());
   await page.goto("/kontakt");
-  await expect(page.getByRole("heading", { name: "Kontakt." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Napisz do nas." })).toBeVisible();
   await expect(page.getByRole("link", { name: /kontakt@pozanuta.test/ })).toBeVisible();
   await page.getByRole("link", { name: /kontakt@pozanuta.test/ }).click();
-  await expect(page.getByRole("heading", { name: "Kontakt." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Napisz do nas." })).toBeVisible();
 });

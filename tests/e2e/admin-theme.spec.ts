@@ -91,17 +91,19 @@ test("Admin light and dark tokens stay scoped to Admin routes", async ({ page },
 
   await page.goto("/");
   const publicTheme = await page.evaluate(() => {
-    const root = getComputedStyle(document.documentElement);
+    const publicRoot = document.querySelector(".editorial-site");
+    if (!publicRoot) throw new Error("Public design root is missing");
+    const root = getComputedStyle(publicRoot);
     return {
       adminMarker: Boolean(document.querySelector(".admin-theme")),
       background: root.getPropertyValue("--background").trim(),
       accent: root.getPropertyValue("--accent").trim(),
       radius: root.getPropertyValue("--radius").trim(),
-      font: getComputedStyle(document.body).fontFamily,
+      font: root.fontFamily,
     };
   });
-  expect(publicTheme).toMatchObject({ adminMarker: false, background: "#0d0b0d", accent: "#ff4fa3", radius: "1rem" });
-  expect(publicTheme.font).toContain("Space Grotesk");
+  expect(publicTheme).toMatchObject({ adminMarker: false, background: "#f7f6f3", accent: "#ff4fa3" });
+  expect(publicTheme.font).toContain("DM Sans");
 });
 
 test("authenticated Admin shell and forms use the same theme", async ({ page, request }, testInfo) => {

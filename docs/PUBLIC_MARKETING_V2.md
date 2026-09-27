@@ -1,6 +1,6 @@
 # Public Marketing V2 — canonical implementation brief
 
-Status: **Culture Editorial selected for the public creative rebuild on 2026-09-26; real-media publication rights remain unresolved and block deployment**. This brief translates the owner decision in `docs/PRODUCT_DECISIONS.md` into implementation order. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and visual rules. The asset inventory and current rights gate live in `docs/PUBLIC_MARKETING_V2_MEDIA.md`; the practical production and permissions brief lives in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
+Status: **Digital Music Editorial is the current public art direction (2026-09-27); real-media publication rights remain unresolved and block deployment**. The earlier Culture Editorial and live-poster layouts are superseded as visual instructions. This brief translates the owner decisions in `docs/PRODUCT_DECISIONS.md` into route and content requirements. `PRODUCT.md` and `DESIGN.md` remain authoritative for durable product and current visual rules. The asset inventory and rights gate live in `docs/PUBLIC_MARKETING_V2_MEDIA.md`; the production and permissions brief lives in `docs/PUBLIC_MARKETING_V2_CONTENT_PRODUCTION.md`. Admin Platform is out of scope.
 
 ## Product thesis and audience
 
@@ -10,11 +10,11 @@ The homepage is **consumer-first**: help a guest understand the experience, beli
 
 ## Creative and content contract
 
-**Culture Editorial with documentary event evidence.** Use the supplied logo, Bebas Neue/Space Grotesk foundation, neutral black `#080808`, off-white `#f7f7f7`, and Poza Nutą pink `#ff4fa3`. Vary editorial scale, spatial density and black/pink/white chapters. Pair the type with genuine event people, reactions, place and process; media proves what a visitor would experience. Avoid a Mate Academy look, SaaS/shadcn marketing template, generic black-luxury site, cyberpunk or neon overload. Keep `/linki` compact for QR/bio use and keep `socials.pozanuta.pl` in that role; the root domain carries the full brand story.
+**Digital Music Editorial with documentary event evidence.** Use the supplied real logo, Instrument Serif display, DM Sans body/navigation, neutral black `#101010`, paper `#f7f6f3`, white and Poza Nutą pink `#ff4fa3`. The public site uses factual publication-like metadata, asymmetrical reading grids, a setlist participation sequence and an archival iGranie artifact. Photography documents people and place rather than decorating a generic split layout. The full current visual system is in `DESIGN.md`; earlier Bebas Neue/Space Grotesk, dark-first and fixed Culture Editorial composition instructions are obsolete. Mate Academy informs marketing mechanics only. Keep `/linki` compact for QR/bio use and `socials.pozanuta.pl` in that role; the root domain carries the full brand story.
 
 Homepage photography and short video are approved for V2. Hero video is optional, and a strong real still outranks weak footage. No stock or generated substitute karaoke photography. Do not publish invented testimonials, numbers, venue names/logos, events, case studies or mock media. Each proof item requires a source, factual check and publication rights/consent. An absent proof section stays absent until material exists.
 
-Commission one dedicated event documentation session before media-led homepage work. Required shot list: wide venue/crowd context; performer mid-shot; audience reactions; friends interacting; host and host/participant interaction; genuine atmosphere and identifiable venue context. Capture horizontal desktop and vertical mobile compositions, including negative space for type, plus short event loops. Collect participant and venue testimonial candidates, then verify wording and permissions before publication. Record event, date, place, subject consent, usage scope and owner for every selected asset. Plan distinct posters/crops for the mobile and desktop first viewport.
+The current local build uses genuine event stills as preview evidence. Their publication rights and participant/venue consent must be cleared before deployment. For future media production, commission a documentation session covering wide venue/crowd context, performer, audience reactions, friends, host/participant interaction, horizontal and vertical compositions, and short loops. Record event, date, place, subject consent, usage scope and owner for each selected asset. Collect testimonial candidates only for later verification and permission; none are implied by this build.
 
 ## Information and conversion architecture
 
@@ -30,15 +30,13 @@ Consumer journey: discover → understand the real experience → trust → see 
 
 ## Homepage story architecture
 
-1. **Hero:** name Poza Nutą, current format and Trójmiasto; express the emotional invitation and one accurate participant action. Use authentic hero media only when ready. The karaoke line is optional in this context, not compulsory brand copy.
-2. **Immediate evidence:** one real event moment with source context; establish that the experience exists before expanding the promise.
-3. **What participation feels like:** people, interaction and simple practical explanation. Attending without singing is valid; explain the song/queue flow only for guests who choose to perform.
-4. **Current opportunity:** a verified upcoming event only after the event-source gate; until then, point directly to the official channel that publishes dates.
-5. **Human story and process:** one or two real voices/moments that answer hesitation, not a generic testimonial carousel.
-6. **Venue path:** concise business offer, proof and link to `/dla-lokali` without changing the homepage's consumer priority.
-7. **Practical objections and close:** answer observed questions, repeat the same truthful consumer action, retain a discreet B2B route.
+1. **Opening:** identify Poza Nutą, Trójmiasto and karaoke, make the participant information path immediately clear, and identify the real event frame.
+2. **Permission to belong:** show that a person can listen and socialize without taking the microphone; use distinct documented moments to show both choices.
+3. **Setlist:** explain the opt-in on-site flow in a memorable but unambiguous ordered sequence.
+4. **Archive:** present iGranie w Lochu as one factual, dated realization with a distinct image and confirmed division of responsibilities; lead serious venue enquiries to `/dla-lokali`.
+5. **Current information:** close with the official-channel path for dates and places until first-party event pages have an authoritative lifecycle.
 
-This is a narrative order, not an obligation to render seven sections. Omit any section whose content cannot perform its stated job. Repeated CTAs should reappear after new information, not merely after a fixed scroll distance.
+Each chapter has a different marketing job. Omit unsourced voices, unverified metrics or event claims. Repeat an action only when the preceding content has added a reason to take it.
 
 ## Interaction and media system
 
@@ -57,12 +55,12 @@ The result is premium when a guest understands the offer and next action in the 
 
 ## Coherent implementation slices
 
-1. **Public foundation and path accuracy — implemented in 6bedd501, independent of photo readiness.** The public type/spacing/layout and responsive page shell use the approved live-poster grammar; consumer-first navigation and CTA wording promise the destinations they reach; the B2B route and `/linki` remain. This slice prepares the structure for real media without presenting a substitute final design.
-2. **Experience clarity and factual B2B proof — implemented.** Explain optional singing, no Poza Nutą booking, the on-site song flow and official information path. `/dla-lokali` uses the owner-confirmed iGranie realization, per-venue scope and a working contact path. Do not fill absent testimonial or metric slots.
-3. **Documentary content and media production.** Shoot, select, clear rights, caption and optimize real assets. Check event-specific variations and publication permissions. This is a content gate, not a dependency-install slice.
-4. **Media-led consumer and venue storytelling, conditional.** Add approved event moments and verified voices to the existing narrative. Keep appropriate stills and reduced-motion behavior. Omit any proof that lacks source or permission.
+1. **Public foundation, experience clarity and factual B2B proof — implemented.** Existing route, SEO, privacy, analytics and content contracts were established before the current art direction.
+2. **De-anchored public art direction — implemented locally.** Three independent full-page concepts were rendered. Digital Music Editorial was selected and applied to `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt` and `/linki`, with a new shell, type system, responsive composition, setlist and archive artifact. The media used here remains local preview material.
+3. **Media publication gate — unresolved.** Clear rights/consent for people, venue and selected assets. Do not deploy the media-led pages before this is documented in `docs/PUBLIC_MARKETING_V2_MEDIA.md`.
+4. **Additional verified content, conditional.** Add future images, video, testimonials, numbers or event updates only with confirmed source and permission. Keep reduced-motion and static fallbacks.
 5. **Owned events, conditional.** Only after the event-source gate, implement list/detail, lifecycle states, metadata/structured data and public-path/analytics contract changes. Until then, retain the official-channel path.
-6. **Selective motion and finish QA.** Add only sequences justified by the story; test mobile network, accessibility, SEO, consent, attribution and QR/outbound redirects. Run Impeccable detector + audit/critique/harden/polish and `npm run verify` on Node 24 before release merge.
+6. **Selective motion and release QA.** Add motion only for a documented comprehension job. Run Impeccable critique/audit, responsive and consent/browser checks, and `npm run verify` on Node 24 before release work. The media gate remains separate from code verification.
 
 ## Confirm before final copy or gated slices
 

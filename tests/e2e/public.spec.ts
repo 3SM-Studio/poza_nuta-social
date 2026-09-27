@@ -2,9 +2,9 @@ import { expect, test } from "@playwright/test";
 
 test("homepage introduces Poza Nutą and routes both audiences", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
-  await expect(page.getByRole("main").getByText("Karaoke i wydarzenia muzyczne", { exact: true })).toBeVisible();
-  await expect(page.getByRole("main").getByText("Trójmiasto", { exact: true }).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Zanim ktoś.*mikrofon/, level: 1 })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Karaoke i spotkania muzyczne", { exact: true })).toBeVisible();
+  await expect(page.getByRole("main").getByText("Poza Nutą / Trójmiasto", { exact: true }).first()).toBeVisible();
   await expect(page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first()).toHaveAttribute("href", "/karaoke-trojmiasto");
   await expect(page.getByRole("main").getByRole("link", { name: "Współpraca z lokalami" })).toHaveAttribute("href", "/dla-lokali");
   await expect(page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first()).toHaveAttribute("href", "/linki");
@@ -20,10 +20,10 @@ test("link hub uses the official destination route and returns to the marketing 
   expect(outbound.status()).toBe(302);
   expect(outbound.headers().location).toMatch(/^https:\/\/(www\.)?instagram\.com\//);
   expect(outbound.headers()["x-robots-tag"]).toContain("noindex");
-  await expect(page.getByRole("banner").getByRole("link", { name: "Poza Nutą - strona główna" })).toHaveAttribute("href", "/");
-  await page.getByRole("banner").getByRole("link", { name: "Poza Nutą - strona główna" }).click();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Poza Nutą — strona główna" })).toHaveAttribute("href", "/");
+  await page.getByRole("banner").getByRole("link", { name: "Poza Nutą — strona główna" }).click();
   await expect(page).toHaveURL(/\/$/);
-  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Zanim ktoś.*mikrofon/, level: 1 })).toBeVisible();
 });
 
 test("contact is a first-party page", async ({ page }) => {
@@ -32,7 +32,7 @@ test("contact is a first-party page", async ({ page }) => {
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   const contactView = page.waitForRequest((request) => request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "contact_view");
   await page.goto("/kontakt");
-  await expect(page.getByRole("heading", { name: "Kontakt.", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Napisz do nas.", level: 1 })).toBeVisible();
   await contactView;
 });
 
@@ -40,7 +40,7 @@ test("public content remains usable without JavaScript", async ({ browser }) => 
   const context = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Zanim ktoś.*mikrofon/, level: 1 })).toBeVisible();
   await expect(page.getByRole("contentinfo").getByRole("link", { name: "Kontakt" })).toBeVisible();
   await context.close();
 });
@@ -203,7 +203,7 @@ test("consent lifecycle grants, reuses, withdraws, rejects marketing and tamperi
   await page.reload();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Poza Nutą", level: 1 })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Zanim ktoś.*mikrofon/, level: 1 })).toBeVisible();
   await context.close();
 });
 

@@ -13,7 +13,7 @@ The public surface is the main marketing site for Poza Nutą. It serves two audi
 1. people looking for Poza Nutą karaoke, musical events, and current information;
 2. venues and organizers interested in collaboration and direct contact.
 
-The homepage primarily serves participants and future participants. Venue and organizer collaboration remains visible in navigation and a substantial homepage section, then continues on `/dla-lokali`. `/linki` keeps official channels fast to reach, especially from bio links and QR codes. Attribution and analytics run invisibly underneath both.
+The homepage primarily serves participants and future participants. Venue and organizer collaboration remains discoverable from the homepage and continues on `/dla-lokali`. `/linki` keeps official channels fast to reach, especially from bio links and QR codes. Attribution and analytics run invisibly underneath both.
 
 ## Primary outcome
 A visitor should understand what Poza Nutą does in Trójmiasto and find a clear path to karaoke information, collaboration, contact, or official channels.
@@ -44,15 +44,11 @@ A visitor should understand what Poza Nutą does in Trójmiasto and find a clear
 
 Future `/wydarzenia` and `/wydarzenia/[slug]` remain gated and must not be published as an empty directory. The current public route/analytics/SEO contracts must be extended together when these routes become real.
 
-## Visual constraints
-- Mobile-first, with an editorial desktop homepage and a deliberately narrow `/linki` layout.
-- Dark-first.
-- Pink is the main accent, not a full-page background.
-- No theme toggle in MVP.
-- Public Marketing V2 may use authentic event photography and short event video on the homepage as evidence of the experience. No stock or generated substitute karaoke imagery. Hero video is optional; prefer a strong real photograph to weak video.
-- No decorative gradients.
-- One or two actions may receive stronger emphasis, but `/linki` must remain structurally consistent.
-- The canonical V2 direction combines documentary event experience with live-poster brand language. Preserve the supplied logo, expressive Poza Nutą typography and pink accent; avoid SaaS-template, generic black-luxury, cyberpunk and neon-heavy treatments.
+## Brand and media invariants
+- The public brand uses the real Poza Nutą logo and black, Poza Nutą pink `#ff4fa3`, white and neutral grays. Never approximate the logo. The current composition, typography and responsive rules belong in `DESIGN.md`, not in this product contract.
+- No theme toggle is required in MVP.
+- Public Marketing V2 may show authentic event photography and short event video as evidence. No stock or generated substitute karaoke imagery, invented social proof or unverified event material. Publication rights and participant/venue consent remain a separate gate.
+- `/linki` contains official channels plus first-party contact/collaboration; it is not a generic link builder.
 
 ## Tracking truth
 The analytics system is first-party and privacy-first:
