@@ -10,7 +10,7 @@ import { publicMetadata, publicPageGraph } from "@/lib/seo";
 import "../contact-links.css";
 
 const title = "Oficjalne linki";
-const description = "Oficjalne kanały Poza Nutą oraz kontakt. Karaoke i wydarzenia muzyczne w Trójmieście.";
+const description = "Oficjalne kanały Poza Nutą oraz kontakt. Aktualne informacje o wieczorach karaoke w Trójmieście.";
 export const metadata: Metadata = publicMetadata(publicPage.links, title, description);
 
 export default async function LinksPage() {

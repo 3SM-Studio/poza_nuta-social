@@ -18,7 +18,8 @@ const steps = [
   { number: "02", title: "Zeskanuj kod QR", detail: "Kod do zgłoszeń znajdziesz na miejscu." },
   { number: "03", title: "Wpisz 6-cyfrowy kod sesji", detail: "To kod podany podczas danego wydarzenia." },
   { number: "04", title: "Wybierz lub dodaj utwór", detail: "Zgłoś piosenkę, którą chcesz zaśpiewać." },
-  { number: "05", title: "Dołącz do kolejki", detail: "Poczekaj na swoją kolej i wyjdź do mikrofonu po wywołaniu." },
+  { number: "05", title: "Dołącz do kolejki", detail: "Po zgłoszeniu utworu poczekaj na swoją kolej." },
+  { number: "06", title: "Zaśpiewaj", detail: "Kiedy nadejdzie Twoja kolej, wychodzisz do mikrofonu." },
 ] as const;
 
 export default function KaraokePage() {

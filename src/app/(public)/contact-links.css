@@ -85,10 +85,14 @@
   letter-spacing: -0.035em;
 }
 
-.ed-contact-address a:focus-visible,
 .ed-contact-text-link:focus-visible,
 .ed-links-channels a:focus-visible,
 .ed-links-contact:focus-visible {
+  outline: 3px solid var(--ed-pink-ink);
+  outline-offset: 4px;
+}
+
+.ed-contact-address a:focus-visible {
   outline: 3px solid var(--ed-pink);
   outline-offset: 4px;
 }

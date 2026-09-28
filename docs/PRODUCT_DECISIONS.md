@@ -1,5 +1,9 @@
 # Approved product decisions — discovery 1–82
 
+## Final public site quality gate — `/linki` indexation, 2026-09-28
+
+`/linki` remains the fast official-channel destination for QR and bio visits. Its current content is a short utility hub rather than a distinct organic-search answer, so the page uses `noindex, follow` and is omitted from the sitemap. It keeps a self-referencing canonical and remains crawlable so search engines can read the directive and follow its links. This does not change QR usability, internal navigation or the authority of official channels for current dates and places. Revisit indexation only if the page gains substantive, unique search-landing content.
+
 ## Public Marketing V2 — conversion friction continuation, 2026-09-26
 
 The owner confirms hello@pozanuta.pl as the general public contact address for both venue enquiries and participant questions. Current event dates and places remain in official channels through /linki; /kontakt is not their canonical source. The implementation may give visitors a faster, lower-emphasis path to /linki while retaining one dominant participant CTA. Media, owned event pages and analytics/consent semantics remain outside this continuation.

@@ -6,6 +6,9 @@ import { publicPage, publicPaths, type PublicPath } from "./public-paths";
 
 export { publicPaths };
 
+// The official-links hub is a QR/bio utility, not a separate search landing.
+export const indexablePublicPaths = publicPaths.filter((path) => path !== publicPage.links);
+
 export function publicUrl(path: PublicPath) {
   if (path === publicPage.home) return getSiteUrl();
   return new URL(path, `${getSiteUrl()}/`).toString();
@@ -13,10 +16,12 @@ export function publicUrl(path: PublicPath) {
 
 export function publicMetadata(path: PublicPath, title: string, description: string): Metadata {
   const fullTitle = path === publicPage.home ? title : `${title} · Poza Nutą`;
+  const shareImage = `${publicUrl(publicPage.home)}/opengraph-image`;
   return {
     title: path === publicPage.home ? { absolute: title } : title,
     description,
     alternates: { canonical: publicUrl(path) },
+    ...(path === publicPage.links ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "website",
       locale: "pl_PL",
@@ -24,8 +29,9 @@ export function publicMetadata(path: PublicPath, title: string, description: str
       url: publicUrl(path),
       title: fullTitle,
       description,
+      images: [{ url: shareImage, width: 1200, height: 630, alt: "Poza Nutą — wieczory karaoke w Trójmieście" }],
     },
-    twitter: { card: "summary_large_image", title: fullTitle, description },
+    twitter: { card: "summary_large_image", title: fullTitle, description, images: [shareImage] },
   };
 }
 
@@ -55,7 +61,9 @@ export function publicPageGraph(path: PublicPath, name: string, description: str
       "@id": organizationId,
       name: "Poza Nutą",
       url: base,
-      description: "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście oraz współpracuje z lokalami.",
+      logo: `${base}/brand/poza-nuta-logo.svg`,
+      email: "hello@pozanuta.pl",
+      description: "Poza Nutą organizuje wieczory karaoke w Trójmieście i współpracuje z lokalami przy ich realizacji.",
       areaServed: "Trójmiasto",
       ...(profiles.length ? { sameAs: profiles } : {}),
     });

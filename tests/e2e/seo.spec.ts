@@ -10,9 +10,10 @@ const publicRoutes = [
   { path: "/cookies", heading: "Cookies na tej stronie" },
 ];
 const canonicalOrigin = (process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000").replace(/\/$/, "");
+const preview = process.env.VERCEL_ENV === "preview";
 
 for (const { path, heading } of publicRoutes) {
-  test(`${path} has crawlable route-specific metadata and truthful JSON-LD`, async ({ page }) => {
+  test(`${path} has route-specific metadata and truthful JSON-LD`, async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
     page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
@@ -22,13 +23,20 @@ for (const { path, heading } of publicRoutes) {
     const canonical = `${canonicalOrigin}${path === "/" ? "" : path}`;
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute("href", canonical);
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", canonical);
+    await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", `${canonicalOrigin}/opengraph-image`);
+    await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute("content", `${canonicalOrigin}/opengraph-image`);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", /Poza Nutą|mierzy ruch/);
+    if (path === "/linki") await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex, follow/);
+    else if (preview) await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex, nofollow/);
+    else await expect(page.locator('meta[name="robots"]')).toHaveCount(0);
     const graph = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent() || "{}");
     expect(graph["@graph"].some((node: { [key: string]: unknown }) => node["@type"] === "WebPage" && node.url === canonical)).toBe(true);
     expect(graph["@graph"].some((node: { [key: string]: unknown }) => ["LocalBusiness", "Event"].includes(String(node["@type"])))).toBe(false);
     if (path === "/") {
       const organization = graph["@graph"].find((node: { [key: string]: unknown }) => node["@type"] === "Organization");
       expect(organization?.name).toBe("Poza Nutą");
+      expect(organization?.logo).toBe(`${canonicalOrigin}/brand/poza-nuta-logo.svg`);
+      expect(organization?.email).toBe("hello@pozanuta.pl");
       for (const profile of organization?.sameAs || []) {
         const url = new URL(profile);
         expect(url.protocol).toBe("https:");
@@ -64,17 +72,44 @@ test("new routes keep consented page-view tracking flow", async ({ page }) => {
   expect((await request.response())?.status()).toBe(204);
 });
 
+test("public browser requests remain first-party after confirmed analytics consent", async ({ page, context }) => {
+  test.skip(!process.env.LOCAL_ADMIN_E2E_EMAIL, "requires connected local Supabase");
+  const externalHosts = new Set<string>();
+  page.on("request", (request) => {
+    if (!request.url().startsWith("http")) return;
+    const host = new URL(request.url()).host;
+    if (host !== new URL(canonicalOrigin).host) externalHosts.add(host);
+  });
+  for (const { path } of publicRoutes) await page.goto(path);
+  await page.goto("/");
+  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
+  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
+  for (const { path } of publicRoutes) await page.goto(path);
+  expect([...externalHosts]).toEqual([]);
+});
+
 test("robots, sitemap, redirects and noindex boundaries follow the public surface", async ({ request }) => {
+  if (preview) {
+    for (const path of ["/", "/linki"]) {
+      const response = await request.get(path);
+      expect(response.headers()["x-robots-tag"], path).toContain("noindex, nofollow, noarchive");
+    }
+  }
   const robots = await (await request.get("/robots.txt")).text();
-  expect(robots).toContain("User-Agent: OAI-SearchBot");
-  expect(robots).toContain("User-Agent: GPTBot");
-  expect(robots).toContain("Disallow: /");
-  for (const path of ["/admin", "/api", "/r/", "/go/", "/auth"]) expect(robots).toContain(`Disallow: ${path}`);
+  if (preview) {
+    expect(robots).toContain("Allow: /");
+    expect(robots).not.toContain("Sitemap:");
+  } else {
+    expect(robots).toContain("User-Agent: OAI-SearchBot");
+    expect(robots).toContain("User-Agent: GPTBot");
+    expect(robots).toContain("Disallow: /");
+    for (const path of ["/admin", "/api", "/r/", "/go/", "/auth"]) expect(robots).toContain(`Disallow: ${path}`);
+  }
 
   const sitemap = await (await request.get("/sitemap.xml")).text();
   const locations = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map((match) => match[1]);
-  expect(locations).toEqual(publicRoutes.map(({ path }) => `${canonicalOrigin}${path === "/" ? "" : path}`));
-  expect(locations).toContain(`${canonicalOrigin}/prywatnosc`);
+  expect(locations).toEqual(preview ? [] : publicRoutes.filter(({ path }) => path !== "/linki").map(({ path }) => `${canonicalOrigin}${path === "/" ? "" : path}`));
+  if (!preview) expect(locations).toContain(`${canonicalOrigin}/prywatnosc`);
   expect(locations).not.toContain(`${canonicalOrigin}/privacy`);
   expect(sitemap).not.toMatch(/<lastmod>|<priority>|<changefreq>/);
 

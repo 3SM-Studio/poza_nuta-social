@@ -99,7 +99,7 @@ test("participant and venue journeys answer the first decision and reach the rig
   await expect(page.getByRole("heading", { name: "Udział ma wiele głosów." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Gdzie i kiedy się widzimy?" })).toBeVisible();
   const steps = page.getByRole("list", { name: "Zgłoszenie utworu krok po kroku" });
-  await expect(steps.getByRole("listitem")).toHaveCount(5);
+  await expect(steps.getByRole("listitem")).toHaveCount(6);
   await expect(page.getByText("To kod podany podczas danego wydarzenia.")).toBeVisible();
   await page.getByRole("link", { name: "Przejdź do oficjalnych kanałów" }).click();
   await expect(page).toHaveURL(/\/linki$/);

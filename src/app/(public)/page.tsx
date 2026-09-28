@@ -9,8 +9,8 @@ import { publicPage } from "@/lib/public-paths";
 import { publicMetadata, publicPageGraph } from "@/lib/seo";
 import "./home-editorial.css";
 
-const description = "Poza Nutą organizuje spotkania karaoke i wydarzenia muzyczne w Trójmieście. Możesz przyjść, słuchać, spędzić czas z ludźmi albo zaśpiewać.";
-export const metadata: Metadata = publicMetadata(publicPage.home, "Poza Nutą — karaoke i wydarzenia muzyczne w Trójmieście", description);
+const description = "Poza Nutą organizuje wieczory karaoke w Trójmieście. Możesz przyjść, słuchać, spędzić czas z ludźmi albo zaśpiewać.";
+export const metadata: Metadata = publicMetadata(publicPage.home, "Poza Nutą — wieczory karaoke w Trójmieście", description);
 
 const steps = [
   ["01", "Przyjdź", "Nie rezerwujesz występu przez Poza Nutą przed przyjściem.", "wejście"],

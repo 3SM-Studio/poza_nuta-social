@@ -39,6 +39,10 @@ export function ConsentBanner() {
     const banner = bannerRef.current;
     if (!visible || !banner) return;
     const observer = new ResizeObserver(() => {
+      if (getComputedStyle(banner).position !== "fixed") {
+        setBannerSpace(0);
+        return;
+      }
       const bottom = Number.parseFloat(getComputedStyle(banner).bottom) || 0;
       setBannerSpace(Math.ceil(banner.getBoundingClientRect().height + bottom * 2));
     });
@@ -68,7 +72,7 @@ export function ConsentBanner() {
     <>
       <p role="status" className="sr-only">{statusMessage}</p>
       {visible ? <>
-        <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-3 shadow-xl sm:inset-x-auto sm:right-5 sm:bottom-5 sm:mx-0 sm:max-w-[26rem] sm:p-5" aria-label="Wybór analityki">
+        <aside ref={bannerRef} className="fixed inset-x-3 bottom-3 z-50 mx-auto max-h-[calc(100svh-2.5rem)] max-w-2xl overflow-y-auto rounded-xl border bg-background p-3 shadow-xl max-[360px]:static max-[360px]:mx-3 max-[360px]:mt-3 max-[360px]:max-h-none sm:inset-x-auto sm:right-5 sm:bottom-5 sm:mx-0 sm:max-w-[26rem] sm:p-5" aria-label="Wybór analityki">
           <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1 text-sm leading-5"><strong className="font-bold text-foreground">Twoja prywatność</strong><Link href={publicPage.privacy} className="font-bold text-foreground underline underline-offset-4">O prywatności</Link><Link href={publicPage.cookies} className="font-bold text-foreground underline underline-offset-4">O cookies</Link></p>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">Bez zgody: pomiar bez cookies analitycznych i łączenia wizyt. Za zgodą: sesje i powroty tej przeglądarki. Wybór możesz zmienić.</p>
           <div className="mt-2 grid grid-cols-2 gap-2">

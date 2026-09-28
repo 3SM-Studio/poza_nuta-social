@@ -131,6 +131,50 @@ test("public pages reflow at 320 CSS px and focused controls remain visible", as
   await expect(dialog.getByRole("button", { name: "Włącz analitykę" })).toBeVisible();
 });
 
+test("public footers reflow with WCAG text spacing at 320 CSS px", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium");
+  await page.setViewportSize({ width: 320, height: 700 });
+  for (const route of routes) {
+    await page.goto(route);
+    await page.addStyleTag({ content: "* { letter-spacing: .12em !important; word-spacing: .16em !important; } p { line-height: 1.5 !important; margin-bottom: 2em !important; }" });
+    const layout = await page.evaluate(() => {
+      const footer = document.querySelector("footer");
+      const controls = [...(footer?.querySelectorAll("a, button") ?? [])].map((element) => element.getBoundingClientRect());
+      const outside = controls.some((rect) => rect.left < -1 || rect.right > innerWidth + 1);
+      const overlapping = controls.some((a, index) => controls.slice(index + 1).some((b) =>
+        a.left < b.right - 1 && a.right > b.left + 1 && a.top < b.bottom - 1 && a.bottom > b.top + 1));
+      return { pageWidth: document.documentElement.scrollWidth, viewportWidth: document.documentElement.clientWidth, outside, overlapping };
+    });
+    expect(layout.pageWidth, `${route} page overflows`).toBeLessThanOrEqual(layout.viewportWidth);
+    expect(layout.outside, `${route} footer control is outside viewport`).toBe(false);
+    expect(layout.overlapping, `${route} footer controls overlap`).toBe(false);
+  }
+});
+
+test("consent panel does not cover venue or contact actions at narrow width", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium");
+  await page.setViewportSize({ width: 320, height: 768 });
+  for (const [route, selector] of [["/dla-lokali", ".ed-venues-action"], ["/kontakt", ".ed-contact-link"]] as const) {
+    await page.goto(route);
+    const banner = page.getByRole("complementary", { name: "Wybór analityki" });
+    await expect(banner).toBeVisible();
+    const layout = await page.evaluate((target) => {
+      const panel = document.querySelector('aside[aria-label="Wybór analityki"]');
+      const action = document.querySelector(target);
+      const a = panel!.getBoundingClientRect();
+      const b = action!.getBoundingClientRect();
+      return {
+        position: getComputedStyle(panel!).position,
+        overlap: a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top,
+        bodyPadding: getComputedStyle(document.body).paddingBottom,
+      };
+    }, selector);
+    expect(layout.position, route).toBe("static");
+    expect(layout.overlap, route).toBe(false);
+    expect(layout.bodyPadding, route).toBe("0px");
+  }
+});
+
 test("keyboard focus is visible above authored fixed controls at narrow width", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium");
   await page.setViewportSize({ width: 320, height: 700 });

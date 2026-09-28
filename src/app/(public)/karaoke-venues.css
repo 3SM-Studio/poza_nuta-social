@@ -69,9 +69,11 @@
 
 .ed-karaoke a:focus-visible,
 .ed-venues a:focus-visible {
-  outline: 3px solid var(--ed-page-pink);
+  outline: 3px solid var(--ed-pink-ink);
   outline-offset: 4px;
 }
+
+.ed-venues-hero a:focus-visible { outline-color: var(--ed-page-pink); }
 
 .ed-karaoke-breadcrumb,
 .ed-venues-breadcrumb {
@@ -115,10 +117,11 @@
   margin: clamp(3.3rem, 7vw, 7.25rem) 0 0;
   font-size: clamp(4.5rem, 8.4vw, 8.5rem);
   line-height: 0.86;
+  overflow-wrap: anywhere;
 }
 
 .ed-karaoke-title-stop {
-  color: var(--ed-page-pink);
+  color: var(--ed-pink-ink);
 }
 
 .ed-karaoke-lead {
@@ -170,7 +173,8 @@
   align-items: end;
   gap: 1rem;
   color: var(--ed-page-white);
-  text-shadow: 0 1px 8px #000;
+  background: #101010e8;
+  padding: 0.75rem 1rem;
 }
 
 .ed-karaoke-choice {
@@ -196,6 +200,8 @@
   font-size: clamp(4.1rem, 7vw, 7.7rem);
   line-height: 0.87;
 }
+
+.ed-karaoke-steps h2 { overflow-wrap: anywhere; }
 
 .ed-karaoke-choice-copy {
   display: grid;
@@ -359,7 +365,7 @@
 
 .ed-venues-hero h1 {
   max-width: 13ch;
-  margin: clamp(3.4rem, 6vw, 7rem) 0 clamp(3.2rem, 6vw, 6rem);
+  margin: clamp(2rem, 3vw, 4rem) 0;
   font-size: clamp(4.65rem, 9.5vw, 10.5rem);
   line-height: 0.85;
 }
@@ -391,6 +397,7 @@
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  min-height: 2.75rem;
   border-bottom: 1px solid currentColor;
   padding-block: 0.25rem;
   color: var(--ed-page-white);
