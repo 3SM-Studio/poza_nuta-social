@@ -5,7 +5,7 @@
 This repository is an independent Poza Nutą application. It is not a Stage module, not a shared dashboard module, and does not share database, authentication, deployment, or runtime dependencies with any other Poza Nutą product.
 
 ## Root-domain direction — owner decisions, 2026-09-24 and 2026-09-25
-This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. The homepage is the consumer-first brand experience; `/linki` is the compact official-links hub. `socials.pozanuta.pl` remains a fast link-hub / QR / bio destination, not a second marketing homepage. The local EU privacy slice gates public analytics on versioned consent and adds `/cookies`; controller, deployment and retention facts still require confirmation before production. Domain deployment, hosting, legal sign-off and WCAG 2.2 AA remain separate work.
+This codebase is the Poza Nutą marketing site prepared for the future canonical origin `https://pozanuta.pl`. The homepage is the consumer-first brand experience; `/linki` is the compact official-links hub. `socials.pozanuta.pl` remains a fast link-hub / QR / bio destination, not a second marketing homepage. The EU privacy slice gates public analytics on versioned consent and adds `/cookies`; the owner confirmed the individual controller identity, privacy email and category-specific retention policy on 2026-09-29. A public postal address, retention/deletion implementation and legal review remain Production gates. Domain deployment, hosting, legal sign-off and WCAG 2.2 AA remain separate work.
 
 ## Overview
 The public surface is the main marketing site for Poza Nutą. It serves two audiences with different paths:

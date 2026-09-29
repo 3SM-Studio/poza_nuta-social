@@ -1,17 +1,7 @@
 # Data retention
 
-Status: proposed technical defaults; final periods require product/privacy/legal approval before production automation is enabled.
+The canonical current facts, exact browser lifetimes, **owner-approved retention periods**, deletion effects and remaining decisions are in [`../privacy/PROCESSING_FACT_MATRIX.md`](../privacy/PROCESSING_FACT_MATRIX.md). That matrix is the source of truth for this release gate; earlier example periods in this file were proposals and are superseded by the owner's 2026-09-29 decision.
 
-The cookieless foundation permits limited identity-free events without analytics consent. `analytics_cookieless_events` is raw event storage under the proposed raw-event category below; no automatic purge is installed. The earlier EU privacy slice added `analytics_consent_evidence` with an `expires_at` marker at 180 days; deletion is **not automatic**. A production purge process and confirmed periods remain release prerequisites. The client-side `pn_consent` preference lasts 180 days; consented analytics cookies last 30 minutes (`pn_session`, `pn_acquisition`) or 180 days (`pn_visitor`). These cookie lifetimes do not delete server data.
+Current technical state (2026-09-29): `pn_consent` and `pn_visitor` cookies last at most 180 days; `pn_session` and `pn_acquisition` last 30 minutes. `analytics_sessions_v2.expires_at` marks session inactivity, `admin_invitations.expires_at` marks invitation validity, and `analytics_consent_evidence.expires_at` is set to 180 days. None of those database markers deletes a row. No application retention job, automatic purge, visitor anonymization or subject-deletion flow is installed for analytics, invitations or audit records. Existing server records are not erased merely by browser cookie expiry or consent withdrawal.
 
-| Category | Proposed default | End-of-life action |
-| --- | --- | --- |
-| visitor identity | 180 days since last consented activity | unlink/anonymize visitor ID from retained events, then delete visitor row |
-| sessions | 13 months | delete or roll into non-identifying aggregates |
-| raw events | 13 months | delete after aggregate validation |
-| daily aggregates/quality counters | 25 months | delete on rolling basis |
-| audit log | 25 months minimum proposal | reviewed archival/deletion only; never normal app mutation |
-| signed exclusion preference | 1 year, refreshable | expire client token |
-| consent record/token | 180 days or until withdrawal/version change | expire and request a new choice when required |
-
-Retention jobs must be idempotent, logged, tested on a copy, and introduced only after the final periods are approved. Deleting raw data must not break immutable audit obligations. No category defaults to forever.
+The approved periods are **DOCUMENTED POLICY ONLY** until an idempotent, audited purge/deletion workflow is implemented and tested. Consent evidence is especially mismatched: its current 180-day row marker differs from the approved 24 months since last choice. The owner also approved a conditional 24-month period for non-identifying `analytics_quality_daily` counters, a 90-day legacy-table clock starting only after verified migration completion, and explicit periods for failed/pending Admin invitations. Purpose-specific bases and exceptions need legal confirmation. Do not run destructive cleanup in this slice.

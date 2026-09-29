@@ -1,6 +1,6 @@
 # Privacy and consent implementation
 
-Status: local technical checkpoint. Controller identity, contact, recipients, transfers and server-side retention periods require confirmed publication values and privacy/legal review before production. The production environment guard rejects missing values. No production schema or data was changed in this slice.
+Status (2026-09-29): the owner confirmed the individual's controller identity and privacy email, then approved category-specific retention periods. A public postal correspondence address, final purpose-specific legal bases, provider/transfer review and retention/deletion implementation remain open before Production. The current facts, approved periods and operational request procedure are in [`../privacy/PROCESSING_FACT_MATRIX.md`](../privacy/PROCESSING_FACT_MATRIX.md); that file is the canonical matrix. The Production environment guard still rejects missing publication values. No remote schema or data was changed in the privacy facts slice.
 
 ## Public behavior
 
