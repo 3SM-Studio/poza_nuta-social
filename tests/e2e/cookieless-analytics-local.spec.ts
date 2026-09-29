@@ -151,8 +151,8 @@ test("redirect events persist cookieless and invalid links still redirect", asyn
 
 test("privacy and cookies copy explains both modes", async ({ page }) => {
   await page.goto("/prywatnosc");
-  await expect(page.getByText(/Bez potwierdzonej zgody serwera zapisujemy ograniczone zdarzenia/)).toBeVisible();
-  await expect(page.getByText(/Wcześniejszych zdarzeń bez zgody nie przypisujemy później/)).toBeVisible();
+  await expect(page.getByText(/Bez potwierdzonej zgody na analitykę zapisujemy tylko niezależne zdarzenia/)).toBeVisible();
+  await expect(page.getByText(/nie dopinamy tych zdarzeń do późniejszej zgody/)).toBeVisible();
   await page.goto("/cookies");
   await expect(page.getByText(/Nadal możemy zapisać ograniczone zdarzenia bez cookies analitycznych/)).toBeVisible();
 });
