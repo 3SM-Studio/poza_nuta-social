@@ -21,12 +21,13 @@ import { deviceCategory } from "./attribution";
 import { getSiteUrl } from "./env";
 import { CONSENT_PREFERENCE_COOKIE, parseLocalPreference } from "./consent-preference";
 import { CONSENT_VERSION } from "./consent-version";
+import { ownAnalyticsHost, resolveServerEnvironment } from "./runtime-environment";
 
-type IdentityToken = { id: string; exp: number };
+type IdentityToken = { id: string; exp: number; environment?: AnalyticsEnvironment };
 export { CONSENT_VERSION } from "./consent-version";
-type ConsentToken = { analytics: boolean; marketing: boolean; version: number; exp: number };
+type ConsentToken = { analytics: boolean; marketing: boolean; version: number; exp: number; environment?: AnalyticsEnvironment };
 type FlagToken = { enabled: true; exp: number };
-type AcquisitionToken = { acquisition: AcquisitionContext; exp: number };
+type AcquisitionToken = { acquisition: AcquisitionContext; exp: number; environment?: AnalyticsEnvironment };
 
 export type TrackingContext = {
   environment: AnalyticsEnvironment;
@@ -42,17 +43,20 @@ export type TrackingCookie = { name: string; value: string; maxAge: number; http
 
 export async function buildTrackingContext(request: NextRequest, observedOverride?: AcquisitionContext) {
   const now = Math.floor(Date.now() / 1000);
+  const environment = analyticsEnvironment(request);
   const consent = await readAnalyticsConsent(request);
-  const session = await verifyAnalyticsToken<IdentityToken>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
+  const signedSession = await verifyAnalyticsToken<IdentityToken>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
+  const session = tokenMatchesEnvironment(signedSession, environment) ? signedSession : null;
   const visitor = consent
     ? await verifyAnalyticsToken<IdentityToken>("visitor", request.cookies.get(ANALYTICS_VISITOR_COOKIE)?.value)
     : null;
   const internal = await verifyAnalyticsToken<FlagToken>("internal", request.cookies.get(ANALYTICS_INTERNAL_COOKIE)?.value);
   const test = await verifyAnalyticsToken<FlagToken>("test", request.cookies.get(ANALYTICS_TEST_COOKIE)?.value);
-  const bootstrap = await verifyAnalyticsToken<AcquisitionToken>("acquisition", request.cookies.get(ANALYTICS_ACQUISITION_COOKIE)?.value);
+  const signedBootstrap = await verifyAnalyticsToken<AcquisitionToken>("acquisition", request.cookies.get(ANALYTICS_ACQUISITION_COOKIE)?.value);
+  const bootstrap = tokenMatchesEnvironment(signedBootstrap, environment) ? signedBootstrap : null;
   const sessionId = session?.id || crypto.randomUUID();
-  const visitorId = consent ? visitor?.id || null : null;
-  const ownHost = new URL(getSiteUrl()).hostname;
+  const visitorId = consent && tokenMatchesEnvironment(visitor, environment) ? visitor?.id || null : null;
+  const ownHost = ownAnalyticsHost(request, getSiteUrl());
   const observed = observedOverride || acquisitionFromRequest({
     ownHost,
     referrer: request.headers.get("referer"),
@@ -62,7 +66,7 @@ export async function buildTrackingContext(request: NextRequest, observedOverrid
     utmContent: request.nextUrl.searchParams.get("utm_content"),
   });
   const context: TrackingContext = {
-    environment: analyticsEnvironment(request),
+    environment,
     trafficClass: test ? "test" : internal ? "internal" : isConservativeBot(request.headers.get("user-agent")) ? "bot" : "external",
     consent: { analytics: consent, marketing: false },
     identity: { visitorId, sessionId },
@@ -72,10 +76,10 @@ export async function buildTrackingContext(request: NextRequest, observedOverrid
   };
 
   const cookies: TrackingCookie[] = [];
-  const sessionToken = consent ? await signAnalyticsToken("session", { id: sessionId, exp: now + SESSION_TTL_SECONDS }) : null;
+  const sessionToken = consent ? await signAnalyticsToken("session", { id: sessionId, environment, exp: now + SESSION_TTL_SECONDS }) : null;
   if (sessionToken) cookies.push({ name: ANALYTICS_SESSION_COOKIE, value: sessionToken, maxAge: SESSION_TTL_SECONDS, httpOnly: true });
   if (consent && observed.source !== "direct") {
-    const acquisitionToken = await signAnalyticsToken("acquisition", { acquisition: observed, exp: now + SESSION_TTL_SECONDS });
+    const acquisitionToken = await signAnalyticsToken("acquisition", { acquisition: observed, environment, exp: now + SESSION_TTL_SECONDS });
     if (acquisitionToken) cookies.push({ name: ANALYTICS_ACQUISITION_COOKIE, value: acquisitionToken, maxAge: SESSION_TTL_SECONDS, httpOnly: true });
   }
   return { context, cookies };
@@ -88,20 +92,26 @@ export async function readConsentChoice(request: NextRequest): Promise<boolean |
 
 export async function readSignedConsentChoice(request: NextRequest): Promise<boolean | null> {
   const token = await verifyAnalyticsToken<ConsentToken>("consent", request.cookies.get(ANALYTICS_CONSENT_COOKIE)?.value);
-  return token?.version === CONSENT_VERSION && typeof token.analytics === "boolean" ? token.analytics : null;
+  return tokenMatchesEnvironment(token, analyticsEnvironment(request)) && token?.version === CONSENT_VERSION && typeof token.analytics === "boolean" ? token.analytics : null;
 }
 
 export async function readAnalyticsConsent(request: NextRequest): Promise<boolean> {
   return (await readConsentChoice(request)) === true;
 }
 
-export async function createConsentToken(analytics: boolean) {
+export async function createConsentToken(analytics: boolean, environment: AnalyticsEnvironment) {
   return signAnalyticsToken("consent", {
     analytics,
     marketing: false,
     version: CONSENT_VERSION,
+    environment,
     exp: Math.floor(Date.now() / 1000) + VISITOR_TTL_SECONDS,
   });
+}
+
+export function tokenMatchesEnvironment(token: { environment?: AnalyticsEnvironment } | null, environment: AnalyticsEnvironment) {
+  // Legacy signed tokens predate environment binding. Preview must never reuse one.
+  return Boolean(token && (token.environment === environment || (!token.environment && environment !== "preview")));
 }
 
 export function applyTrackingCookies(response: Response, cookies: TrackingCookie[], secure: boolean) {
@@ -111,13 +121,7 @@ export function applyTrackingCookies(response: Response, cookies: TrackingCookie
 }
 
 export function analyticsEnvironment(request: NextRequest): AnalyticsEnvironment {
-  const vercel = process.env.VERCEL_ENV;
-  if (vercel === "production") return "production";
-  if (vercel === "preview") return "preview";
-  if (process.env.ANALYTICS_ENV === "staging") return "staging";
-  const host = request.nextUrl.hostname;
-  if (host === "localhost" || host === "127.0.0.1" || host === "::1") return "development";
-  return process.env.NODE_ENV === "production" ? "production" : "development";
+  return resolveServerEnvironment(request);
 }
 
 export function isConservativeBot(userAgent?: string | null) {

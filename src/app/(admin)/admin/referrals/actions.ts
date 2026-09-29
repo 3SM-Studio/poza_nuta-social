@@ -9,8 +9,10 @@ import {
   updateReferralParticipant,
 } from "@/lib/admin-referrals";
 import { createTrackingCode } from "@/lib/tracking-code";
+import { assertBusinessMutationAllowed } from "@/lib/runtime-environment";
 
 export async function createReferralParticipantAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   const displayName = String(formData.get("displayName") || "").trim();
   const linkedUserId = String(formData.get("linkedUserId") || "").trim() || null;
@@ -24,6 +26,7 @@ export async function createReferralParticipantAction(formData: FormData) {
 }
 
 export async function updateReferralParticipantAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   const participantId = String(formData.get("participantId") || "");
   const displayName = String(formData.get("displayName") || "").trim();
@@ -40,6 +43,7 @@ export async function updateReferralParticipantAction(formData: FormData) {
 }
 
 export async function createReferralLinkAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   const participantId = String(formData.get("participantId") || "");
   const label = String(formData.get("label") || "").trim();

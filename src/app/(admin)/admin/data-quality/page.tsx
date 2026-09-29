@@ -5,9 +5,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { getDataQualityReport, type DataQualityReport } from "@/lib/analytics/data-quality";
+import { getDataQualityReport, QUALITY_ENVIRONMENTS, type DataQualityReport, type QualityEnvironment } from "@/lib/analytics/data-quality";
 import { requireAdmin } from "@/lib/admin";
-import { resolveDashboardRange } from "@/lib/dashboard-range";
+import { resolveDashboardRange, type DashboardRange } from "@/lib/dashboard-range";
 import { cn } from "cn";
 
 export const dynamic = "force-dynamic";
@@ -24,23 +24,39 @@ const reasonLabels: Partial<Record<string, string>> = {
   unsupported_mode: "Zdarzenie niedostępne w tym trybie",
 };
 
+function qualityHref(range: DashboardRange, environment: QualityEnvironment, key: string = range.key): string {
+  const query = new URLSearchParams({ range: key, environment });
+  if (key === "custom") {
+    query.set("from", range.from);
+    query.set("to", range.toInclusive);
+  }
+  return `/admin/data-quality?${query}`;
+}
+
 export default async function DataQualityPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   await requireAdmin();
-  const range = resolveDashboardRange(await searchParams);
-  const report = await getDataQualityReport(range.from, range.toExclusive);
+  const params = await searchParams;
+  const range = resolveDashboardRange(params);
+  const environment: QualityEnvironment = QUALITY_ENVIRONMENTS.includes(params.environment as QualityEnvironment)
+    ? params.environment as QualityEnvironment : "all";
+  const report = await getDataQualityReport(range.from, range.toExclusive, environment);
 
   return <div className="space-y-7">
     <header className="space-y-3">
       <h1 className="text-3xl font-black tracking-tight sm:text-4xl">Data Quality</h1>
       <p className="max-w-3xl text-sm text-muted-foreground">Jakość zapisu analityki Poza Nutą: zdarzenia zapisane, odrzucone próby i ponowienia. Liczymy zdarzenia, a nie sesje ani osoby.</p>
-      <p className="text-sm font-medium">Zakres: {range.from} – {range.toInclusive} · strefa Europe/Warsaw · wszystkie środowiska i klasy ruchu</p>
+      <p className="text-sm font-medium">Zakres: {range.from} – {range.toInclusive} · strefa Europe/Warsaw · środowisko: {environment === "all" ? "wszystkie" : environment} · wszystkie klasy ruchu</p>
+      <nav className="flex flex-wrap gap-2" aria-label="Środowisko Data Quality">
+        {QUALITY_ENVIRONMENTS.map((item) => <Link key={item} href={qualityHref(range, item)} aria-current={environment === item ? "page" : undefined} className={cn(buttonVariants({ variant: environment === item ? "accent" : "outline", size: "sm" }))}>{item === "all" ? "Wszystkie" : item}</Link>)}
+      </nav>
       <nav className="flex flex-wrap gap-2" aria-label="Zakres Data Quality">
         {[{key:"today",label:"Dziś"},{key:"7",label:"7 dni"},{key:"30",label:"30 dni"},{key:"90",label:"90 dni"}].map((item) =>
-          <Link key={item.key} href={`/admin/data-quality?range=${item.key}`} aria-current={range.key === item.key ? "page" : undefined} className={cn(buttonVariants({ variant: range.key === item.key ? "accent" : "outline", size: "sm" }))}>{item.label}</Link>
+          <Link key={item.key} href={qualityHref(range, environment, item.key)} aria-current={range.key === item.key ? "page" : undefined} className={cn(buttonVariants({ variant: range.key === item.key ? "accent" : "outline", size: "sm" }))}>{item.label}</Link>
         )}
       </nav>
       <form method="get" className="grid gap-3 rounded-xl border bg-card p-4 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
         <Input type="hidden" name="range" value="custom" />
+        <Input type="hidden" name="environment" value={environment} />
         <div className="space-y-2"><Label htmlFor="quality-from">Od</Label><Input id="quality-from" name="from" type="date" defaultValue={range.key === "custom" ? range.from : ""} required /></div>
         <div className="space-y-2"><Label htmlFor="quality-to">Do</Label><Input id="quality-to" name="to" type="date" defaultValue={range.key === "custom" ? range.toInclusive : ""} required /></div>
         <Button variant="outline" type="submit">Pokaż zakres</Button>

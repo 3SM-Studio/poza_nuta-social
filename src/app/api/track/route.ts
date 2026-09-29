@@ -11,6 +11,7 @@ import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-conte
 import { readBoundedJson } from "@/lib/bounded-json";
 import { isPublicPath } from "@/lib/public-paths";
 import { recordQualityException } from "@/lib/analytics/data-quality";
+import { ownAnalyticsHost } from "@/lib/runtime-environment";
 
 export const runtime = "nodejs";
 const allowedFields = new Set(["eventId", "eventName", "path", "referrer", "utmSource", "utmMedium", "utmCampaign", "utmContent", "utmTerm", "properties"]);
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
     return new NextResponse(null, { status: 204, headers: { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } });
   }
   const observed = acquisitionFromRequest({
-    ownHost: new URL(getSiteUrl()).hostname,
+    ownHost: ownAnalyticsHost(request, getSiteUrl()),
     referrer: stringValue(body.referrer, 512) || request.headers.get("referer"),
     utmSource: stringValue(body.utmSource, 64),
     utmMedium: stringValue(body.utmMedium, 64),

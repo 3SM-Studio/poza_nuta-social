@@ -12,12 +12,14 @@ import {
 } from "@/lib/admin-invitation-workflow";
 import { getSiteUrl } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertBusinessMutationAllowed } from "@/lib/runtime-environment";
 
 export async function inviteAdminMember(
   access: AdminAccess,
   rawEmail: string,
   role: InvitationRole,
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const actor = invitationActor(access);
   const email = rawEmail.trim().toLowerCase();
@@ -28,6 +30,7 @@ export async function inviteAdminMember(
 }
 
 export async function retryAdminInvitation(access: AdminAccess, invitationId: string) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const actor = invitationActor(access);
   const { data, error } = await admin.from("admin_invitations")
@@ -92,6 +95,7 @@ function invitationDependencies(
 }
 
 export async function revokeAdminInvitation(access: AdminAccess, invitationId: string) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const actor = invitationActor(access);
   const { data, error } = await admin.rpc("admin_invitation_revoke_v1", {

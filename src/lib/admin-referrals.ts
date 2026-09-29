@@ -2,6 +2,7 @@ import "server-only";
 
 import type { AdminAccess } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertBusinessMutationAllowed } from "@/lib/runtime-environment";
 
 export type ReferralParticipant = {
   id: string;
@@ -59,6 +60,7 @@ export async function createReferralParticipant(
   displayName: string,
   linkedUserId: string | null,
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_referral_participant_create_v1", {
     p_actor_user_id: access.user.id,
@@ -77,6 +79,7 @@ export async function updateReferralParticipant(
   status: "active" | "inactive",
   linkedUserId: string | null,
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_referral_participant_update_v1", {
     p_actor_user_id: access.user.id,
@@ -97,6 +100,7 @@ export async function createReferralLink(
   label: string,
   landingPath: "/" | "/kontakt",
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_referral_tracking_link_create_v1", {
     p_actor_user_id: access.user.id,

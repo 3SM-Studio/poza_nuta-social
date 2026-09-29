@@ -20,13 +20,15 @@ test("local consent evidence records grant and withdrawal without request metada
   expect(grantError).toBeNull();
   expect(granted?.map((row) => row.analytics_enabled)).toEqual([true]);
   expect(granted?.[0].consent_version).toBe(2);
-  expect(Object.keys(granted![0]).sort()).toEqual(["analytics_enabled", "consent_version", "expires_at", "id", "occurred_at", "visitor_id"]);
+  expect(granted?.[0].environment).toBe(process.env.VERCEL_ENV === "preview" ? "preview" : "production");
+  expect(Object.keys(granted![0]).sort()).toEqual(["analytics_enabled", "consent_version", "environment", "expires_at", "id", "occurred_at", "visitor_id"]);
 
   const withdraw = await context.request.post("/api/consent", { data: { analytics: false } });
   expect(withdraw.status()).toBe(200);
   expect((await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name))).toBe(false);
-  const { data: evidence, error } = await db.from("analytics_consent_evidence").select("analytics_enabled").eq("visitor_id", visitorId).order("occurred_at", { ascending: true });
+  const { data: evidence, error } = await db.from("analytics_consent_evidence").select("analytics_enabled,environment").eq("visitor_id", visitorId).order("occurred_at", { ascending: true });
   expect(error).toBeNull();
   expect(evidence?.map((row) => row.analytics_enabled)).toEqual([true, false]);
+  expect(evidence?.every((row) => row.environment === (process.env.VERCEL_ENV === "preview" ? "preview" : "production"))).toBe(true);
   await context.close();
 });

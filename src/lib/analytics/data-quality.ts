@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { settleWithin } from "@/lib/async";
 import type { AnalyticsMode } from "@/lib/analytics-mode";
 import type { AnalyticsEventName } from "@/lib/analytics-taxonomy";
+import { resolveServerEnvironment } from "@/lib/runtime-environment";
 
 export const QUALITY_SURFACES = ["api_track", "tracking_redirect", "outbound_redirect"] as const;
 export type QualitySurface = typeof QUALITY_SURFACES[number];
@@ -32,6 +33,7 @@ export async function recordQualityException(input: QualityException): Promise<v
     if (!admin) return;
     const write = admin.from("analytics_quality_exceptions").insert({
       project_key: ANALYTICS_PROJECT_KEY,
+      environment: resolveServerEnvironment(),
       surface: input.surface,
       mode: input.mode ?? null,
       event_name: input.eventName ?? null,
@@ -60,6 +62,9 @@ export type DataQualityReport = {
   eventNames: Array<{ eventName: string; count: number }>;
 };
 
+export const QUALITY_ENVIRONMENTS = ["all", "production", "preview", "development", "staging", "unknown"] as const;
+export type QualityEnvironment = typeof QUALITY_ENVIRONMENTS[number];
+
 const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
 const count = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
 
@@ -77,13 +82,14 @@ export function isDataQualityReport(value: unknown): value is DataQualityReport 
     && value.eventNames.reduce((total, row) => total + row.count, 0) === value.persistedTotal;
 }
 
-export async function getDataQualityReport(from: string, toExclusive: string): Promise<DataQualityReport | null> {
+export async function getDataQualityReport(from: string, toExclusive: string, environment: QualityEnvironment = "all"): Promise<DataQualityReport | null> {
   const admin = createAdminClient();
   if (!admin) return null;
-  const { data, error } = await admin.rpc("analytics_data_quality_v1", {
+  const { data, error } = await admin.rpc("analytics_data_quality_v2", {
     p_project_key: ANALYTICS_PROJECT_KEY,
     p_from_date: from,
     p_to_date_exclusive: toExclusive,
+    p_environment: environment,
   });
   if (error || !isDataQualityReport(data)) {
     console.error("analytics data quality read failed", { reason: "report_unavailable" });

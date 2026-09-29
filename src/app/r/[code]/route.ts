@@ -5,14 +5,16 @@ import { trackCookielessBestEffort } from "@/lib/cookieless-analytics";
 import { trackingAcquisition } from "@/lib/analytics-taxonomy";
 import { getSiteUrl } from "@/lib/env";
 import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
+import { resolveServerEnvironment } from "@/lib/runtime-environment";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const trackingLink = await findTrackingLinkByCode(code);
-  if (!trackingLink) return noIndexRedirect(new URL("/", getSiteUrl()));
-  const target = new URL(trackingLink.landing_path === "/kontakt" ? "/kontakt" : "/", getSiteUrl());
+  const origin = resolveServerEnvironment(request) === "preview" ? request.url : getSiteUrl();
+  if (!trackingLink) return noIndexRedirect(new URL("/", origin));
+  const target = new URL(trackingLink.landing_path === "/kontakt" ? "/kontakt" : "/", origin);
   if ((await effectiveAnalyticsMode(request)) === "cookieless") {
     try {
       await trackCookielessBestEffort({ eventId: crypto.randomUUID(), eventName: "tracking_entry", path: `/r/${trackingLink.code}`, request, trackingLink, qualitySurface: "tracking_redirect" });

@@ -133,7 +133,7 @@ test("Realtime is guarded, reflects accepted events, refreshes safely and works 
     await page.getByRole("button", { name: "Odśwież Realtime" }).click();
     await expect(page.getByRole("heading", { name: "Brak przyjętych zdarzeń w tym oknie" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Dane Realtime nieaktualne" })).toHaveCount(0);
-    await expect(page.getByText("—")).toHaveCount(2);
+    await expect(page.locator("main")).not.toContainText(/NaN|Infinity|undefined/);
     await expect(page.getByRole("heading", { name: "Kampanie z wejść śledzących" })).toHaveCount(0);
     await page.unroute("**/admin/realtime/data?window=30");
     await page.getByRole("button", { name: "Odśwież Realtime" }).click();

@@ -67,7 +67,7 @@ select is(jsonb_array_length(public.analytics_realtime_v2('poza_nuta',30,'2031-0
 select is((public.analytics_realtime_v2('poza_nuta',30,'2031-01-10 12:30:00+00','business')->'topCampaigns'->0->>'count')::int, 2, 'campaign ranking scoped');
 select is((public.analytics_realtime_v2('poza_nuta',30,'2031-01-10 12:30:00+00','business')->'topTrackingLinks'->0->>'count')::int, 2, 'tracking ranking scoped');
 select is((public.analytics_realtime_v2('poza_nuta',30,'2031-01-10 12:30:00+00','business')->'topDestinations'->0->>'count')::int, 2, 'destination ranking scoped');
-select is((public.analytics_realtime_v2('poza_nuta',30,'2031-01-10 12:30:00+00','business')->>'qualityExceptions')::int, 1, 'quality remains all traffic');
+select is((public.analytics_realtime_v2('poza_nuta',30,'2031-01-10 12:30:00+00','business')->>'qualityExceptions')::int, 0, 'business quality excludes historical unknown environment');
 select is((public.analytics_realtime_v2('poza_nuta',5,'2031-01-10 12:05:00+00','business')->>'totalEvents')::int, 3, 'business lower cutoff remains inclusive');
 select is((public.analytics_realtime_v2('poza_nuta',5,'2031-01-10 12:05:00+00','diagnostic')->>'totalEvents')::int, 4, 'diagnostic sees test in same window');
 insert into public.analytics_cookieless_events(event_id,project_key,event_name,occurred_at,environment,traffic_class,path)

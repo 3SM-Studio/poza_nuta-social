@@ -12,7 +12,7 @@ The Admin page at `/admin/data-quality` measures the application analytics inges
 - **Contract drift**: rows in primary tables with an unknown event name, invalid canonical path or (for cookieless) a project key different from the server-owned key. Database constraints prevent most new drift, but this check can surface legacy or manually changed data.
 - **Event breakdown**: persisted primary rows grouped by canonical event name; these are event counts, not sessions or visitors.
 
-Ranges are inclusive of the selected first day and exclusive of the day after the selected last day in `Europe/Warsaw`. All environments and traffic classes are included, including test and bot classified rows.
+Ranges are inclusive of the selected first day and exclusive of the day after the selected last day in `Europe/Warsaw`. The default `all` view includes every environment and traffic class, including test and bot. The environment selector filters primary events and exceptions to `production`, `preview`, `development` or `staging`; `unknown` isolates older exception rows whose provenance cannot be established. The selector does not change the traffic-class population. Business Realtime counts quality exceptions only from `production`; diagnostic Realtime can include all environments.
 
 ## Exception contract
 
@@ -28,7 +28,7 @@ Outcomes and reasons:
 
 The current bot heuristic classifies primary events as `bot`; it does not filter them, so there is no `filtered_bot` reason. Primary RPC failures use structured server logging with surface and fixed reason, because an unavailable analytics database cannot reliably record its own outage. No offline queue is introduced.
 
-The exception table has only project key, timestamp, surface, optional server-determined mode, optional validated canonical event name/path, outcome and reason. It has no `details` JSON, request body, arbitrary client properties, visitor/session identity, event ID, email, phone, referrer, User-Agent or IP. The project key comes from `ANALYTICS_PROJECT_KEY`, never from a public request. Primary event tables remain the only accepted-event source of truth; the older `analytics_quality_daily` operational counter is not used to compute this report.
+The exception table has only project key, server-resolved environment, timestamp, surface, optional server-determined mode, optional validated canonical event name/path, outcome and reason. Existing rows with unknown provenance keep a null environment. It has no `details` JSON, request body, arbitrary client properties, visitor/session identity, event ID, email, phone, referrer, User-Agent or IP. The project key comes from `ANALYTICS_PROJECT_KEY`, never from a public request. Primary event tables remain the only accepted-event source of truth; the older `analytics_quality_daily` operational counter is not used to compute this report.
 
 The older daily counter still increments when available. Its two writes inside the consented ingest RPC are now isolated with a database exception boundary, so counter failure does not roll back a primary event or hide an idempotent retry.
 

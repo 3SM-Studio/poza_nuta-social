@@ -19,7 +19,7 @@ describe("analytics quality privacy boundary", () => {
     await recordQualityException({ surface: "api_track", outcome: "rejected", reason: "forbidden_field" });
     expect(mocks.insert).toHaveBeenCalledOnce();
     expect(mocks.insert.mock.calls[0][0]).toEqual({
-      project_key: ANALYTICS_PROJECT_KEY, surface: "api_track", mode: null,
+      project_key: ANALYTICS_PROJECT_KEY, environment: "development", surface: "api_track", mode: null,
       event_name: null, path: null, outcome: "rejected", reason: "forbidden_field",
     });
     expect(JSON.stringify(mocks.insert.mock.calls[0][0])).not.toMatch(/visitor_id|session_id|email|phone|payload|referrer|user-agent/i);
@@ -28,6 +28,16 @@ describe("analytics quality privacy boundary", () => {
   it("does not persist an unvalidated path", async () => {
     await recordQualityException({ surface: "api_track", eventName: "page_view", path: "/admin?token=secret", outcome: "rejected", reason: "invalid_path" });
     expect(mocks.insert.mock.calls[0][0]).toHaveProperty("path", null);
+  });
+
+  it.each(["production", "preview"] as const)("tags %s exceptions from server runtime", async (environment) => {
+    vi.stubEnv("VERCEL_ENV", environment);
+    try {
+      await recordQualityException({ surface: "api_track", outcome: "rejected", reason: "invalid_json" });
+      expect(mocks.insert.mock.calls[0][0]).toHaveProperty("environment", environment);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("swallows quality storage failure", async () => {
@@ -49,6 +59,7 @@ describe("Data Quality RPC read boundary", () => {
   it("accepts a legitimate zero report and populated report", async () => {
     mocks.rpc.mockResolvedValueOnce({ data: zeroReport, error: null });
     await expect(read()).resolves.toEqual(zeroReport);
+    expect(mocks.rpc).toHaveBeenCalledWith("analytics_data_quality_v2", expect.objectContaining({ p_environment: "all" }));
     const populated = { ...zeroReport, persistedTotal: 3, persistedCookieless: 1, persistedConsented: 2,
       rejected: 1, contractDrift: 1, rejectionReasons: [{ reason: "future_reason", count: 1 }],
       eventNames: [{ eventName: "page_view", count: 2 }, { eventName: "unknown_drift_name", count: 1 }] };

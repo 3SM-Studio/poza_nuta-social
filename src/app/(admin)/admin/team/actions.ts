@@ -10,8 +10,10 @@ import {
 } from "@/lib/admin-invitation-workflow";
 import { inviteAdminMember, retryAdminInvitation, revokeAdminInvitation } from "@/lib/admin-invitations";
 import { transferAdminOwnership, updateAdminMember } from "@/lib/admin-team";
+import { assertBusinessMutationAllowed } from "@/lib/runtime-environment";
 
 export async function inviteMemberAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   const email = String(formData.get("email") || "");
   const role = String(formData.get("role") || "") as InvitationRole;
@@ -28,6 +30,7 @@ export async function inviteMemberAction(formData: FormData) {
 }
 
 export async function retryInvitationAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   const invitationId = String(formData.get("invitationId") || "");
   if (!invitationId) redirect("/admin/team?error=invalid-request");
@@ -44,6 +47,7 @@ export async function retryInvitationAction(formData: FormData) {
 }
 
 export async function revokeInvitationAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   const invitationId = String(formData.get("invitationId") || "");
   if (!invitationId) redirect("/admin/team?error=invalid-request");
@@ -56,6 +60,7 @@ export async function revokeInvitationAction(formData: FormData) {
 }
 
 export async function updateMemberAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireOwner();
   const targetUserId = String(formData.get("targetUserId") || "");
   const role = String(formData.get("role") || "");
@@ -77,6 +82,7 @@ export async function updateMemberAction(formData: FormData) {
 }
 
 export async function transferOwnershipAction(formData: FormData) {
+  assertBusinessMutationAllowed();
   const access = await requireOwner();
   const targetUserId = String(formData.get("targetUserId") || "");
   if (!targetUserId) redirect("/admin/team?error=invalid-request");

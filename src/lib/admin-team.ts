@@ -2,6 +2,7 @@ import "server-only";
 
 import type { AdminAccess, AdminRole } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertBusinessMutationAllowed } from "@/lib/runtime-environment";
 
 export type AdminMember = {
   user_id: string;
@@ -56,6 +57,7 @@ export async function updateAdminMember(
   role: Exclude<AdminRole, "owner">,
   status: "active" | "inactive",
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_member_update_v1", {
     p_actor_user_id: access.user.id,
@@ -69,6 +71,7 @@ export async function updateAdminMember(
 }
 
 export async function transferAdminOwnership(access: AdminAccess, targetUserId: string) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_transfer_ownership_v1", {
     p_actor_user_id: access.user.id,

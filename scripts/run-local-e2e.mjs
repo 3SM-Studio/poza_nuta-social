@@ -1,4 +1,5 @@
 import { execSync, spawnSync } from "node:child_process";
+import { readdirSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 const status = execSync("npx supabase status -o env", { encoding: "utf8" });
@@ -38,12 +39,20 @@ const env = {
   ANALYTICS_SIGNING_SECRET: "local-e2e-analytics-signing-key-32-characters",
   // Local browser traffic must remain outside Business reporting, even when
   // a test exercises a public route without a signed test marker.
-  VERCEL_ENV: "preview",
   BOOTSTRAP_OWNER_EMAIL: email,
   CONTACT_EMAIL: "kontakt@pozanuta.test",
   LOCAL_ADMIN_E2E_EMAIL: email,
   LOCAL_MAILPIT_URL: local.MAILPIT_URL,
 };
-const command = `npm run test:e2e:playwright -- ${process.argv.slice(2).map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
-const result = spawnSync(command, { cwd: process.cwd(), env, shell: true, stdio: "inherit" });
-process.exit(result.status ?? 1);
+const requested = process.argv.slice(2);
+const specs = readdirSync("tests/e2e").filter((name) => name.endsWith(".spec.ts")).map((name) => `tests/e2e/${name}`);
+const previewSpecs = requested.length ? requested : specs.filter((name) => !name.endsWith("admin-local.spec.ts"));
+const productionSpecs = requested.length ? [] : ["tests/e2e/admin-local.spec.ts"];
+const phases = requested.length && requested.some((part) => part.includes("admin-local.spec.ts"))
+  ? [{ environment: "production", args: requested }]
+  : [{ environment: "preview", args: previewSpecs }, ...productionSpecs.map((name) => ({ environment: "production", args: [name] }))];
+for (const phase of phases) {
+  const command = `npm run test:e2e:playwright -- ${phase.args.map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
+  const result = spawnSync(command, { cwd: process.cwd(), env: { ...env, VERCEL_ENV: phase.environment }, shell: true, stdio: "inherit" });
+  if (result.status !== 0) process.exit(result.status ?? 1);
+}

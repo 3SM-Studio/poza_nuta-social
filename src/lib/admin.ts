@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { getBootstrapOwnerEmail } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { assertBusinessMutationAllowed, resolveServerEnvironment } from "@/lib/runtime-environment";
 
 export type AdminRole = "owner" | "admin" | "viewer";
 export type AdminAccess = { user: User; role: AdminRole };
@@ -47,6 +48,9 @@ export async function reconcileAdminMembership(user: User): Promise<AdminAccess 
   const existing = await readActiveMembership(admin, user.id);
   if (existing) return { user, role: existing };
 
+  // Authentication may refresh provider state, but Preview never provisions application membership.
+  if (resolveServerEnvironment() === "preview") return null;
+
   if (getBootstrapOwnerEmail() === email) {
     await admin.rpc("admin_bootstrap_owner_v1", {
       p_user_id: user.id,
@@ -76,12 +80,14 @@ export async function requireAdminAccess() {
 }
 
 export async function requireEditor() {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   if (!canMutateAdmin(access.role)) redirect("/admin?error=forbidden");
   return access.user;
 }
 
 export async function requireOwner() {
+  assertBusinessMutationAllowed();
   const access = await requireAdminAccess();
   if (access.role !== "owner") redirect("/admin?error=forbidden");
   return access;
