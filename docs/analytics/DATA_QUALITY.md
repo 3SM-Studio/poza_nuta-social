@@ -38,7 +38,7 @@ Exception writes are best effort. A failed write does not block the primary even
 
 The existing consented `page_view` boundary normalizes an unknown submitted page path to `/`. The original value is deliberately not retained, so this report cannot count those normalized attempts as path drift. Cookieless page paths and contact event/path mismatches are rejected with `invalid_path`.
 
-No new user behavior or personal fields are collected, so the public privacy/cookie data scope is unchanged. The owner subsequently approved 30 days for `analytics_quality_exceptions` and conditional 24 months for non-identifying `analytics_quality_daily`; see the canonical [processing fact matrix](../privacy/PROCESSING_FACT_MATRIX.md). A local retention function is tested, but no Production schedule or purge has been deployed.
+No new user behavior or personal fields are collected, so the public privacy/cookie data scope is unchanged. The owner subsequently approved 30 days for `analytics_quality_exceptions` and conditional 24 months for non-identifying `analytics_quality_daily`; see the canonical [processing fact matrix](../privacy/PROCESSING_FACT_MATRIX.md). The retention function is deployed and passed a zero-change remote dry-run, but no Production schedule or destructive purge has been authorized.
 
 ## Earlier operations plan: future monitoring (not implemented alerts)
 
