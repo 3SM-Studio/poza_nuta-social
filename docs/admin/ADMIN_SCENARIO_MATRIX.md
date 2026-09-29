@@ -35,7 +35,7 @@ Status: release-critical contract, 2026-09-22. `N` unit, `I` database integratio
 | SEC1 | Secret exposure / role tampering / IDOR | secret server-only; target IDs and roles revalidated | N,I,F |
 | SEC2 | RLS/grants | browser roles no table/RPC access; secret role least privilege | I,F |
 
-Critical rows must be mapped to named tests before PASS. Invalid or expired Auth token handling is guarded by Supabase Auth and the application callback but has no isolated browser fixture here. Production SMTP, hosted template configuration, production redirect allowlists, and remote project identity remain external release checks rather than simulated PASS claims.
+Critical rows must be mapped to named tests before PASS. Invalid or expired Auth token handling is guarded by Supabase Auth and the application callback but has no isolated browser fixture here. Production Resend/domain setup, hosted Send Email Hook configuration, production redirect allowlists, and remote project identity remain external release checks rather than simulated PASS claims.
 
 ## Concrete traceability
 

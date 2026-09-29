@@ -12,6 +12,25 @@ const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVI
 // One local worker protects shared Mailpit and RPC grants; a failed scenario must not skip the rest.
 test.describe.configure({ mode: "default" });
 
+test("unknown email stays non-enumerating and owner logout clears Admin access", async ({ page, request }, testInfo) => {
+  test.setTimeout(60_000);
+  test.skip(!adminEmail || !mailpitUrl || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth and Mailpit");
+
+  const prior = await mailMessageIds(request);
+  await page.goto("/admin/login");
+  await page.getByLabel("E-mail").fill(`unknown-${Date.now()}@pozanuta.test`);
+  await page.getByRole("button", { name: "Wyślij magic link" }).click();
+  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
+  expect(await mailMessageIds(request)).toEqual(prior);
+
+  await loginWithMagicEmail(page, request, adminEmail!);
+  await expect(page.getByRole("heading", { name: "Co naprawdę działa?" })).toBeVisible();
+  await page.getByRole("button", { name: "Wyloguj" }).click();
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+});
+
 test("local owner can authenticate and complete the campaign-to-QR flow", async ({ browser, page, request }, testInfo) => {
   test.setTimeout(90_000);
   test.skip(!adminEmail || !mailpitUrl || !supabaseUrl || !serviceKey || testInfo.project.name !== "desktop-chromium", "Requires the isolated local Supabase/Auth/Mailpit stack");

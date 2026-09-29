@@ -1,0 +1,12 @@
+{
+  "imports": {
+    "@react-email/components": "npm:@react-email/components@1.0.12",
+    "react": "npm:react@19.3.0",
+    "react/jsx-runtime": "npm:react@19.3.0/jsx-runtime",
+    "standardwebhooks": "npm:standardwebhooks@1.1.1"
+  },
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  }
+}
