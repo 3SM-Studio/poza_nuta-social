@@ -408,6 +408,7 @@
 
 .editorial-site .typeset-legal {
   --color-foreground: var(--ed-ink);
+  --color-muted: var(--secondary);
   --color-muted-foreground: var(--ed-muted);
   --color-border: var(--ed-line);
   --color-ring: var(--ed-pink);

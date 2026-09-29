@@ -37,9 +37,11 @@ test("privacy settings remain reachable before the first choice", async ({ page 
   await page.keyboard.press("Tab");
   const skipLink = page.getByRole("link", { name: "Przejdź do treści" });
   if (testInfo.project.name === "desktop-webkit") {
-    // WebKit's default Tab navigation skips links; the first reachable button still receives focus.
-    await expect(page.getByRole("button", { name: "Odrzuć analitykę" })).toBeFocused();
-    await skipLink.focus();
+    // WebKit Tab navigation depends on the platform keyboard preference.
+    if (await skipLink.evaluate((element) => document.activeElement !== element)) {
+      await expect(page.getByRole("button", { name: "Odrzuć analitykę" })).toBeFocused();
+      await skipLink.focus();
+    }
   } else {
     await expect(skipLink).toBeFocused();
   }
