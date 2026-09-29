@@ -14,9 +14,9 @@ test("participant and venue journeys each retain one independent Preview session
     const page = await context.newPage();
     const eventIds: string[] = [];
     let captureConsented = false;
-    page.on("request", (request) => {
-      if (!captureConsented || !request.url().endsWith("/api/track")) return;
-      const payload = request.postDataJSON();
+    page.on("response", (response) => {
+      if (!captureConsented || !response.url().endsWith("/api/track") || response.status() !== 204) return;
+      const payload = response.request().postDataJSON();
       if (typeof payload?.eventId === "string") eventIds.push(payload.eventId);
     });
     try {
@@ -26,14 +26,16 @@ test("participant and venue journeys each retain one independent Preview session
       await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_session")).toBe(true);
       captureConsented = true;
       await run(page);
+      await page.waitForLoadState("networkidle");
       await expect.poll(() => eventIds.length).toBeGreaterThanOrEqual(3);
+      const acceptedEventIds = [...eventIds];
       let rows: Array<{ event_id: string; session_id: string; environment: string }> = [];
       await expect.poll(async () => {
-        const result = await admin.from("analytics_events_v2").select("event_id,session_id,environment").in("event_id", eventIds);
+        const result = await admin.from("analytics_events_v2").select("event_id,session_id,environment").in("event_id", acceptedEventIds);
         expect(result.error).toBeNull();
         rows = result.data || [];
         return rows.length;
-      }).toBe(eventIds.length);
+      }).toBe(acceptedEventIds.length);
       expect(new Set(rows.map((row) => row.session_id)).size).toBe(1);
       expect(rows.every((row) => row.environment === "preview")).toBe(true);
       return rows[0].session_id;

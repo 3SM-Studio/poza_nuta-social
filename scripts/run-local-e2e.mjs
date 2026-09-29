@@ -46,11 +46,15 @@ const env = {
 };
 const requested = process.argv.slice(2);
 const specs = readdirSync("tests/e2e").filter((name) => name.endsWith(".spec.ts")).map((name) => `tests/e2e/${name}`);
-const previewSpecs = requested.length ? requested : specs.filter((name) => !name.endsWith("admin-local.spec.ts"));
-const productionSpecs = requested.length ? [] : ["tests/e2e/admin-local.spec.ts"];
-const phases = requested.length && requested.some((part) => part.includes("admin-local.spec.ts"))
-  ? [{ environment: "production", args: requested }]
-  : [{ environment: "preview", args: previewSpecs }, ...productionSpecs.map((name) => ({ environment: "production", args: [name] }))];
+const requestedSpecs = requested.filter((part) => part.endsWith(".spec.ts"));
+const options = requested.filter((part) => !part.endsWith(".spec.ts"));
+const selectedSpecs = requestedSpecs.length ? requestedSpecs : specs;
+const previewSpecs = selectedSpecs.filter((name) => !name.endsWith("admin-local.spec.ts"));
+const productionSpecs = selectedSpecs.filter((name) => name.endsWith("admin-local.spec.ts"));
+const phases = [
+  ...(previewSpecs.length ? [{ environment: "preview", args: [...previewSpecs, ...options] }] : []),
+  ...(productionSpecs.length ? [{ environment: "production", args: [...productionSpecs, ...options] }] : []),
+];
 for (const phase of phases) {
   const command = `npm run test:e2e:playwright -- ${phase.args.map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
   const result = spawnSync(command, { cwd: process.cwd(), env: { ...env, VERCEL_ENV: phase.environment }, shell: true, stdio: "inherit" });
