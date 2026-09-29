@@ -9,9 +9,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { chooseConsent, currentConsentState, listenForConsentChanges, readConsentState, type ConsentState } from "@/lib/consent-state";
 import { publicPage } from "@/lib/public-paths";
 
-export function ConsentBanner() {
+export function ConsentBanner({ initialConsentMissing }: { initialConsentMissing: boolean }) {
   const pathname = usePathname();
-  const [consentMissing, setConsentMissing] = useState<boolean | null>(null);
+  const [consentMissing, setConsentMissing] = useState(initialConsentMissing);
   const [statusMessage, setStatusMessage] = useState("");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const bannerRef = useRef<HTMLElement>(null);
@@ -28,7 +28,7 @@ export function ConsentBanner() {
     if (!publicRoute) return;
     let active = true;
     const sync = () => {
-      setConsentMissing(currentConsentState() === "unknown");
+      if (currentConsentState() !== "unknown") setConsentMissing(false);
       void readConsentState().then((value) => { if (active) setConsentMissing(value === "unknown"); });
     };
     void sync();

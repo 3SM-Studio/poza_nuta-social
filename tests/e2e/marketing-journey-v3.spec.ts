@@ -1,8 +1,6 @@
 import { expect, test } from "@playwright/test";
 
 test("consented participant and venue journeys emit stable semantic actions", async ({ page, context }) => {
-  // Playwright does not expose Blob-backed sendBeacon bodies; exercise the supported fetch fallback.
-  await page.addInitScript(() => Object.defineProperty(navigator, "sendBeacon", { value: () => false, configurable: true }));
   const events: Array<{ eventName: string; path: string; properties?: Record<string, string> }> = [];
   page.on("request", (request) => {
     if (request.url().endsWith("/api/track")) {

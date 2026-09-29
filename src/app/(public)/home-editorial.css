@@ -172,7 +172,10 @@
 
 @media (max-width: 370px) {
   .ed-home-hero-copy { min-height: 480px; }
-  .ed-home-hero-title { font-size: 61px; }
+  .ed-home-hero-title, .ed-home-participation-heading h2, .ed-home-next h2 { max-width: 100%; overflow-wrap: anywhere; hyphens: auto; }
+  .ed-home-hero-title { width: auto; font-size: 61px; }
+  .ed-home-hero-title em { width: auto; max-width: 100%; }
+  .ed-home-next h2 { line-height: .95; }
   .ed-home-hero-figure { height: 390px; flex-basis: 390px; }
   .ed-home-story-image, .ed-home-story-social .ed-home-story-image { height: 380px; }
 }

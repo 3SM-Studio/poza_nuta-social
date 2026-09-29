@@ -28,10 +28,10 @@ function bodies() {
 }
 
 describe("browser analytics transport", () => {
-  it("sends one event with a fresh ID, without client-owned project or identity fields", () => {
+  it("sends one event with a fresh ID, without client-owned project or identity fields", async () => {
     track("contact_click", { contactType: "email" });
-    expect(beaconMock).toHaveBeenCalledTimes(1);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(beaconMock).not.toHaveBeenCalled();
     expect(bodies()[0]).toMatchObject({ eventName: "contact_click", path: "/kontakt", properties: { contactType: "email" } });
     expect(bodies()[0].eventId).toMatch(/^[0-9a-f-]{36}$/);
     expect(bodies()[0]).not.toHaveProperty("project_key");
@@ -45,7 +45,7 @@ describe("browser analytics transport", () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it("keeps the consent-only hub resume event out of unknown, rejected and pending states", () => {
+  it("keeps the consent-only hub resume event out of unknown, rejected and pending states", async () => {
     const properties = { priorDestination: "instagram", resumeSignal: "pageshow", elapsedBucket: "2-10s", bfcache: false } as const;
     for (const state of ["unknown", "rejected", "pending-accept", "withdrawn"]) {
       expect(gate.allowed, state).toBe(false);
@@ -54,24 +54,43 @@ describe("browser analytics transport", () => {
     expect(fetchMock).not.toHaveBeenCalled();
     gate.allowed = true;
     track("hub_resumed", properties);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
   });
 
-  it("sends page entries once per call with current UTM and no stale referrer on navigation", () => {
+  it("sends page entries once per call with current UTM and no stale referrer on navigation", async () => {
     trackPageEntry("/", "utm_source=instagram", true);
     trackPageEntry("/linki", "", false);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
     expect(bodies()).toHaveLength(2);
     expect(bodies()[0]).toMatchObject({ path: "/", referrer: "https://instagram.com/poza.nuta", utmSource: "instagram" });
     expect(bodies()[1]).toMatchObject({ path: "/linki", referrer: null, utmSource: null });
     expect(new Set(bodies().map((body) => body.eventId)).size).toBe(2);
   });
 
-  it("swallows synchronous and async transport failures", () => {
-    beaconMock.mockImplementation(() => { throw new Error("beacon unavailable"); });
+  it("keeps CTA, destination view and contact view in dispatch order without duplicate CTA", async () => {
+    let finishCta: (() => void) | undefined;
+    fetchMock.mockImplementationOnce(() => new Promise((resolve) => { finishCta = () => resolve({ ok: true }); }));
+    gate.allowed = true;
+    window.location.pathname = "/dla-lokali";
+    track("cta_click", { ctaId: "venues.closing_contact" });
+    window.location.pathname = "/kontakt";
+    trackPageEntry("/kontakt", "", false);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
+    expect(bodies()[0]).toMatchObject({ eventName: "cta_click", path: "/dla-lokali" });
+    finishCta?.();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    expect(bodies().map((body) => body.eventName)).toEqual(["cta_click", "page_view", "contact_view"]);
+    expect(bodies().every((body) => typeof body.eventId === "string")).toBe(true);
+    expect(new Set(bodies().map((body) => body.eventId)).size).toBe(3);
+    expect(fetchMock.mock.calls.every((call) => (call[1] as RequestInit).keepalive === true)).toBe(true);
+    expect(beaconMock).not.toHaveBeenCalled();
+  });
+
+  it("swallows synchronous and async transport failures", async () => {
     expect(() => track("contact_click", { contactType: "email" })).not.toThrow();
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    beaconMock.mockImplementation(() => false);
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
     fetchMock.mockRejectedValueOnce(new Error("offline"));
     expect(() => track("contact_click", { contactType: "email" })).not.toThrow();
+    await vi.waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(2));
   });
 });

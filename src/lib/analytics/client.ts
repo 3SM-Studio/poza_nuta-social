@@ -13,6 +13,8 @@ type PageEntry = {
   utmTerm: string | null;
 };
 
+let dispatchTail: Promise<void> = Promise.resolve();
+
 // Browser calls are best effort. The app-owned route makes the authoritative mode choice.
 export function track<Name extends ClientEventName>(
   eventName: Name,
@@ -52,11 +54,13 @@ function dispatch(eventName: unknown, properties: unknown, path: string, entry?:
     if (typeof window === "undefined" || !isClientEventName(eventName) || !isClientEventPayload(eventName, properties)) return;
     if ((eventName === "hub_resumed" || eventName === "cta_click" || eventName === "section_view") && !analyticsAllowed()) return;
     const payload = JSON.stringify({ eventId: crypto.randomUUID(), eventName, path, ...entry, ...(properties === undefined ? {} : { properties }) });
-    if (eventName !== "page_view" && eventName !== "contact_view" && navigator.sendBeacon) {
+    // Next's client-side navigation keeps this module alive. Await each best-effort
+    // response before dispatching the next event so server receipt follows actions.
+    // Navigation itself never waits for analytics.
+    dispatchTail = dispatchTail.then(async () => {
       try {
-        if (navigator.sendBeacon("/api/track", new Blob([payload], { type: "application/json" }))) return;
-      } catch { /* Try fetch for browsers whose beacon implementation throws. */ }
-    }
-    void fetch("/api/track", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true }).catch(() => {});
+        await fetch("/api/track", { method: "POST", headers: { "content-type": "application/json" }, body: payload, keepalive: true });
+      } catch { /* Analytics cannot interrupt a public action. */ }
+    });
   } catch { /* Analytics cannot interrupt a public action. */ }
 }
