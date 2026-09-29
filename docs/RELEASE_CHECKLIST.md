@@ -1,8 +1,8 @@
 # Release checklist — social.pozanuta.pl
 
-Status: historical checklist for the previous link-hub release contract. The owner changed the target on 2026-09-24: the main site is planned for `https://pozanuta.pl`. The 2026-09-25 Public Marketing V2 decision assigns `socials.pozanuta.pl` the fast link-hub / QR / bio role; deployment mapping, consent/legal facts, accessibility verification and hosting still require separate work. Unchecked items below are not approval to configure or deploy the old hostname. See `docs/PRODUCT_DECISIONS.md` and `docs/PUBLIC_MARKETING_V2.md`.
+Status: **HISTORICAL EVIDENCE, NOT AN EXECUTABLE CHECKLIST.** The current release procedure is [RELEASE.md](RELEASE.md). The owner changed the target on 2026-09-24: the main site is planned for `https://pozanuta.pl`. The 2026-09-25 Public Marketing V2 decision assigns `socials.pozanuta.pl` the fast link-hub / QR / bio role. The migration filenames, checkmarks and old host instructions below describe an earlier checkpoint; do not execute them as a current release plan. Unchecked items are not approval to configure or deploy the old hostname. See `docs/PRODUCT_DECISIONS.md` and `docs/PUBLIC_MARKETING_V2.md`.
 
-Do not label the application production-verified until the applicable checks below pass.
+At this historical checkpoint, production verification was withheld pending the applicable items below. For any new release, use [RELEASE.md](RELEASE.md) and fresh evidence.
 
 ## Connected toolchain
 - [x] Use Node 24 LTS (`node -v`).

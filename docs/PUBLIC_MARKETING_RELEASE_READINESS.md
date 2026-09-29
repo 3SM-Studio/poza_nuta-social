@@ -1,5 +1,7 @@
 # Public Marketing — lokalna ocena gotowości wydania
 
+**EVIDENCE / SNAPSHOT, nie bieżąca procedura ani aktualna decyzja wydaniowa.** Wszystkie wyniki i identyfikatory poniżej dotyczą datowanych lokalnych przebiegów oraz Preview z 2026-09-29. Stan nowego release ustala się dla jego konkretnego commita i hosta według [RELEASE.md](RELEASE.md); dobór kontroli należy do [VERIFY.md](VERIFY.md). Statusów `TECHNICALLY READY` i `PREVIEW VERIFIED` z końca tego zapisu nie przenosi się na kolejny deployment.
+
 Stan: 2026-09-29. Zakres: obecne publiczne trasy `/`, `/karaoke`, `/dla-lokali`, `/kontakt`, `/linki`, strony prawne i wspólne elementy. Dokument zachowuje historyczne oceny lokalne i opisuje kontrolowany Preview na rzeczywistym hoście; nie jest certyfikacją dostępności. Kanoniczne decyzje produktu pozostają w `PRODUCT.md`, `DESIGN.md` i `docs/PRODUCT_DECISIONS.md`; kontrakt analityki w `docs/analytics/TRACKING_PLAN.md`. Kryterialne dowody WCAG są w `docs/accessibility/PUBLIC_WCAG_22_AA_EVIDENCE.md`.
 
 ## Granice wydania
@@ -229,15 +231,15 @@ Siedem biznesowych RPC Production (dashboard, acquisition, dwie ścieżki market
 
 **Kontrole lokalne:** `npm run verify` PASS — 49 plików / 308 testów Vitest, 5 testów guard, lint, TypeScript, Impeccable detect i produkcyjny build. Pełny `npm run test:e2e:local` ostatecznie PASS: publiczne **248 PASS, 112 SKIP, 0 FAIL**; Admin **11 PASS, 33 SKIP, 0 FAIL**. Dwa wcześniejsze pełne przebiegi miały sporadyczne niepotwierdzenie zgody WebKit pod koniec obciążonej suity (jeden także niestabilny selektor Admin); ten sam WebKit przeszedł osobno 20/20 prób oraz w końcowym pełnym przebiegu. Nie zmieniano kontraktu zgody, aby maskować fluktuację. Ostatni celowany test B2B i `npm run verify` przeszły po doprecyzowaniu asercji ekspozycji; `git diff --check` PASS. Nie uruchamiano DB testów, bo SQL i logika zapytań nie zmieniły się.
 
-**Granica:** dodatkowy koszt infrastruktury Preview **$0**, nowy płatny zasób **nie powstał**. Nie było push, Production deploy, DNS, nowej bazy ani modyfikacji bootstrapu Supabase. Materiały wizualne z testu są w `C:\Users\michas\.codex\preview4-evidence`; testy nie zmieniły kodu aplikacji po commicie źródłowym.
+**Granica:** dodatkowy koszt infrastruktury Preview **$0**, nowy płatny zasób **nie powstał**. Nie było push, Production deploy, DNS, nowej bazy ani modyfikacji bootstrapu Supabase. Materiały wizualne z testu są w `C:\Users\michas\.codex\preview4-evidence`; jest to nietrwała lokalna ścieżka, a nie samodzielny dowód release. Dla kolejnego commita powtórzyć kroki Preview z [RELEASE.md](RELEASE.md): chroniony host, pięć tras przy 320/390/1440 px, noindex/canonical, konsola/sieć, zgoda i krytyczne ścieżki; zapisać zredagowane wyniki, deployment ID i link do trwałych obrazów albo przepis na ponowienie. Testy nie zmieniły kodu aplikacji po commicie źródłowym.
 
-## Bramki zewnętrzne
+## Bramki zewnętrzne odnotowane 2026-09-29
 
 - Potwierdzić prawa do każdego wybranego kadru i rozpoznawalnych osób, zakres użycia materiału oraz uprawnienia lokalu; przechowywać dowody poza repozytorium.
 - Zatwierdzić treść polityki prywatności, dane administratora, hosting/odbiorców, retencję, mechanizm purge i procedurę żądań osób, których dane dotyczą.
 - Przed publikacją potwierdzić rzeczywisty host, HTTPS, redirecty hostów, wartości środowiskowe, autoryzowane kanały i kontakt, a po wdrożeniu sprawdzić rzeczywiste logi oraz Core Web Vitals z RUM.
 
-## Decyzja wydaniowa
+## Historyczna ocena dla Preview #4 z 2026-09-29
 
 - **TECHNICALLY READY: YES** w zakresie kontrolowanej bramki lokalnej i Preview #4: poprawne sekwencje lejków, text spacing 320 px, CLS, zgoda, izolacja KPI, pełny końcowy E2E i build mają dowód. To nie jest zgoda na wdrożenie Production ani formalna deklaracja dostępności.
 - **SHARED-DB PREVIEW HARDENED: YES**: środowisko i sesje są związane z Preview, telemetria jest dozwolona, mutacje biznesowe zablokowane, a KPI Production nie zmieniły się. Ten status dotyczy granicy wspólnej bazy; historyczny błąd kolejności B2B był osobnym problemem lejka, już rozwiązanym na Preview #4.
@@ -245,4 +247,4 @@ Siedem biznesowych RPC Production (dashboard, acquisition, dwie ścieżki market
 - **PREVIEW VERIFIED: YES** dla chronionego Preview #4 i wymienionych ścieżek technicznych. Preview #1–#3 pozostają historycznym dowodem wcześniejszych awarii; nie są bieżącym deploymentem weryfikacyjnym.
 - **PRODUCTION READY: NO**. Rejestr mediów wskazuje cztery kadry iGrania `RED` (autor, osoby, lokal oraz widoczne prace/ekran do wyjaśnienia) i znak marki `YELLOW` (niepełny łańcuch praw); brak też zatwierdzonych danych administratora, odbiorców/transferów, retencji, purge i procedur prywatności. Przed formalną deklaracją dostępności trzeba także domknąć trzy ręczne punkty macierzy, test czytnika ekranu i kwalifikację prawną EN/PAD. Weryfikacja prawdziwego hosta i produkcyjnego RUM również nie została wykonana.
 
-Kontrole z etapu Preview #3: `npm run verify` (**49 plików / 307 testów Vitest PASS**, 5 guard PASS, lint, TypeScript, Impeccable detect i build Next PASS), `npx supabase test db` (**23 pliki / 614 asercji PASS**), pełny `npm run test:e2e:local` — publiczne E2E **245 PASS, 103 SKIP, 0 FAIL**, Admin E2E **11 PASS, 33 SKIP, 0 FAIL**. Bieżące kontrole Preview #4 i ich wyniki są opisane w sekcji powyżej.
+Kontrole z etapu Preview #3: `npm run verify` (**49 plików / 307 testów Vitest PASS**, 5 guard PASS, lint, TypeScript, Impeccable detect i build Next PASS), `npx supabase test db` (**23 pliki / 614 asercji PASS**), pełny `npm run test:e2e:local` — publiczne E2E **245 PASS, 103 SKIP, 0 FAIL**, Admin E2E **11 PASS, 33 SKIP, 0 FAIL**. Kontrole historycznego Preview #4 i ich wyniki są opisane w sekcji powyżej.

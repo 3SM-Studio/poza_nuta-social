@@ -2,6 +2,9 @@
 
 This repository is an independent application. Never import code, database tables, auth state or runtime assumptions from another Poza Nutą application.
 
+Use `docs/INDEX.md` to find the canonical source for each area; check current Git state for task progress.
+Use `docs/RELEASE.md` for release procedure and authorization boundaries; dated checklists and Preview reports are evidence only.
+
 ## User communication language
 All user-facing progress updates, explanations, questions, approval requests, warnings, blockers, tool-result summaries, sub-agent findings, and final reports must be in Polish. Keep code, identifiers, commands, file paths, API names, raw errors and logs, test and migration names, and repository terminology in their natural technical language; do not translate identifiers for consistency.
 
@@ -12,7 +15,7 @@ All user-facing progress updates, explanations, questions, approval requests, wa
 4. Never add MUI, Chakra, Ant Design, Mantine, Bootstrap or another competing component library.
 5. Do not bypass `src/components/ui` with raw interactive form controls in application screens.
 6. Do not change durable product/design decisions silently. Propose the change instead.
-7. Run `npm run verify` on a connected Node 24 machine before merging release work.
+7. Use `docs/VERIFY.md` to select closure checks. Run `npm run verify:source` on Node 24 before merging release work; source PASS alone is not release approval.
 
 ## Public product invariants
 - Public name is Poza Nutą, not “Poza Nutą Social”.

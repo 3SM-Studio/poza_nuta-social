@@ -1,5 +1,7 @@
 # Codex handoff — locally verified repository
 
+This is a dated continuation checkpoint, not the current release procedure. Use `docs/RELEASE.md` for release actions and `docs/VERIFY.md` for current closure checks; recheck Git and platform state before acting.
+
 ## Current public IA, 2026-09-27
 
 `/karaoke` is the canonical participant page. `/karaoke-trojmiasto` permanently redirects to it; current navigation, canonical metadata and sitemap use `/karaoke`. The dated checkpoint below records the earlier route state.
@@ -26,7 +28,7 @@ This repository contains approved decisions 1–82, the explicit analytics refin
 - 100% Impeccable process for UI changes; approve the Codex project hook after install.
 - Public identity is Poza Nutą; “Poza Nutą Social” is not public naming.
 - Primary geography is Trójmiasto.
-- Homepage has no photography and no decorative gradients.
+- For current public media and visual constraints, use `PRODUCT.md` and `DESIGN.md`; superseded decisions are recorded in `docs/PRODUCT_DECISIONS.md`.
 - Final slogan remains unresolved; do not invent one.
 - No Stage/current-event CTA in current scope.
 - Official channel destinations + first-party contact only; no generic CTA builder.
@@ -66,7 +68,7 @@ Run actual rendered passes, not only source detection:
 Also run URL detection at mobile and desktop viewports after a local server/deployment is available.
 
 ## Supabase
-Create a new dedicated project. Apply **all** committed `supabase/migrations/*.sql` files in filename order with the controlled Supabase CLI migration workflow, including `20260922102559_admin_platform_v2.sql` and `20260923080812_post_admin_v2_audit_hardening.sql`. For an isolated local project, `npx supabase db reset --local` is the canonical complete replay and also applies `supabase/seed.sql`. Verify the linked remote project ID before any future remote migration; this hardening slice performs no remote database change.
+Use only the dedicated project after confirming its identity against current platform state. The migration filenames and verification results in this handoff are historical; use `docs/RELEASE.md` for the current all-pending-migrations workflow and authorization boundary. For an isolated local project, `npx supabase db reset --local` replays committed migrations and applies `supabase/seed.sql`.
 
 Use the modern publishable key in `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; legacy anon-key fallback exists only for compatibility. Use `SUPABASE_SECRET_KEY` server-side only. `SUPABASE_SERVICE_ROLE_KEY` is a narrowly documented legacy fallback for local/older projects and must never be exposed through `NEXT_PUBLIC_*`. Normal login uses `shouldCreateUser: false`; new-user creation happens only through the server invitation service. Configure `BOOTSTRAP_OWNER_EMAIL` only for the first owner, and configure hosted invite templates/redirect allowlists to match the repository contract before production testing.
 
