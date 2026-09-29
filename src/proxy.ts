@@ -9,17 +9,19 @@ import {
   verifyAnalyticsToken,
 } from "@/lib/analytics-token";
 import { acquisitionFromRequest } from "@/lib/analytics-taxonomy";
-import { readAnalyticsConsent } from "@/lib/tracking-context";
+import { readAnalyticsConsent, tokenMatchesEnvironment } from "@/lib/tracking-context";
+import { resolveServerEnvironment } from "@/lib/runtime-environment";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
   const now = Math.floor(Date.now() / 1000);
+  const environment = resolveServerEnvironment(request);
   const consented = await readAnalyticsConsent(request);
   let sessionToken: string | null = null;
   let acquisitionToken: string | null = null;
   if (consented && request.nextUrl.pathname !== "/api/consent") {
-    const existing = await verifyAnalyticsToken<{ id: string; exp: number }>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
-    sessionToken = await signAnalyticsToken("session", { id: existing?.id || crypto.randomUUID(), exp: now + SESSION_TTL_SECONDS });
+    const existing = await verifyAnalyticsToken<{ id: string; exp: number; environment?: typeof environment }>("session", request.cookies.get(ANALYTICS_SESSION_COOKIE)?.value);
+    sessionToken = await signAnalyticsToken("session", { id: tokenMatchesEnvironment(existing, environment) ? existing!.id : crypto.randomUUID(), environment, exp: now + SESSION_TTL_SECONDS });
     if (sessionToken) request.cookies.set(ANALYTICS_SESSION_COOKIE, sessionToken);
   }
   if (consented && (request.nextUrl.pathname === "/" || request.nextUrl.pathname === "/kontakt")) {
@@ -31,8 +33,9 @@ export async function proxy(request: NextRequest) {
       utmCampaign: request.nextUrl.searchParams.get("utm_campaign"),
       utmContent: request.nextUrl.searchParams.get("utm_content"),
     });
-    if (acquisition.source !== "direct") {
-      acquisitionToken = await signAnalyticsToken("acquisition", { acquisition, exp: now + SESSION_TTL_SECONDS });
+    const existing = await verifyAnalyticsToken<{ acquisition: typeof acquisition; exp: number; environment?: typeof environment }>("acquisition", request.cookies.get(ANALYTICS_ACQUISITION_COOKIE)?.value);
+    if (acquisition.source !== "direct" && !tokenMatchesEnvironment(existing, environment)) {
+      acquisitionToken = await signAnalyticsToken("acquisition", { acquisition, environment, exp: now + SESSION_TTL_SECONDS });
       if (acquisitionToken) request.cookies.set(ANALYTICS_ACQUISITION_COOKIE, acquisitionToken);
     }
   }
