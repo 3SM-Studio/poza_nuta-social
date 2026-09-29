@@ -32,7 +32,10 @@ const tempDir = mkdtempSync(join(dirname(target), ".safe-export-"));
 const tempArchive = join(tempDir, "archive.zip");
 try {
   execFileSync("git", ["archive", "--format=zip", `--output=${tempArchive}`, head], { cwd: root });
-  const entries = execFileSync("tar", ["-tf", tempArchive], { encoding: "utf8" }).split(/\r?\n/).filter(Boolean);
+  const listing = process.platform === "win32"
+    ? execFileSync("tar", ["-tf", tempArchive], { encoding: "utf8" })
+    : execFileSync("unzip", ["-Z", "-1", tempArchive], { encoding: "utf8" });
+  const entries = listing.split(/\r?\n/).filter(Boolean);
   if (entries.length === 0) throw new Error("archive is empty");
   const escaped = entries.filter(isForbidden);
   if (escaped.length) throw new Error(`forbidden archive path(s): ${escaped.join(", ")}`);

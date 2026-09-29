@@ -95,7 +95,9 @@ test("safe export refuses dirty state and produces an inspected committed archiv
     assert.equal(clean.status, 0, clean.output);
     const sha = run("git", ["rev-parse", "--short=12", "HEAD"], repo).output.trim();
     const archive = join(temp, `pozanuta-social-${sha}.zip`);
-    const listing = run("tar", ["-tf", archive], repo);
+    const listing = process.platform === "win32"
+      ? run("tar", ["-tf", archive], repo)
+      : run("unzip", ["-Z", "-1", archive], repo);
     assert.equal(listing.status, 0, listing.output);
     assert.match(listing.output, /source\.txt/);
     assert.match(listing.output, /\.env\.example/);
