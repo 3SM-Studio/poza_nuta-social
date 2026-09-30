@@ -656,6 +656,13 @@ test("local analytics preserves consented acquisition and returning visitor iden
   const page = await consented.newPage();
   await page.goto("/");
   await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
+  await expect.poll(async () => {
+    const cookies = await consented.cookies();
+    return {
+      visitor: cookies.some((cookie) => cookie.name === "pn_visitor"),
+      pending: cookies.some((cookie) => cookie.name === "pn_consent_preference"),
+    };
+  }).toEqual({ visitor: true, pending: false });
   const firstView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "contact_view");
   await page.goto("/kontakt");
   await firstView;
