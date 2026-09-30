@@ -27,7 +27,7 @@ Read these before changing product/UI behavior:
 - shadcn/ui `base-nova` with Base UI and the current `cn` package;
 - Impeccable detector in CI plus required Impeccable design workflow;
 - dedicated Supabase/Postgres + Auth;
-- existing Vercel deployment target; final production hosting choice remains open;
+- Vercel Git integration with `main` for integration and `production` for separately authorized Production releases; the future root-domain cutover remains open;
 - programmatic SVG QR generation;
 - Vitest unit tests + Playwright Chromium/WebKit E2E tests, including an opt-in local Supabase/Auth flow.
 

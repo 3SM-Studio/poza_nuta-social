@@ -2,6 +2,8 @@
 
 **CURRENT / CANONICAL procedure.** This document defines the release sequence, not a release approval or a record of current deployment state. Use [VERIFY.md](VERIFY.md) for change-class checks and completion states. Dated readiness reports and the [old release checklist](RELEASE_CHECKLIST.md) are evidence, not instructions for the next release.
 
+`main` is the integration branch. Vercel tracks `production` as its Production Branch; merging into `main` does not authorize or trigger a Production deployment. A release uses a reviewed PR to integrate the selected `main` state into `production`. Reconfirm the live Vercel branch setting and active deployment before each release. Merging into `production` is a consequential Production action and requires separate explicit authorization.
+
 ## 1. Fix the source and target
 
 - Record the exact branch, commit SHA and PR. Review the diff and require the deployed source to match the reviewed commit; resolve unexpected dirty or unreviewed files before proceeding.
@@ -20,6 +22,7 @@
 - If the release includes DB changes, first replay **all committed** `supabase/migrations/*.sql` on an isolated local stack and close the DB row of [VERIFY.md](VERIFY.md). Never select files from a hand-maintained list; never use a production reset or seed as a shortcut.
 - Before a remote write, independently confirm the linked Supabase project reference against the approved target and runtime configuration. Compare local and remote history with `npx supabase migration list --linked`; review the complete pending set with `npx supabase db push --linked --dry-run --skip-vault`. Reconcile any history mismatch, unexpected file, data migration or incompatible app/schema order before approval. The `--skip-vault` flag avoids an unrelated Vault update; seed data are not included.
 - Applying pending migrations with `npx supabase db push --linked --skip-vault` is a separate **production mutation requiring explicit authorization** for this exact target and pending set. Do not run it during documentation or Preview work. Afterwards, recheck remote migration history and affected schema, RLS, RPC and application paths with approved read-only checks. Record the outcome and any unresolved risk.
+- When a pending migration must precede the application, complete and verify that authorized migration before merging the release PR into `production`. A merge into `main` does not apply the migration or release the app.
 
 ## 4. Preview evidence
 
@@ -29,9 +32,9 @@
 
 ## 5. Production authorization and execution
 
-Finish all safe preparation first. Ask for explicit authorization naming the reviewed SHA, Production host/project, migration set (or none), deployment action, operator and rollback/forward-fix plan. No PR merge, CI PASS, Preview PASS or prior approval silently authorizes a new Production deploy or DB write.
+Finish all safe preparation first. Ask for explicit authorization naming the reviewed `main` SHA and release PR into `production`, Production host/project, migration set (or none), operator and rollback/forward-fix plan. A merge into `main`, CI PASS, Preview PASS or prior approval does not authorize a Production deploy or DB write. Do not merge the release PR into `production` without this authorization.
 
-After authorization, use the verified provider workflow for the approved target and the reviewed app/schema order. This repo has no Production deploy script and the final hosting choice is not fixed here, so this document does not invent a command. Confirm target identity again immediately before each consequential step; stop on a mismatch. Record deployment and migration identifiers as they become available.
+After authorization, use the reviewed app/schema order, then merge the approved release PR into `production`; Vercel's Git integration creates the Production deployment from that branch. This repo has no Production deploy script or canonical rollback command. Confirm target identity again immediately before each consequential step; stop on a mismatch. Record deployment and migration identifiers as they become available.
 
 ## 6. Production verification and recovery
 
