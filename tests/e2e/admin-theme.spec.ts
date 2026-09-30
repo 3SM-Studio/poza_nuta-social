@@ -137,6 +137,7 @@ test("authenticated Admin shell and forms use the same theme", async ({ page, re
 
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/admin");
+  await expect(page.locator('[data-slot="sidebar-container"]')).toHaveCount(0);
   await page.getByRole("button", { name: "Przełącz nawigację" }).first().click();
   const mobileSidebar = page.locator('[data-slot="sidebar"][data-mobile="true"]');
   await expect(mobileSidebar).toBeVisible();

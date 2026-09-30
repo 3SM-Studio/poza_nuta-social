@@ -104,7 +104,7 @@ test("pending accept synchronizes after recovery before full analytics starts", 
   await page.reload();
   await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
   await expect.poll(() => events.includes("page_view")).toBe(true);
-  expect((await context.cookies()).some((cookie) => cookie.name === "pn_consent_preference")).toBe(false);
+  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_consent_preference")).toBe(false);
 });
 
 test("forged local accept cannot grant analytics and replayed deny can only suppress it", async ({ page, context }) => {
