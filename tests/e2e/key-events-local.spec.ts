@@ -60,7 +60,7 @@ test("Key Events is admin-only and keeps event and session populations distinct"
     await page.goto(`/admin/key-events?${range}&scope=diagnostic`);
     await expect(page.getByRole("heading", { name: "Wyniki: 5 zdarzeń" })).toBeVisible();
     await page.goto("/admin/key-events?range=custom&from=2032-04-11&to=2032-04-11");
-    await expect(page.getByText("Brak Key Events w tym zakresie.")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "Brak Key Events w tym zakresie." }).filter({ visible: true })).toBeVisible();
     await page.goto("/admin/key-events?range=custom&from=2032-04-11&to=2032-04-10");
     await expect(page.getByRole("heading", { name: "Nieprawidłowy zakres dat" })).toBeVisible();
   } finally {
