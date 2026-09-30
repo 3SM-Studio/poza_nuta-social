@@ -8,7 +8,10 @@ Choose checks by changed behavior and risk. A green local command is evidence fo
 2. **SOURCE VERIFICATION:** On Node 24, `npm run verify:source` runs `guard`, `impeccable:detect`, `lint`, `typecheck`, `npm test` (Vitest plus Node guard tests), and `next build`. `npm run verify` is the compatible alias. This layer does not run DB, browser, accessibility, scenario, concurrency or hosted checks.
 3. **DOMAIN CLOSURE:** Add the checks in the matrix for each affected domain. A targeted PASS is useful feedback; the domain is closed only after all applicable local checks and required rendered/runtime evidence pass. For public UI release work, follow the Impeccable audit/critique/harden/polish process in `AGENTS.md`; source detection alone does not prove rendered quality.
 4. **HOSTED INTEGRATION:** For a PR, check the actual GitHub CI run for the exact HEAD. `.github/workflows/ci.yml` defines four jobs: `verify` (which runs the source gate and `npm audit --audit-level=moderate`), `public-e2e`, `public-accessibility` and `database`. They run for PRs and pushes to `main`. Check the effective GitHub rulesets for both `main` and `production` before merging; workflow configuration alone does not prove that required checks are enforced.
+
 5. **RELEASE CLOSURE:** Use [RELEASE.md](RELEASE.md) for the current procedure, external approvals, production authorization, deployment evidence and post-deploy checks. This is separate from local and CI PASS.
+
+Playwright keeps two CI retries for diagnosing transient failures, but `failOnFlakyTests` makes a test that passes only on retry fail its job. The built-in GitHub reporter emits passed, failed, flaky and skipped counts when present; a green check therefore means no flaky result. Project-specific skips are expected: public specs run across four browser/viewport projects, while local Auth/Admin scenarios require their designated project and isolated stack. Inspect skipped test names before treating a changed count as a regression.
 
 ## Change-class closure matrix
 

@@ -20,7 +20,6 @@ export default async function Image() {
       <div style={{ display: "flex", flex: 1, alignItems: "center", gap: 70 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "center", width: 266, height: 266, background: "#ff4fa3" }}>
           {/* ImageResponse renders the supplied brand SVG without reconstructing its geometry. */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logoUrl} width={226} height={226} alt="" />
         </div>
         <div style={{ display: "flex", flexDirection: "column", maxWidth: 700 }}>
