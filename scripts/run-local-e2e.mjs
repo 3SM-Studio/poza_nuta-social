@@ -1,4 +1,5 @@
 import { execSync, spawnSync } from "node:child_process";
+import { readdirSync } from "node:fs";
 import { createClient } from "@supabase/supabase-js";
 
 const status = execSync("npx supabase status -o env", { encoding: "utf8" });
@@ -36,12 +37,26 @@ const env = {
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: local.PUBLISHABLE_KEY,
   SUPABASE_SECRET_KEY: secretKey,
   ANALYTICS_SIGNING_SECRET: "local-e2e-analytics-signing-key-32-characters",
-  VERCEL_ENV: "production",
+  // Local browser traffic must remain outside Business reporting, even when
+  // a test exercises a public route without a signed test marker.
   BOOTSTRAP_OWNER_EMAIL: email,
   CONTACT_EMAIL: "kontakt@pozanuta.test",
   LOCAL_ADMIN_E2E_EMAIL: email,
   LOCAL_MAILPIT_URL: local.MAILPIT_URL,
 };
-const command = `npm run test:e2e -- ${process.argv.slice(2).map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
-const result = spawnSync(command, { cwd: process.cwd(), env, shell: true, stdio: "inherit" });
-process.exit(result.status ?? 1);
+const requested = process.argv.slice(2);
+const specs = readdirSync("tests/e2e").filter((name) => name.endsWith(".spec.ts")).map((name) => `tests/e2e/${name}`);
+const requestedSpecs = requested.filter((part) => part.endsWith(".spec.ts"));
+const options = requested.filter((part) => !part.endsWith(".spec.ts"));
+const selectedSpecs = requestedSpecs.length ? requestedSpecs : specs;
+const previewSpecs = selectedSpecs.filter((name) => !name.endsWith("admin-local.spec.ts"));
+const productionSpecs = selectedSpecs.filter((name) => name.endsWith("admin-local.spec.ts"));
+const phases = [
+  ...(previewSpecs.length ? [{ environment: "preview", args: [...previewSpecs, ...options] }] : []),
+  ...(productionSpecs.length ? [{ environment: "production", args: [...productionSpecs, ...options] }] : []),
+];
+for (const phase of phases) {
+  const command = `npm run test:e2e:playwright -- ${phase.args.map((part) => `"${part.replaceAll('"', '\\"')}"`).join(" ")}`;
+  const result = spawnSync(command, { cwd: process.cwd(), env: { ...env, VERCEL_ENV: phase.environment }, shell: true, stdio: "inherit" });
+  if (result.status !== 0) process.exit(result.status ?? 1);
+}

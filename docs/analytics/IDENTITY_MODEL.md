@@ -10,7 +10,7 @@ Status: implementation contract. This supersedes approved decision 34 only where
 
 ### Session
 
-`pn_session` is a random UUID with approximately 30 minutes of inactivity semantics. It is created early by the server proxy so the page view and an immediate `/go` click share identity. Without analytics consent it remains session-scoped and is not linked across sessions. Each session has independent acquisition even when linked to a returning visitor.
+`pn_session` is a random UUID with approximately 30 minutes of inactivity semantics. It is first created when analytics consent is granted and then refreshed by the server proxy, so consented page views and immediate `/go` clicks share identity. No public analytics session exists before consent. Each consented session has independent acquisition even when linked to a returning visitor.
 
 ### Event
 
@@ -18,18 +18,18 @@ An event has an immutable UUID, session UUID, optional visitor UUID, server time
 
 ## Token integrity
 
-Visitor, session, exclusion, and test markers use server-issued HMAC tokens. A syntactically valid unsigned UUID is not sufficient to claim an existing identity or internal/test status. Invalid signatures create a fresh external session and are recorded only as an aggregate quality reason, never with the forged value.
+Visitor, session, exclusion, and test markers use server-issued HMAC tokens. A syntactically valid unsigned UUID is not sufficient to claim an existing identity or internal/test status. Invalid signatures do not enable tracking before consent; after consent, a fresh session may be created without retaining the forged value.
 
 ## Transitions
 
 | Situation | Visitor | Session |
 | --- | --- | --- |
-| analytics denied | none | new/reused signed 30-minute session |
-| analytics granted first time | create visitor | attach current session at next ingest |
+| analytics denied | none | none |
+| analytics granted first time | create visitor | create signed 30-minute session |
 | return within 10 minutes | reuse visitor | reuse session |
 | return after 45 minutes | reuse visitor | new session |
 | next day/month within visitor lifetime | reuse visitor | new session |
-| consent withdrawn | delete browser visitor token; future sessions unlinked | current session may continue without visitor link |
+| consent withdrawn | delete browser visitor token; future events stop | delete browser session and acquisition tokens |
 | cookie deleted/incognito/new device | new or no visitor | new session |
 
 Withdrawal stops future identity linking and external sinks immediately. Deletion/anonymization of already retained first-party data requires a separate reviewed policy and cannot be promised solely from a cookie UI.

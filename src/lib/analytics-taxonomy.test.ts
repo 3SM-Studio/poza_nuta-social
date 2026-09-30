@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { acquisitionFromRequest, domainMatches, officialDestinationUrl, sanitizePath, sanitizeTaxonomyValue, trackingAcquisition } from "./analytics-taxonomy";
+import { acquisitionFromRequest, domainMatches, officialDestinationUrl, sanitizeReferralLandingPath, sanitizeTaxonomyValue, trackingAcquisition } from "./analytics-taxonomy";
+import { isPublicPath, publicPaths } from "./public-paths";
 
 describe("analytics taxonomy", () => {
   it("classifies known domains without accepting lookalikes", () => {
@@ -10,6 +11,10 @@ describe("analytics taxonomy", () => {
   it.each([
     ["https://chatgpt.com/", "ai_referral", "chatgpt", "referral"],
     ["https://chat.openai.com/c/abc", "ai_referral", "chatgpt", "referral"],
+    ["https://www.perplexity.ai/search", "ai_referral", "perplexity", "referral"],
+    ["https://gemini.google.com/app", "ai_referral", "gemini", "referral"],
+    ["https://copilot.microsoft.com/", "ai_referral", "copilot", "referral"],
+    ["https://claude.ai/new", "ai_referral", "claude", "referral"],
     ["https://www.google.com/search?q=poza+nuta", "organic_search", "google", "organic"],
     ["https://news.google.com/articles/x", "organic_search", "google", "organic"],
     ["https://facebook.com/poza.nuta", "organic_social", "facebook", "social"],
@@ -21,6 +26,7 @@ describe("analytics taxonomy", () => {
     ["https://instagram.com.evil.example/", "instagram.com.evil.example"],
     ["https://google.com.attacker.example/", "google.com.attacker.example"],
     ["https://chatgpt.com.fake.example/", "chatgpt.com.fake.example"],
+    ["https://perplexity.ai.fake.example/", "perplexity.ai.fake.example"],
   ])("does not trust lookalike %s", (referrer, source) => {
     expect(acquisitionFromRequest({ referrer })).toMatchObject({ channelGroup: "referral", source, medium: "referral" });
   });
@@ -55,10 +61,16 @@ describe("analytics taxonomy", () => {
     expect(officialDestinationUrl("instagram", "https://instagram.com.evil.example/phish")).toBeNull();
     expect(officialDestinationUrl("website", "javascript:alert(1)")).toBeNull();
   });
-  it.each(["/admin", "/api/track", "/auth/callback", "/go/instagram", "/r/ABCDE", "//evil.example", "/%2e%2e/admin", "/kontakt/../admin", "https://evil.example"])("rejects landing path %s", (path) => {
-    expect(sanitizePath(path)).toBe("/");
+  it.each(["/admin", "/api/track", "/auth/callback", "/go/instagram", "/r/ABCDE", "//evil.example", "/%2e%2e/admin", "/kontakt/../admin", "https://evil.example", "/karaoke-trojmiasto", "/unknown", "/privacy", "/prywatnosc?x=1"])("rejects non-page path %s", (path) => {
+    expect(isPublicPath(path)).toBe(false);
   });
-  it.each(["/", "/kontakt"])("allows public landing path %s", (path) => {
-    expect(sanitizePath(path)).toBe(path);
+  it.each(publicPaths)("preserves public page path %s", (path) => {
+    expect(isPublicPath(path)).toBe(true);
+  });
+  it.each(["/", "/kontakt"])("preserves referral landing path %s", (path) => {
+    expect(sanitizeReferralLandingPath(path)).toBe(path);
+  });
+  it.each(["/karaoke-trojmiasto", "/dla-lokali", "/linki", "/prywatnosc", "/privacy", "/cookies", "/go/instagram", "/admin"])("does not expand referral landing path to %s", (path) => {
+    expect(sanitizeReferralLandingPath(path)).toBe("/");
   });
 });

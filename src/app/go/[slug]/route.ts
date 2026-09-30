@@ -1,5 +1,7 @@
 import { type NextRequest } from "next/server";
-import { trackEventBestEffort } from "@/lib/analytics";
+import { trackEventBestEffort } from "@/lib/analytics/server";
+import { effectiveAnalyticsMode } from "@/lib/analytics-mode";
+import { trackCookielessBestEffort } from "@/lib/cookieless-analytics";
 import { officialDestinationUrl } from "@/lib/analytics-taxonomy";
 import { getPublicDestinations } from "@/lib/destinations";
 import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
@@ -11,15 +13,21 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const destination = (await getPublicDestinations()).find((item) => item.slug === slug) || null;
   const target = destination ? officialDestinationUrl(destination.slug, destination.url) : null;
   if (!destination || !target) return noIndexRedirect(new URL("/", request.url));
+  if ((await effectiveAnalyticsMode(request)) === "cookieless") {
+    try {
+      await trackCookielessBestEffort({ eventId: crypto.randomUUID(), eventName: "outbound_click", path: `/go/${destination.slug}`, request, destination, qualitySurface: "outbound_redirect" });
+    } catch { console.error("cookieless outbound failed", { surface: "outbound_redirect", reason: "primary_ingest_failure" }); }
+    return noIndexRedirect(new URL(target));
+  }
 
   const { context, cookies } = await buildTrackingContext(request);
   try {
     await trackEventBestEffort({
       eventId: crypto.randomUUID(), eventName: "outbound_click", path: `/go/${destination.slug}`,
-      context, destination,
+      context, destination, qualitySurface: "outbound_redirect",
     });
-  } catch (error) {
-    console.error("tracking outbound failed", error);
+  } catch {
+    console.error("tracking outbound failed", { surface: "outbound_redirect", reason: "primary_ingest_failure" });
   }
 
   const response = noIndexRedirect(new URL(target));

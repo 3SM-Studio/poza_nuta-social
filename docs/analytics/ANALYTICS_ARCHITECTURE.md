@@ -4,7 +4,7 @@ Status: implementation contract, 2026-09-20.
 
 ## Purpose and boundary
 
-Postgres is the primary source of truth. The model is `anonymous_visitor -> analytics_session -> analytics_event`. It measures pseudonymous browser contexts, not people. The public experience stays server-first and usable when analytics is unavailable.
+Postgres is the primary source of truth. After server-confirmed consent, the model is `anonymous_visitor -> analytics_session -> analytics_event`. Before confirmation, eligible events use separate identity-free `analytics_cookieless_events` storage. The full model measures pseudonymous browser contexts, not people. The public experience stays server-first and usable when analytics is unavailable.
 
 The system never stores raw IP addresses, fingerprints, precise location, exact device model, or a service-role credential in the browser. Analytics failure is observable but never intentionally blocks `/r` or `/go` navigation.
 
@@ -73,4 +73,4 @@ Cookies identify a browser context, not a person. Multiple devices, cleared cook
 
 ## Privileged-account review
 
-Authentication requires a verified Supabase Auth user plus a fresh active database membership and server-enforced owner/admin/viewer role; viewers cannot mutate. Login responses do not enumerate membership or pending-invitation state. `BOOTSTRAP_OWNER_EMAIL` can create only the first owner and is not a steady-state bypass. Local Auth disables open public signup and applies email throttling, but production still requires identified SMTP, reviewed Supabase Auth rate limits, scanner-safe magic-link/invite delivery education, and a decision on MFA for owner/admin accounts. Email security scanners can consume or pre-open links; this must be tested with the selected production provider. Magic link alone is not treated as a complete privileged-account risk program.
+Authentication requires a verified Supabase Auth user plus a fresh active database membership and server-enforced owner/admin/viewer role; viewers cannot mutate. Login responses do not enumerate membership or pending-invitation state. `BOOTSTRAP_OWNER_EMAIL` can create only the first owner and is not a steady-state bypass. Local Auth disables open public signup and applies email throttling; production requires the signed Send Email Hook and verified Resend sender described in `docs/admin/AUTH_EMAIL_DELIVERY.md`, reviewed Supabase Auth rate limits, scanner-safe magic-link/invite delivery education, and a decision on MFA for owner/admin accounts. Email security scanners can consume or pre-open links; this must be tested with the selected production provider. Magic link alone is not treated as a complete privileged-account risk program.

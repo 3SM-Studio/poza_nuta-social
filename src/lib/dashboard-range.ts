@@ -19,12 +19,12 @@ export function resolveDashboardRange(params: Record<string, string | string[] |
   if (key === "custom") {
     const rawFrom = one(params.from);
     const rawTo = one(params.to);
-    if (isValidDate(rawFrom) && isValidDate(rawTo) && rawFrom <= rawTo) {
+    if (isValidDashboardDate(rawFrom) && isValidDashboardDate(rawTo) && rawFrom <= rawTo) {
       return buildRange(rawFrom, rawTo, "custom", `${rawFrom} – ${rawTo}`);
     }
   }
 
-  const days = key === "today" ? 1 : Number(key);
+  const days = key === "today" ? 1 : key === "custom" ? 30 : Number(key);
   const from = addDays(today, -(days - 1));
   return buildRange(from, today, key === "custom" ? "30" : key, key === "today" ? "Dziś" : `Ostatnie ${days} dni`);
 }
@@ -74,10 +74,14 @@ function diffDays(from: string, toExclusive: string) {
   return Math.max(1, Math.round((b - a) / 86_400_000));
 }
 
-function isValidDate(value: string | undefined): value is string {
-  if (!value || !DATE_RE.test(value)) return false;
+export function isValidDashboardDate(value: unknown): value is string {
+  if (typeof value !== "string" || !DATE_RE.test(value)) return false;
   const parsed = new Date(`${value}T00:00:00Z`);
   return Number.isFinite(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+}
+
+export function dashboardRangeDays(range: DashboardRange): number {
+  return diffDays(range.from, range.toExclusive);
 }
 
 function one(value: string | string[] | undefined) {

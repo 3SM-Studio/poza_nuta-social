@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { join } from "node:path";
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
+import { createLocalAuthUser, createLocalTeamMember, loginWithMagicEmail, mailMessageIds, newMessageUrl, requestMagicLink } from "./helpers/local-admin-auth";
 
 const adminEmail = process.env.LOCAL_ADMIN_E2E_EMAIL;
 const mailpitUrl = process.env.LOCAL_MAILPIT_URL;
@@ -8,7 +9,27 @@ const screenshotDir = process.env.LOCAL_E2E_SCREENSHOT_DIR;
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-test.describe.configure({ mode: "serial" });
+// One local worker protects shared Mailpit and RPC grants; a failed scenario must not skip the rest.
+test.describe.configure({ mode: "default" });
+
+test("unknown email stays non-enumerating and owner logout clears Admin access", async ({ page, request }, testInfo) => {
+  test.setTimeout(60_000);
+  test.skip(!adminEmail || !mailpitUrl || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth and Mailpit");
+
+  const prior = await mailMessageIds(request);
+  await page.goto("/admin/login");
+  await page.getByLabel("E-mail").fill(`unknown-${Date.now()}@pozanuta.test`);
+  await page.getByRole("button", { name: "Wyślij magic link" }).click();
+  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
+  expect(await mailMessageIds(request)).toEqual(prior);
+
+  await loginWithMagicEmail(page, request, adminEmail!);
+  await expect(page.getByRole("heading", { name: "Co naprawdę działa?" })).toBeVisible();
+  await page.getByRole("button", { name: "Wyloguj" }).click();
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await page.goto("/admin");
+  await expect(page).toHaveURL(/\/admin\/login$/);
+});
 
 test("local owner can authenticate and complete the campaign-to-QR flow", async ({ browser, page, request }, testInfo) => {
   test.setTimeout(90_000);
@@ -19,27 +40,7 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
   const campaignSlug = `lokalny-test-e2e-${runId}`;
   const linkLabel = `Plakat lokalny ${runId}`;
 
-  await page.goto("/admin/login");
-  await waitForHydration(page);
-  await page.getByLabel("E-mail").fill(adminEmail!);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-    const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.[0]?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-
-  const messageResponse = await request.get(`${mailpitUrl}/api/v1/message/${messageId}`);
-  const message = await messageResponse.json() as { HTML?: string; Text?: string };
-  const messageBody = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const magicUrl = messageBody.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  expect(magicUrl, "Mailpit message should contain a Supabase verification URL").toBeTruthy();
-
-  await page.goto(magicUrl!);
+  await loginWithMagicEmail(page, request, adminEmail!);
   await waitForHydration(page);
   await expect(page.getByRole("heading", { name: "Co naprawdę działa?" })).toBeVisible();
   await expect(page.getByText("admin@pozanuta.test", { exact: true })).toBeVisible();
@@ -85,6 +86,7 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
   await expect(page.getByText("website", { exact: true })).toBeVisible();
 
   const publicContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  expect((await publicContext.request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   const publicPage = await publicContext.newPage();
   const firstPageView = publicPage.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().method() === "POST");
   await publicPage.goto(`/r/${trackingCode}`);
@@ -100,6 +102,7 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
   await page.goto("/admin");
   await page.getByRole("button", { name: "Tryb testowy (2 h)" }).click();
   await expect.poll(async () => (await page.context().cookies()).some((cookie) => cookie.name === "pn_analytics_test" && cookie.httpOnly)).toBe(true);
+  expect((await page.context().request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   const testPageView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view");
   await page.goto("/");
   await testPageView;
@@ -123,12 +126,32 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
       await page.goto(route);
       await waitForHydration(page);
       await expect(page.getByRole("heading", { name: heading, level: 1 })).toBeVisible();
+      if (route === "/admin/team") {
+        const membersTable = page.getByRole("table").first();
+        await expect(membersTable).toBeVisible();
+        await expect(membersTable.getByRole("columnheader", { name: "Osoba" })).toHaveCount(1);
+        expect(await membersTable.evaluate((table) => getComputedStyle(table).display)).toBe(viewport.width < 768 ? "block" : "table");
+      }
       await testInfo.attach(`${viewport.name}-${route.replaceAll("/", "-") || "home"}`, {
         body: await page.screenshot({ fullPage: true }),
         contentType: "image/png",
       });
       if (screenshotDir) {
         await page.screenshot({ path: join(screenshotDir, `${viewport.name}-${route.replaceAll("/", "-") || "home"}.png`), fullPage: true });
+      }
+      if (route === "/admin/team" || route === "/admin/referrals") {
+        const card = page.locator("[data-slot=card]").first();
+        const darkBackground = await card.evaluate((element) => getComputedStyle(element).backgroundColor);
+        await page.locator(".admin-theme").evaluate((element) => element.classList.remove("dark"));
+        expect(await page.evaluate(() => getComputedStyle(document.documentElement).colorScheme)).toBe("light");
+        expect(await card.evaluate((element) => getComputedStyle(element).backgroundColor)).not.toBe(darkBackground);
+        await testInfo.attach(`${viewport.name}-${route.replaceAll("/", "-")}-light`, {
+          body: await page.screenshot({ fullPage: true }),
+          contentType: "image/png",
+        });
+        if (screenshotDir) {
+          await page.screenshot({ path: join(screenshotDir, `${viewport.name}-${route.replaceAll("/", "-")}-light.png`), fullPage: true });
+        }
       }
       const layout = await page.evaluate(() => ({
         overflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -141,6 +164,86 @@ test("local owner can authenticate and complete the campaign-to-QR flow", async 
           .slice(0, 8),
       }));
       expect(layout.overflow, `${route} should not overflow at ${viewport.width}px: ${JSON.stringify(layout.offenders)}`).toBeLessThanOrEqual(0);
+    }
+  }
+});
+
+test("Team and Referrals keep mobile table semantics, status labels, and actions", async ({ page, request }, testInfo) => {
+  test.setTimeout(60_000);
+  test.skip(!adminEmail || !mailpitUrl || !supabaseUrl || !serviceKey || testInfo.project.name !== "desktop-chromium", "Requires isolated local Auth, Mailpit and database");
+  const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
+  const { data: owner, error: ownerError } = await admin.from("admin_profiles").select("user_id,email").eq("role", "owner").eq("status", "active").single();
+  if (ownerError || !owner) throw new Error(ownerError?.message || "Local E2E owner is unavailable");
+  const memberFixture = await createLocalTeamMember(admin, "mobile-member", owner.user_id, owner.email);
+  const name = `Mobilny uczestnik ${memberFixture.id.slice(0, 8)}`;
+  const linkName = `Mobilny link ${memberFixture.id.slice(0, 8)}`;
+  try {
+    await loginWithMagicEmail(page, request, adminEmail!);
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    await page.goto("/admin/team");
+    const member = page.getByRole("row").filter({ hasText: memberFixture.email });
+    await expect(member.getByText("Status:")).toBeVisible();
+    const changeRole = member.getByRole("button", { name: "Zmień rolę" });
+    await changeRole.scrollIntoViewIfNeeded();
+    await expect(changeRole).toBeInViewport();
+    expect(await changeRole.evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+
+    await page.goto("/admin/referrals");
+    await page.getByRole("button", { name: "Dodaj uczestnika" }).click();
+    await page.getByLabel("Nazwa wyświetlana").fill(name);
+    await page.getByRole("button", { name: "Dodaj uczestnika", exact: true }).click();
+    const participant = page.getByRole("row").filter({ hasText: name }).filter({ has: page.getByRole("button", { name: "Nowy link" }) });
+    await expect(participant.getByText("Status:")).toBeVisible();
+    await expect(participant).toContainText("aktywny");
+    await participant.getByRole("button", { name: "Nowy link" }).click();
+    await page.getByLabel("Nazwa linku").fill(linkName);
+    await page.getByRole("button", { name: "Utwórz link" }).click();
+    const link = page.getByRole("row").filter({ hasText: linkName });
+    await expect(link).toBeVisible();
+    await expect(page.getByRole("table").first()).toBeVisible();
+    await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(2);
+    await expect(link.getByText("Status:")).toBeVisible();
+    await expect(link).toContainText("Aktywny");
+    const copy = link.getByRole("button", { name: "Kopiuj" });
+    await copy.scrollIntoViewIfNeeded();
+    await expect(copy).toBeInViewport();
+    expect(await copy.evaluate((button) => button.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
+    await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("clipboard blocked"); } } }));
+    await copy.click();
+    await expect(link.getByRole("alert")).toContainText("Zaznacz adres");
+    await expect(link.getByRole("textbox", { name: "Adres linku do ręcznego skopiowania" })).toBeVisible();
+    expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
+  } finally {
+    try {
+      const { data: link, error: linkReadError } = await admin.from("tracking_links").select("id,active").eq("label", linkName).maybeSingle();
+      if (linkReadError) throw new Error(linkReadError.message);
+      if (link?.active) {
+        const { error } = await admin.rpc("admin_tracking_link_toggle_v1", {
+          p_actor_user_id: owner.user_id,
+          p_actor_email: owner.email,
+          p_tracking_link_id: link.id,
+        });
+        if (error) throw new Error(error.message);
+      }
+    } finally {
+      try {
+        const { data: participant, error: participantReadError } = await admin.from("referral_participants").select("id,status").eq("display_name", name).maybeSingle();
+        if (participantReadError) throw new Error(participantReadError.message);
+        if (participant?.status === "active") {
+          const { error } = await admin.rpc("admin_referral_participant_update_v1", {
+            p_actor_user_id: owner.user_id,
+            p_actor_email: owner.email,
+            p_participant_id: participant.id,
+            p_display_name: name,
+            p_status: "inactive",
+            p_linked_user_id: null,
+          });
+          if (error) throw new Error(error.message);
+        }
+      } finally {
+        await memberFixture.cleanup();
+      }
     }
   }
 });
@@ -170,6 +273,16 @@ test("database membership authorizes viewer and admin while rejecting inactive, 
   await viewerPage.goto("/admin/campaigns");
   await expect(viewerPage.getByText(/Tryb tylko do odczytu/)).toBeVisible();
   await expect(viewerPage.getByRole("button", { name: "Utwórz kampanię" })).toHaveCount(0);
+  await viewerPage.goto("/admin/funnels");
+  await expect(viewerPage.getByRole("heading", { name: "Analiza funnelu" })).toBeVisible();
+  await expect(viewerPage.getByRole("link", { name: "Funnele" })).toBeVisible();
+  await viewerPage.goto("/admin/key-events");
+  await expect(viewerPage.getByRole("heading", { name: "Key Events / Outcomes" })).toBeVisible();
+  await expect(viewerPage.getByRole("link", { name: "Key Events" })).toBeVisible();
+  await viewerPage.goto("/admin/attribution");
+  await expect(viewerPage.getByRole("heading", { name: "Attribution", exact: true })).toBeVisible();
+  await expect(viewerPage.getByRole("link", { name: "Attribution" })).toBeVisible();
+  await expect(viewerPage.getByRole("button", { name: /utwórz|zapisz|usuń/i })).toHaveCount(0);
   await viewerPage.goto("/admin/team");
   await expect(viewerPage.getByText(/dostęp tylko do odczytu/i)).toBeVisible();
   await expect(viewerPage.getByRole("button", { name: "Zaproś osobę" })).toHaveCount(0);
@@ -270,7 +383,7 @@ test("Team and Access reconciles existing and new Auth users, role changes, deac
   const beforeNewInvite = await mailMessageIds(request);
   await inviteFromTeamPage(page, newEmail, "viewer");
   await expect(page.getByText(/zapisano i wysłano/i)).toBeVisible();
-  const inviteUrl = await newMessageUrl(request, beforeNewInvite, /https?:\/\/[^\s"'<>]+\/auth\/confirm\?[^\s"'<>]+/);
+  const inviteUrl = await newMessageUrl(request, beforeNewInvite, /https?:\/\/[^\s"'<>]+\/auth\/confirm\?[^\s"'<>]+/, newEmail);
   const newUserContext = await browser.newContext();
   const newUserPage = await newUserContext.newPage();
   await newUserPage.goto(inviteUrl);
@@ -452,10 +565,6 @@ test("admin sidebar collapses, persists, identifies active routes, and behaves a
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/admin/team");
   await expect(page.getByRole("heading", { name: "Zespół i dostęp" })).toBeVisible();
-  const memberWithActions = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Zmień rolę" }) }).first();
-  await expect(memberWithActions.getByRole("button", { name: "Zmień rolę" })).toBeInViewport();
-  expect(await memberWithActions.getByRole("button", { name: "Zmień rolę" }).evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-  await expect(memberWithActions.getByText("Status:")).toBeVisible();
   const mobileTrigger = page.locator('[data-slot="sidebar-trigger"]');
   await expect(mobileTrigger).toHaveAttribute("aria-expanded", "false");
   await mobileTrigger.click();
@@ -464,21 +573,22 @@ test("admin sidebar collapses, persists, identifies active routes, and behaves a
   await expect(mobileNavigation).toBeVisible();
   await expect(mobileNavigation.getByRole("button", { name: "Zamknij" })).toBeVisible();
   await expect.poll(() => mobileNavigation.evaluate((node) => getComputedStyle(node).opacity)).toBe("1");
-  expect(await mobileNavigation.evaluate((node) => getComputedStyle(node).backgroundColor)).toBe("rgb(23, 19, 23)");
+  const sidebarColor = await mobileNavigation.evaluate((node) => {
+    const actual = getComputedStyle(node).backgroundColor;
+    const token = getComputedStyle(document.documentElement).getPropertyValue("--sidebar");
+    const swatch = document.createElement("div");
+    swatch.style.backgroundColor = token;
+    document.body.append(swatch);
+    const expected = getComputedStyle(swatch).backgroundColor;
+    swatch.remove();
+    return { actual, expected };
+  });
+  expect(sidebarColor.actual).toBe(sidebarColor.expected);
   await page.screenshot({ path: testInfo.outputPath("admin-mobile-sheet.png") });
   await mobileNavigation.getByRole("link", { name: "Kampanie" }).click();
   await expect(page).toHaveURL(/\/admin\/campaigns$/);
   await expect(mobileNavigation).toBeHidden();
   await expect(page.getByRole("heading", { name: "Kampanie", level: 1 })).toBeVisible();
-  await page.goto("/admin/referrals");
-  const linkWithCopy = page.getByRole("row").filter({ has: page.getByRole("button", { name: "Kopiuj" }) }).first();
-  await linkWithCopy.scrollIntoViewIfNeeded();
-  await expect(linkWithCopy.getByRole("button", { name: "Kopiuj" })).toBeInViewport();
-  expect(await linkWithCopy.getByRole("button", { name: "Kopiuj" }).evaluate((node) => node.getBoundingClientRect().height)).toBeGreaterThanOrEqual(44);
-  await page.evaluate(() => Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async () => { throw new Error("clipboard blocked"); } } }));
-  await linkWithCopy.getByRole("button", { name: "Kopiuj" }).click();
-  await expect(linkWithCopy.getByRole("alert")).toContainText("Zaznacz adres");
-  await expect(linkWithCopy.getByRole("textbox", { name: "Adres linku do ręcznego skopiowania" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth)).toBeLessThanOrEqual(0);
   await page.setViewportSize({ width: 390, height: 450 });
   await page.goto("/admin/team");
@@ -521,12 +631,15 @@ test("ownership transfer is atomic in the UI and the new owner can transfer it b
   await successorContext.close();
 });
 
-test("local analytics preserves immediate acquisition and consent-gated returning visitor identity", async ({ browser }, testInfo) => {
+test("local analytics preserves consented acquisition and returning visitor identity", async ({ browser }, testInfo) => {
   test.skip(!supabaseUrl || !serviceKey || testInfo.project.name !== "desktop-chromium", "Requires the isolated local Supabase stack");
   const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
 
   const immediate = await browser.newContext({ javaScriptEnabled: false });
   const landing = await immediate.newPage();
+  await landing.goto("/?utm_source=chatgpt&utm_medium=referral&utm_campaign=instant-race");
+  expect((await immediate.cookies()).some((cookie) => cookie.name === "pn_session")).toBe(false);
+  expect((await immediate.request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   await landing.goto("/?utm_source=chatgpt&utm_medium=referral&utm_campaign=instant-race");
   const sessionCookie = (await immediate.cookies()).find((cookie) => cookie.name === "pn_session");
   expect(sessionCookie).toBeTruthy();
@@ -593,6 +706,7 @@ test("local contact journey emits one view and one click with preserved attribut
   const admin = createClient(supabaseUrl!, serviceKey!, { auth: { autoRefreshToken: false, persistSession: false } });
   const context = await browser.newContext();
   const page = await context.newPage();
+  expect((await context.request.post("/api/consent", { data: { analytics: true } })).ok()).toBe(true);
   const contactView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "contact_view");
   await page.goto("/kontakt?utm_source=chatgpt&utm_medium=referral&utm_campaign=contact-test");
   await contactView;
@@ -616,45 +730,9 @@ async function waitForHydration(page: import("@playwright/test").Page) {
   await page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
 }
 
-async function createLocalAuthUser(admin: SupabaseClient, email: string) {
-  const { data, error } = await admin.auth.admin.createUser({ email, email_confirm: true });
-  if (error || !data.user) throw new Error(error?.message || `Unable to create ${email}`);
-  return { id: data.user.id, email };
-}
-
 function decodeAnalyticsCookie(value?: string) {
   if (!value) return "";
   return JSON.parse(Buffer.from(value.split(".")[0], "base64url").toString("utf8")).id as string;
-}
-
-async function loginWithMagicEmail(page: import("@playwright/test").Page, request: import("@playwright/test").APIRequestContext, email: string) {
-  const magicUrl = await requestMagicLink(page, request, email);
-  await page.goto(magicUrl);
-  await waitForHydration(page);
-}
-
-async function requestMagicLink(page: import("@playwright/test").Page, request: import("@playwright/test").APIRequestContext, email: string) {
-  if (!mailpitUrl) throw new Error("Mailpit is required");
-  const beforeResponse = await request.get(`${mailpitUrl}/api/v1/messages`);
-  const beforeMailbox = await beforeResponse.json() as { messages?: Array<{ ID?: string }> };
-  const existingIds = new Set(beforeMailbox.messages?.map((message) => message.ID).filter(Boolean));
-  await page.goto("/admin/login");
-  await page.getByLabel("E-mail").fill(email);
-  await page.getByRole("button", { name: "Wyślij magic link" }).click();
-  await expect(page.getByText(/Link do logowania został wysłany/)).toBeVisible();
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-    const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !existingIds.has(message.ID))?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-  const messageResponse = await request.get(`${mailpitUrl}/api/v1/message/${messageId}`);
-  const message = await messageResponse.json() as { HTML?: string; Text?: string };
-  const body = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const magicUrl = body.match(/https?:\/\/[^\s"'<>]+\/auth\/v1\/verify\?[^\s"'<>]+/)?.[0];
-  if (!magicUrl) throw new Error(`Magic link missing for ${email}`);
-  return magicUrl;
 }
 
 async function inviteFromTeamPage(page: import("@playwright/test").Page, email: string, role: "admin" | "viewer") {
@@ -663,32 +741,4 @@ async function inviteFromTeamPage(page: import("@playwright/test").Page, email: 
   await page.getByLabel("Rola").selectOption(role);
   await page.getByRole("button", { name: "Wyślij zaproszenie" }).click();
   await page.waitForURL(/\/admin\/team\?status=/);
-}
-
-async function mailMessageIds(request: import("@playwright/test").APIRequestContext) {
-  if (!mailpitUrl) throw new Error("Mailpit is required");
-  const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-  const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-  return new Set(mailbox.messages?.map((message) => message.ID).filter((id): id is string => Boolean(id)) || []);
-}
-
-async function newMessageUrl(
-  request: import("@playwright/test").APIRequestContext,
-  previousIds: Set<string>,
-  pattern: RegExp,
-) {
-  if (!mailpitUrl) throw new Error("Mailpit is required");
-  let messageId: string | null = null;
-  await expect.poll(async () => {
-    const response = await request.get(`${mailpitUrl}/api/v1/messages`);
-    const mailbox = await response.json() as { messages?: Array<{ ID?: string }> };
-    messageId = mailbox.messages?.find((message) => message.ID && !previousIds.has(message.ID))?.ID || null;
-    return messageId;
-  }, { timeout: 10_000 }).not.toBeNull();
-  const response = await request.get(`${mailpitUrl}/api/v1/message/${messageId}`);
-  const message = await response.json() as { HTML?: string; Text?: string };
-  const body = `${message.HTML || ""}\n${message.Text || ""}`.replaceAll("&amp;", "&");
-  const url = body.match(pattern)?.[0];
-  if (!url) throw new Error("Expected URL was not found in the new email");
-  return url;
 }

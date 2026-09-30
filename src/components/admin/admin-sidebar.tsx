@@ -4,14 +4,21 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  Activity,
+  Radio,
+  ListFilter,
   FlaskConical,
+  GitBranch,
   Link2,
   LogOut,
   Megaphone,
   MousePointerClick,
+  Target,
+  ScanSearch,
   ShieldCheck,
   Users,
   Waypoints,
+  Layers3,
 } from "lucide-react";
 import {
   Sidebar,
@@ -38,7 +45,18 @@ import {
 const groups = [
   {
     label: "Analityka",
-    items: [{ href: "/admin", label: "Dashboard", icon: BarChart3, exact: true }],
+    items: [
+      { href: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
+      { href: "/admin/acquisition", label: "Analiza pozyskania", icon: Megaphone },
+      { href: "/admin/key-events", label: "Key Events", icon: Target },
+      { href: "/admin/attribution", label: "Attribution", icon: ScanSearch },
+      { href: "/admin/segments", label: "Segmenty", icon: Layers3 },
+      { href: "/admin/funnels", label: "Funnele", icon: GitBranch },
+      { href: "/admin/paths", label: "Ścieżki stron", icon: Waypoints },
+      { href: "/admin/realtime", label: "Realtime", icon: Radio },
+      { href: "/admin/data-quality", label: "Data Quality", icon: Activity },
+      { href: "/admin/debug", label: "DebugView", icon: ListFilter },
+    ],
   },
   {
     label: "Pozyskanie",
@@ -59,12 +77,12 @@ const groups = [
 
 export function AdminSidebar({ email, role }: { email: string; role: AdminRole }) {
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" role="navigation" aria-label="Nawigacja panelu">
       <SidebarHeader className="border-b border-sidebar-border p-3 max-md:pr-14">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" tooltip="Poza Nutą · panel" render={<Link href="/admin" />}>
-              <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-accent font-black text-accent-foreground">PN</span>
+              <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary font-black text-primary-foreground">PN</span>
               <span className="min-w-0"><span className="block truncate font-black">Poza Nutą</span><span className="block truncate text-xs text-muted-foreground">Panel administracyjny</span></span>
             </SidebarMenuButton>
           </SidebarMenuItem>

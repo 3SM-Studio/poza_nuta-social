@@ -2,24 +2,39 @@
 
 import { revalidatePath } from "next/cache";
 import { requireEditor } from "@/lib/admin";
+import { invalidAdminForm, savedAdminForm, type AdminFormState } from "@/lib/admin-form-state";
 import { resolveDestinationSortOrder } from "@/lib/destination-order";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { officialDestinationUrl } from "@/lib/analytics-taxonomy";
 
 const allowedDestinationSlugs = new Set(["instagram", "tiktok", "facebook", "youtube", "website"]);
 
-export async function createDestinationAction(formData: FormData) {
+type DestinationField = "label" | "slug" | "url" | "icon" | "sortOrder" | "description";
+
+export async function createDestinationAction(previous: AdminFormState<DestinationField>, formData: FormData): Promise<AdminFormState<DestinationField>> {
   const actor = await requireEditor();
+  const values = {
+    label: String(formData.get("label") || ""),
+    slug: String(formData.get("slug") || ""),
+    url: String(formData.get("url") || ""),
+    icon: String(formData.get("icon") || "external-link"),
+    sortOrder: String(formData.get("sortOrder") || ""),
+    description: String(formData.get("description") || ""),
+  };
+  const label = values.label.trim();
+  const slug = slugify(values.slug || label);
+  const url = officialDestinationUrl(slug, values.url);
+  const icon = values.icon.trim() || "external-link";
+  const description = values.description.trim() || null;
+  const sortOrder = resolveDestinationSortOrder(slug, formData.get("sortOrder"));
+  const fieldErrors: Partial<Record<DestinationField, string>> = {};
+  if (!label) fieldErrors.label = "Podaj nazwę destynacji.";
+  if (!allowedDestinationSlugs.has(slug)) fieldErrors.slug = "Wybierz oficjalny kanał: instagram, tiktok, facebook, youtube lub website.";
+  if (!url) fieldErrors.url = "Podaj adres HTTPS należący do wybranego kanału.";
+  if (Object.keys(fieldErrors).length) return invalidAdminForm(previous, values, fieldErrors);
+
   const admin = createAdminClient();
   if (!admin) throw new Error("Supabase is not configured");
-  const label = String(formData.get("label") || "").trim();
-  const slug = slugify(String(formData.get("slug") || label));
-  const rawUrl = String(formData.get("url") || "");
-  const url = officialDestinationUrl(slug, rawUrl);
-  const icon = String(formData.get("icon") || "external-link").trim() || "external-link";
-  const description = String(formData.get("description") || "").trim() || null;
-  const sortOrder = resolveDestinationSortOrder(slug, formData.get("sortOrder"));
-  if (!label || !slug || !url || !allowedDestinationSlugs.has(slug)) throw new Error("Only official Poza Nutą channel destinations are allowed");
   const { error } = await admin.rpc("admin_destination_upsert_v1", {
     p_actor_user_id: actor.id,
     p_actor_email: actor.email || null,
@@ -30,8 +45,10 @@ export async function createDestinationAction(formData: FormData) {
     p_description: description,
     p_sort_order: sortOrder,
   });
+  if (error?.code === "23514") return invalidAdminForm(previous, values, {}, "Ten zestaw ustawień destynacji nie jest dozwolony.");
   if (error) throw new Error(error.message);
   revalidatePath("/"); revalidatePath("/admin/destinations");
+  return savedAdminForm(previous);
 }
 
 export async function toggleDestinationAction(formData: FormData) {

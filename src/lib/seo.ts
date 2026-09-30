@@ -2,20 +2,26 @@ import type { Metadata } from "next";
 import { officialDestinationUrl } from "./analytics-taxonomy";
 import type { Destination } from "./types";
 import { getSiteUrl } from "./env";
+import { publicPage, publicPaths, type PublicPath } from "./public-paths";
 
-export const publicPaths = ["/", "/karaoke-trojmiasto", "/dla-lokali", "/kontakt", "/privacy"] as const;
+export { publicPaths };
 
-export function publicUrl(path: string) {
-  if (path === "/") return getSiteUrl();
+// The official-links hub is a QR/bio utility, not a separate search landing.
+export const indexablePublicPaths = publicPaths.filter((path) => path !== publicPage.links);
+
+export function publicUrl(path: PublicPath) {
+  if (path === publicPage.home) return getSiteUrl();
   return new URL(path, `${getSiteUrl()}/`).toString();
 }
 
-export function publicMetadata(path: string, title: string, description: string): Metadata {
-  const fullTitle = path === "/" ? title : `${title} · Poza Nutą`;
+export function publicMetadata(path: PublicPath, title: string, description: string): Metadata {
+  const fullTitle = path === publicPage.home ? title : `${title} · Poza Nutą`;
+  const shareImage = `${publicUrl(publicPage.home)}/opengraph-image`;
   return {
-    title: path === "/" ? { absolute: title } : title,
+    title: path === publicPage.home ? { absolute: title } : title,
     description,
     alternates: { canonical: publicUrl(path) },
+    ...(path === publicPage.links ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "website",
       locale: "pl_PL",
@@ -23,8 +29,9 @@ export function publicMetadata(path: string, title: string, description: string)
       url: publicUrl(path),
       title: fullTitle,
       description,
+      images: [{ url: shareImage, width: 1200, height: 630, alt: "Poza Nutą — wieczory karaoke w Trójmieście" }],
     },
-    twitter: { card: "summary_large_image", title: fullTitle, description },
+    twitter: { card: "summary_large_image", title: fullTitle, description, images: [shareImage] },
   };
 }
 
@@ -37,11 +44,11 @@ export function officialProfiles(destinations: Destination[]) {
   }))];
 }
 
-export function publicPageGraph(path: string, name: string, description: string, options: {
+export function publicPageGraph(path: PublicPath, name: string, description: string, options: {
   destinations?: Destination[];
   includeOrganization?: boolean;
 } = {}) {
-  const base = publicUrl("/");
+  const base = publicUrl(publicPage.home);
   const url = publicUrl(path);
   const organizationId = `${base}#organization`;
   const websiteId = `${base}#website`;
@@ -54,7 +61,9 @@ export function publicPageGraph(path: string, name: string, description: string,
       "@id": organizationId,
       name: "Poza Nutą",
       url: base,
-      description: "Poza Nutą organizuje karaoke i wydarzenia muzyczne w Trójmieście oraz współpracuje z lokalami.",
+      logo: `${base}/brand/poza-nuta-logo.svg`,
+      email: "hello@pozanuta.pl",
+      description: "Poza Nutą organizuje wieczory karaoke w Trójmieście i współpracuje z lokalami przy ich realizacji.",
       areaServed: "Trójmiasto",
       ...(profiles.length ? { sameAs: profiles } : {}),
     });
@@ -78,7 +87,7 @@ export function publicPageGraph(path: string, name: string, description: string,
     isPartOf: { "@id": websiteId },
     about: { "@id": organizationId },
   };
-  if (path !== "/") {
+  if (path !== publicPage.home) {
     page.breadcrumb = { "@id": `${url}#breadcrumb` };
     nodes.push({
       "@type": "BreadcrumbList",

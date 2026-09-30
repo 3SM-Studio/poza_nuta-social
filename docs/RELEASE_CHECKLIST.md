@@ -1,6 +1,8 @@
 # Release checklist — social.pozanuta.pl
 
-Do not label the application production-verified until the applicable checks below pass.
+Status: **HISTORICAL EVIDENCE, NOT AN EXECUTABLE CHECKLIST.** The current release procedure is [RELEASE.md](RELEASE.md). The owner changed the target on 2026-09-24: the main site is planned for `https://pozanuta.pl`. The 2026-09-25 Public Marketing V2 decision assigns `socials.pozanuta.pl` the fast link-hub / QR / bio role. The migration filenames, checkmarks and old host instructions below describe an earlier checkpoint; do not execute them as a current release plan. Unchecked items are not approval to configure or deploy the old hostname. See `docs/PRODUCT_DECISIONS.md` and `docs/PUBLIC_MARKETING_V2.md`.
+
+At this historical checkpoint, production verification was withheld pending the applicable items below. For any new release, use [RELEASE.md](RELEASE.md) and fresh evidence.
 
 ## Connected toolchain
 - [x] Use Node 24 LTS (`node -v`).
@@ -44,7 +46,7 @@ Do not label the application production-verified until the applicable checks bel
 - [ ] Set modern publishable key and server-only secret key; retain the service-role variable only as a temporary legacy fallback where required.
 - [ ] Set a unique 32+ character server-only `ANALYTICS_SIGNING_SECRET`.
 - [ ] Configure `BOOTSTRAP_OWNER_EMAIL` only for the first owner, then verify it grants nothing after an active owner exists.
-- [ ] Configure the hosted new-user invite template to reach `/auth/confirm` with `token_hash` and `type=invite`.
+- [ ] Configure and verify the hosted Send Email Hook; its invite message must reach `/auth/confirm` with `token_hash` and `type=invite` (see `docs/admin/AUTH_EMAIL_DELIVERY.md`).
 - [ ] Confirm Auth redirect URLs for local/preview/production.
 - [ ] Verify magic link -> callback -> `/admin` -> session refresh.
 
@@ -57,7 +59,7 @@ Do not label the application production-verified until the applicable checks bel
 - [x] RLS/grants/RPC execution were queried directly and match the server-only model.
 - [x] Local magic link -> callback -> `/admin` works for an active database owner; inactive and non-member Auth users are denied.
 - [x] Owner/admin/viewer permissions, stale-role rejection, last-owner protection and atomic ownership transfer are database/browser verified.
-- [x] New-user and existing-user invitation paths, duplicate handling, failure/reconciliation state and revoke-before-accept are locally verified without claiming production SMTP delivery.
+- [x] New-user and existing-user invitation paths, duplicate handling, failure/reconciliation state and revoke-before-accept are locally verified without claiming production email delivery.
 - [x] Pending invitation role changes write atomic old/new audits; failed and pending resend use one invitation ID with coherent attempt history and duplicate suppression. The application deadline is labeled separately from the shorter Auth link lifetime.
 - [x] shadcn Sidebar collapse persistence, active route, keyboard shortcut, direct deep links and mobile sheet behavior are browser verified.
 - [x] Referral participant/link lifecycle and Michał → later-session Dima → same-session Victor canonical acquisition are database/browser verified without double credit.
@@ -104,11 +106,11 @@ Do not label the application production-verified until the applicable checks bel
 - [x] `/admin/team` and `/admin/referrals` include loading, empty/error, dialog and destructive-confirmation states.
 - [x] Referral leaderboard reads canonical session/visitor acquisition and production/external evidence only.
 - [x] Team/Referrals narrow-screen record actions, Sidebar sheet/colors, short-viewport dialog and clipboard-denied recovery are rendered/browser checked after hardening.
-- [ ] Configure and verify production SMTP delivery, hosted Auth templates and production redirect allowlists on the identified dedicated project.
+- [ ] Configure Resend verified sender, Edge secrets, signed Auth Send Email Hook, and production redirect allowlists on the identified project; verify real delivery and owner bootstrap per `docs/admin/AUTH_EMAIL_DELIVERY.md`.
 
 ## SEO / GEO
 - [ ] Approve `social.pozanuta.pl` versus `socials.pozanuta.pl`, then set `NEXT_PUBLIC_SITE_URL` to that HTTPS origin in production.
-- [ ] Canonicals and Open Graph URLs for `/`, `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/privacy` match the chosen production origin; preview remains `noindex`.
+- [ ] Canonicals and Open Graph URLs for `/`, `/karaoke`, `/dla-lokali`, `/kontakt`, and `/prywatnosc` match the chosen production origin; preview remains `noindex`.
 - [ ] sitemap returns only those durable public pages, with no invented `lastmod`, `priority`, or `changefreq`.
 - [ ] robots excludes `/admin`, `/api`, `/r`, `/go`, `/auth`.
 - [ ] OAI-SearchBot is allowed.

@@ -1,80 +1,77 @@
-# Poza Nutą — design system
+# Poza Nutą — public design system
+
+This is the canonical visual direction for the public marketing routes. It supersedes the Culture Editorial implementation selected on 2026-09-26. `PRODUCT.md` owns product truth; `docs/PRODUCT_DECISIONS.md` records the supersession; `docs/PUBLIC_MARKETING_V2.md` owns route and content requirements. The Admin visual system remains separately scoped in `src/app/globals.css`.
 
 ## Overview
-The public experience is a compact digital business card, not a SaaS landing page and not a generic Linktree clone. The interface should feel authored, direct, nightlife-adjacent, and recognizably Poza Nutą while remaining highly legible for business visitors.
 
-Impeccable is mandatory for all UI work. shadcn/ui is the sole UI component system. The current shadcn base is `base-nova` using Base UI. Do not introduce a competing component library.
+**Digital Music Editorial** treats Poza Nutą as a living local music culture, documented through real evenings. The design pairs an editorial reading rhythm with the immediacy of a venue poster: factual metadata, large serif statements, clear sans-serif actions, asymmetry, and a small number of unmistakable pink chapters. A visitor should see a human event, understand that singing is optional, and find a truthful next step without decoding the composition.
+
+The system is intentionally different from the earlier dark-first poster site. Light space carries much of the reading; black marks experience and closing moments; pink anchors identity and the most consequential transitions. The real logo remains the only logo. No final master-brand slogan is implied by a page heading.
 
 ## Colors
-- Dark neutral background is the default surface.
-- Foreground is high-contrast off-white.
-- Pink is the single branded accent.
-- Use semantic shadcn tokens (`background`, `foreground`, `card`, `border`, `muted`, `accent`, etc.), not scattered hex values in components.
-- Do not use decorative gradients or neon glow soup.
-- Destructive/success/status colors are functional only and must not compete with the branded accent.
+
+- Brand anchors: near-black `#101010`, Poza Nutą pink `#ff4fa3`, white, and neutral paper `#f7f6f3`.
+- Public tokens live under `.editorial-site` in `src/app/(public)/editorial.css`; use `--ed-ink`, `--ed-paper`, `--ed-pink`, `--ed-pink-ink`, `--ed-white`, `--ed-muted`, and `--ed-line` in public CSS. `--ed-pink-ink` is the darker text treatment on pale surfaces; bright brand pink is reserved for large display accents or filled surfaces with dark text.
+- Black, paper and pink each have a narrative job. Do not alternate backgrounds mechanically or add gradients, burgundy/plum, neon glows or decorative shadows.
+- Preserve semantic shadcn tokens for controls and the separate Admin theme. Public route tokens do not redefine Admin.
 
 ## Typography
-- Display: Bebas Neue for the Poza Nutą wordmark-style headline treatment where appropriate.
-- Interface/body: Space Grotesk.
-- Do not replace the typography with generic Inter/system-font styling unless the brand system is intentionally changed.
-- Maintain a clear hierarchy; avoid excessive all-caps outside labels/eyebrows.
+
+- **Instrument Serif** is the public display voice. Its normal and italic forms make a difference between factual information and an invitation; emphasis must be selective, not applied to every line.
+- **DM Sans** carries body copy, actions, navigation and metadata. Set body text for reading, actions for scanning, and small uppercase metadata at **12px minimum** with intentional tracking.
+- Display scale follows the composition and available space. A page should have a clear dominant thought, then a different visual register for proof, process and utility. Avoid a repeating giant-heading / paragraph / button recipe.
+- Preserve Polish characters, accessible line lengths, natural wrapping and visible focus. Typography is not a substitute for meaningful copy.
 
 ## Layout
-- Mobile-first.
-- Public content stays deliberately narrow on large screens rather than stretching into a dashboard.
-- Touch targets must remain at least comfortably tappable (roughly 44px+).
-- Use spacing rhythm from the shadcn/Tailwind token system.
-- Homepage contains no photography.
-- Business/contact information should be reachable without turning the homepage into a sales page.
-- Admin navigation uses the shadcn Sidebar system: persistent/icon-collapsible on desktop and its off-canvas sheet on mobile. Only implemented destinations appear.
 
-## Elevation & Depth
-- Prefer hierarchy through spacing, borders, typography, and surface contrast.
-- Shadows are minimal and functional.
-- Avoid glassmorphism, floating-card stacks, nested card-on-card compositions, and decorative dark glows.
+- Use editorial asymmetry and measured negative space. Align text and media to a shared underlying grid, then break it only for a purposeful moment such as the homepage title crossing the photo field.
+- Metadata behaves like a publication index: it identifies place, date, role or source. It never invents quantification or implies a real-time event status.
+- The homepage moves from a recognizable local invitation and real-event frame into the choice to listen or sing, a setlist-like participation sequence, one factual iGranie archive artifact, and a truthful official-channel close.
+- The setlist is a brand-specific way to explain the on-site flow. It must remain a readable ordered list: come, scan, enter code, choose a song, join the queue, sing. It is for guests who opt to perform; attendance itself requires none of it.
+- The iGranie treatment joins date, place, photograph and confirmed responsibility facts as one archival object. It does not infer turnout, results, endorsement or exclusivity.
+- Secondary pages have distinct jobs: `/karaoke` explains participation and current-information access; `/dla-lokali` explains per-venue collaboration and the documented realization; `/kontakt` makes `hello@pozanuta.pl` immediately usable; `/linki` is a short, ordered official-channel hub.
 
-## Shapes
-- Moderately rounded corners, consistent with the chosen shadcn preset.
-- Avoid excessive pill-shaped containers.
-- Social actions should feel like intentional rows/actions, not a wall of unrelated cards.
+## Media
+
+- Use only actual Poza Nutą event media with a traceable event, date, place and rights status. Never use stock or generated substitute karaoke imagery. Current assets remain **local preview material**; publication rights and participant/venue consent are unresolved under `docs/PUBLIC_MARKETING_V2_MEDIA.md`, blocking deployment.
+- Crop separately for desktop and mobile while keeping people and event context legible. A caption identifies a documented frame. Pair related images as a sequence of different human moments; do not repeat the hero frame merely to fill a later section.
+- Offscreen `next/image` media is lazy-loaded; the first meaningful image may have priority. Add video only when real footage and rights support a stronger story, with poster, static fallback, captions/transcript where needed, and reduced-motion handling.
 
 ## Components
-- `components.json` is authoritative for shadcn configuration.
-- Use shadcn components/primitives for interactive controls.
-- Current base is Base UI; raw form controls outside the shadcn UI layer are forbidden by CI.
-- Components may be customized for Poza Nutą, but remain inside the shadcn-owned source layer.
-- Instagram is the primary social CTA; TikTok is second. Facebook is visually quieter. YouTube appears only when active.
-- `Kontakt / współpraca` is a purposeful first-party route, not an arbitrary generic CTA system.
-- Every loading, empty, error, disabled, keyboard-focus, mobile, and desktop state must be designed.
-- Admin tables and dialogs must remain usable at 360px, long emails/names must wrap safely, destructive membership actions require confirmation, and collapsed navigation retains accessible names/tooltips.
-- Every analytics visualization uses the project shadcn Chart layer from `@/components/ui/chart` (`ChartContainer`, tooltip/legend primitives as appropriate) with Recharts only as its plotting engine. Charts use design tokens, responsive containers, the accessibility layer where supported, and a text/table/KPI alternative. Do not create a parallel chart system.
 
-## Motion
-- Subtle only: short hover/press/focus transitions.
-- No bouncing, floating, springy decoration, or attention-seeking entrance choreography.
-- Respect `prefers-reduced-motion`.
+- Header: real SVG mark, compact place/format context, four direct public routes on desktop, a labeled shadcn Sheet menu on mobile. The menu preserves keyboard access, Escape and focus return.
+- One participant action dominates the homepage opening. A secondary official-channel action answers date/place intent accurately. Venue contact is visible but has its own route; it does not compete as a second hero conversion.
+- Actions use plain destination-specific wording. `/go/[slug]` remains the route for official outbound choices, and tracked contact links retain the existing analytics behavior. Design does not create a generic CTA builder.
+- Footer is a closing brand statement followed by useful navigation and privacy controls, not an unrelated link dump. The real logo, local geography, official channels and legal/consent controls remain visible.
 
-## Accessibility
-- Semantic HTML first.
-- Visible keyboard focus.
-- Sufficient contrast.
-- Meaningful labels for social/contact actions.
-- Do not use color as the only carrier of state.
+## Responsive, motion and accessibility
+
+- Compose mobile separately: direct logo/menu, readable display scale, text and action before the documentary image, then full-width chapters with comfortable side margins. `/linki` stays deliberately narrow and fast for QR/bio arrivals.
+- Keep touch targets approximately 44px or larger, no horizontal overflow from 320px upward, and readable layouts at browser zoom. Avoid tiny metadata or placing a consent overlay over the only primary action.
+- Static composition carries the design. Use CSS transitions only for informative hover/focus states; honor `prefers-reduced-motion`. No scroll hijacking, unnecessary animation dependency or motion used to hide weak layout.
+- Semantic headings, one `h1`, meaningful alt/captions, explicit link purpose, visible focus, keyboard navigation and sufficient text contrast are required. Consent choices remain understandable in a fresh first-visit viewport.
+
+## Implementation boundary
+
+- shadcn/ui `base-nova` + Base UI + `cn` is the only component system. Do not bypass `src/components/ui` with raw interactive form controls in application screens or add a competing UI library.
+- The Admin uses its separate Nova / Neutral / Rose theme, Geist typography, shadcn Sidebar and Chart layer. This public art direction does not change Admin layout or analytics semantics.
+- Keep server-rendered content, route SEO/structured-data truth, consent and attribution behavior, and the existing `/r` and `/go` contracts.
+- Impeccable critique and technical audit are required before release work; `npm run verify` on Node 24 is the repository gate. Publication additionally requires resolving the media-rights blocker and separate legal/deployment approvals.
+
+## Elevation & Depth
+
+Use surface contrast, typography, borders and spatial pacing for hierarchy. Shadows are functional and rare. Do not use glass panels or layered card stacks as a substitute for composition.
+
+## Shapes
+
+The editorial system favors clean rectangular edges and documentary frames. Controls keep their shadcn interaction semantics. Shape changes should identify a real function or brand moment rather than add decoration.
 
 ## Do's and Don'ts
+
 ### Do
-- make the public page feel like one focused brand surface;
-- optimize for a person scanning a QR on a phone;
-- make business contact obvious without crowding the page;
-- preserve fast server-first rendering;
-- use Impeccable audit/critique/harden/polish before release.
+
+Make the visitor's first action evident, preserve legible human subjects and factual captions, design every chapter for mobile, and keep public and Admin tokens isolated.
 
 ### Don't
-- add photos to the public homepage;
-- invent a final slogan before the team chooses one;
-- call the public product “Poza Nutą Social”;
-- make Gdynia the primary geographic label; use Trójmiasto;
-- add Stage/event CTA in the current scope;
-- add arbitrary promotional CTAs just because the schema can support them;
-- add a second UI library;
-- create purple/blue gradients, glass cards, nested cards, excessive badges, or generic AI-dashboard aesthetics.
+
+Use SaaS marketing templates; generic split heroes; repeated identical section grids; anonymous card walls; black-luxury sameness; nightclub/cyberpunk clichés; large type without information hierarchy; decorative icons; fake testimonials or numbers; UI pretending to be the independent karaoke platform; invented event pages or a permanent slogan; approximated logo geometry.

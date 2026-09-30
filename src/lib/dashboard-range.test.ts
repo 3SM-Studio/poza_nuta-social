@@ -25,6 +25,13 @@ describe("resolveDashboardRange", () => {
     expect(range.previousFrom).toBe("2026-08-27");
     expect(range.previousToExclusive).toBe("2026-09-01");
   });
+
+  it("returns a bounded fallback for an invalid custom range", () => {
+    const range = resolveDashboardRange({ range: "custom", from: "2026-09-20", to: "2026-09-19" }, now);
+    expect(range.key).toBe("30");
+    expect(range.from).toBe("2026-08-21");
+    expect(range.toExclusive).toBe("2026-09-20");
+  });
 });
 
 describe("comparisonNote", () => {

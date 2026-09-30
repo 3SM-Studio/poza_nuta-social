@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { settleWithin } from "@/lib/async";
 import type { Destination } from "@/lib/types";
+import { cache } from "react";
 
 function envFallback(): Destination[] {
   const candidates: Array<[string, string, string | undefined, string, string | null]> = [
@@ -28,7 +29,7 @@ function envFallback(): Destination[] {
   return destinations;
 }
 
-export async function getPublicDestinations(): Promise<Destination[]> {
+export const getPublicDestinations = cache(async (): Promise<Destination[]> => {
   const admin = createAdminClient();
   if (!admin) return envFallback();
 
@@ -42,4 +43,4 @@ export async function getPublicDestinations(): Promise<Destination[]> {
   // never resurrect an admin-disabled destination from environment variables.
   if (!result || result.error) return [];
   return (result.data || []) as Destination[];
-}
+});

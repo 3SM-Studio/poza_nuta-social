@@ -1,15 +1,26 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { findTrackingLinkByCode, trackEventBestEffort } from "@/lib/analytics";
+import { findTrackingLinkByCode, trackEventBestEffort } from "@/lib/analytics/server";
+import { effectiveAnalyticsMode } from "@/lib/analytics-mode";
+import { trackCookielessBestEffort } from "@/lib/cookieless-analytics";
 import { trackingAcquisition } from "@/lib/analytics-taxonomy";
 import { getSiteUrl } from "@/lib/env";
 import { applyTrackingCookies, buildTrackingContext } from "@/lib/tracking-context";
+import { resolveServerEnvironment } from "@/lib/runtime-environment";
 
 export const runtime = "nodejs";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ code: string }> }) {
   const { code } = await params;
   const trackingLink = await findTrackingLinkByCode(code);
-  if (!trackingLink) return noIndexRedirect(new URL("/", getSiteUrl()));
+  const origin = resolveServerEnvironment(request) === "preview" ? request.url : getSiteUrl();
+  if (!trackingLink) return noIndexRedirect(new URL("/", origin));
+  const target = new URL(trackingLink.landing_path === "/kontakt" ? "/kontakt" : "/", origin);
+  if ((await effectiveAnalyticsMode(request)) === "cookieless") {
+    try {
+      await trackCookielessBestEffort({ eventId: crypto.randomUUID(), eventName: "tracking_entry", path: `/r/${trackingLink.code}`, request, trackingLink, qualitySurface: "tracking_redirect" });
+    } catch { console.error("cookieless tracking entry failed", { surface: "tracking_redirect", reason: "primary_ingest_failure" }); }
+    return noIndexRedirect(target);
+  }
   const observed = trackingAcquisition({
     channelGroup: trackingLink.channel_group, source: trackingLink.source, medium: trackingLink.medium,
     campaign: trackingLink.campaign?.slug, trackingLinkId: trackingLink.id, campaignId: trackingLink.campaign_id,
@@ -18,11 +29,10 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   });
   const { context, cookies } = await buildTrackingContext(request, observed);
   try {
-    await trackEventBestEffort({ eventId: crypto.randomUUID(), eventName: "tracking_entry", path: `/r/${trackingLink.code}`, context, trackingLink });
-  } catch (error) {
-    console.error("tracking entry failed", error);
+    await trackEventBestEffort({ eventId: crypto.randomUUID(), eventName: "tracking_entry", path: `/r/${trackingLink.code}`, context, trackingLink, qualitySurface: "tracking_redirect" });
+  } catch {
+    console.error("tracking entry failed", { surface: "tracking_redirect", reason: "primary_ingest_failure" });
   }
-  const target = new URL(trackingLink.landing_path === "/kontakt" ? "/kontakt" : "/", getSiteUrl());
   const response = noIndexRedirect(target);
   applyTrackingCookies(response, cookies, request.nextUrl.protocol === "https:");
   return response;

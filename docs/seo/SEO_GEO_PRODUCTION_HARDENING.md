@@ -1,5 +1,7 @@
 # SEO & GEO Production Hardening
 
+Historical note (2026-09-24): the owner subsequently selected `https://pozanuta.pl` as the future canonical origin of the main marketing site. This document describes the former hub slice and its production activation plan; it does not authorize attaching `socials.pozanuta.pl` as the canonical host of the future main site. The 2026-09-25 Public Marketing V2 decision assigns the subdomain a fast link-hub / QR / bio role; root-domain migration, deployment mapping and redirects remain separate work. See `docs/PRODUCT_DECISIONS.md` and `docs/PUBLIC_MARKETING_V2.md`.
+
 Status: code and local verification only. No production deployment, ownership verification, or IndexNow submission belongs to this slice.
 
 ## Public information architecture
@@ -7,10 +9,10 @@ Status: code and local verification only. No production deployment, ownership ve
 | Route | Visitor intent | Published facts |
 | --- | --- | --- |
 | `/` | Find Poza Nutą and its official channels | Brand, Trójmiasto, karaoke and music events, active official destinations, contact |
-| `/karaoke-trojmiasto` | Understand Poza Nutą karaoke and where to find current information | Karaoke in Trójmiasto; current announcements live on official channels; venue collaboration path |
+| `/karaoke` | Understand Poza Nutą karaoke and where to find current information | Karaoke in Trójmiasto; current announcements live on official channels; venue collaboration path |
 | `/dla-lokali` | Ask about karaoke or music-event collaboration in a venue | Collaboration with venues in Trójmiasto; information useful in an initial message; first-party contact path |
 | `/kontakt` | Contact the team | Configured business email when available, otherwise a link back to official channels |
-| `/privacy` | Understand tracking and consent | Existing privacy explanation and consent controls |
+| `/prywatnosc` | Understand tracking and consent | Existing privacy explanation and consent controls |
 
 `/o-nas` would duplicate the home business card without new verified facts. `/wydarzenia` and individual event pages remain absent until an authoritative, maintained source provides real upcoming dates and places. There are no city-keyword doorway pages.
 

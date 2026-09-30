@@ -5,6 +5,7 @@ import { isAdminLoginEligible, type AdminLoginLookup } from "@/lib/admin-login-p
 import { getBootstrapOwnerEmail, getSiteUrl } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { previewDeploymentOrigin } from "@/lib/runtime-environment";
 
 export async function sendMagicLinkAction(formData: FormData) {
   const email = String(formData.get("email") || "").trim().toLowerCase();
@@ -20,7 +21,7 @@ export async function sendMagicLinkAction(formData: FormData) {
 
   const { error } = await supabase.auth.signInWithOtp({
     email,
-    options: { emailRedirectTo: `${getSiteUrl()}/auth/callback`, shouldCreateUser: false },
+    options: { emailRedirectTo: `${previewDeploymentOrigin() || getSiteUrl()}/auth/callback`, shouldCreateUser: false },
   });
   if (error) redirect("/admin/login?error=send-failed");
   redirect("/admin/login?sent=1");

@@ -2,25 +2,24 @@ import "server-only";
 
 import type { AdminAccess } from "@/lib/admin";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { assertBusinessMutationAllowed } from "@/lib/runtime-environment";
 
 export type ReferralParticipant = {
   id: string;
   display_name: string;
   status: "active" | "inactive";
   linked_user_id: string | null;
-  created_at: string;
-  updated_at: string;
 };
 
 export type ReferralLink = {
   id: string;
   code: string;
   label: string;
-  landing_path: "/" | "/kontakt";
   active: boolean;
   referral_participant_id: string;
-  created_at: string;
 };
+
+type ReferralMembership = { user_id: string; email: string | null; status: "active" | "inactive" };
 
 export type ReferralLeaderboardRow = {
   participantId: string;
@@ -30,28 +29,29 @@ export type ReferralLeaderboardRow = {
   acquiredSessions: number;
   outboundSessions: number;
   outboundSessionRate: number;
-  outboundClicks: number;
-  multiDestinationSessions: number;
-  contactInterestSessions: number;
 };
 
 export async function listReferralAdmin(fromDate: string, toDateExclusive: string) {
   const admin = requiredAdminClient();
   const [participantsResult, linksResult, membershipsResult, leaderboardResult] = await Promise.all([
-    admin.from("referral_participants").select("id,display_name,status,linked_user_id,created_at,updated_at").order("created_at", { ascending: true }),
-    admin.from("tracking_links").select("id,code,label,landing_path,active,referral_participant_id,created_at").not("referral_participant_id", "is", null).order("created_at", { ascending: false }),
-    admin.from("admin_profiles").select("user_id,email,role,status").order("email", { ascending: true }),
+    admin.from("referral_participants").select("id,display_name,status,linked_user_id").order("created_at", { ascending: true }),
+    admin.from("tracking_links").select("id,code,label,active,referral_participant_id").not("referral_participant_id", "is", null).order("created_at", { ascending: false }),
+    admin.from("admin_profiles").select("user_id,email,status").order("email", { ascending: true }),
     admin.rpc("referral_leaderboard_v1", { p_from_date: fromDate, p_to_date_exclusive: toDateExclusive }),
   ]);
   if (participantsResult.error) throw new Error(participantsResult.error.message);
   if (linksResult.error) throw new Error(linksResult.error.message);
   if (membershipsResult.error) throw new Error(membershipsResult.error.message);
   if (leaderboardResult.error) throw new Error(leaderboardResult.error.message);
+  if (!isParticipants(participantsResult.data) || !isLinks(linksResult.data)
+    || !isMemberships(membershipsResult.data) || !isLeaderboard(leaderboardResult.data)) {
+    throw new Error("Referral report unavailable");
+  }
   return {
-    participants: (participantsResult.data || []) as ReferralParticipant[],
-    links: (linksResult.data || []) as ReferralLink[],
-    memberships: membershipsResult.data || [],
-    leaderboard: normalizeLeaderboard(leaderboardResult.data),
+    participants: participantsResult.data,
+    links: linksResult.data,
+    memberships: membershipsResult.data,
+    leaderboard: leaderboardResult.data,
   };
 }
 
@@ -60,6 +60,7 @@ export async function createReferralParticipant(
   displayName: string,
   linkedUserId: string | null,
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_referral_participant_create_v1", {
     p_actor_user_id: access.user.id,
@@ -78,6 +79,7 @@ export async function updateReferralParticipant(
   status: "active" | "inactive",
   linkedUserId: string | null,
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_referral_participant_update_v1", {
     p_actor_user_id: access.user.id,
@@ -98,6 +100,7 @@ export async function createReferralLink(
   label: string,
   landingPath: "/" | "/kontakt",
 ) {
+  assertBusinessMutationAllowed();
   const admin = requiredAdminClient();
   const { data, error } = await admin.rpc("admin_referral_tracking_link_create_v1", {
     p_actor_user_id: access.user.id,
@@ -111,23 +114,34 @@ export async function createReferralLink(
   return data;
 }
 
-function normalizeLeaderboard(value: unknown): ReferralLeaderboardRow[] {
-  if (!Array.isArray(value)) return [];
-  return value.map((row) => {
-    const item = row as Record<string, unknown>;
-    return {
-      participantId: String(item.participantId || ""),
-      participant: String(item.participant || ""),
-      status: item.status === "inactive" ? "inactive" : "active",
-      newVisitors: Number(item.newVisitors || 0),
-      acquiredSessions: Number(item.acquiredSessions || 0),
-      outboundSessions: Number(item.outboundSessions || 0),
-      outboundSessionRate: Number(item.outboundSessionRate || 0),
-      outboundClicks: Number(item.outboundClicks || 0),
-      multiDestinationSessions: Number(item.multiDestinationSessions || 0),
-      contactInterestSessions: Number(item.contactInterestSessions || 0),
-    };
-  });
+const record = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === "object" && !Array.isArray(value);
+const uuid = (value: unknown): value is string => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+const count = (value: unknown): value is number => typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+const status = (value: unknown): value is "active" | "inactive" => value === "active" || value === "inactive";
+const rows = (value: unknown, item: (row: unknown) => boolean) => Array.isArray(value) && value.every(item);
+
+function isParticipants(value: unknown): value is ReferralParticipant[] {
+  return rows(value, (row) => record(row) && uuid(row.id) && typeof row.display_name === "string"
+    && row.display_name.trim().length > 0 && status(row.status) && (row.linked_user_id === null || uuid(row.linked_user_id)));
+}
+
+function isLinks(value: unknown): value is ReferralLink[] {
+  return rows(value, (row) => record(row) && uuid(row.id) && typeof row.code === "string"
+    && /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{5,7}$/.test(row.code)
+    && typeof row.label === "string" && typeof row.active === "boolean" && uuid(row.referral_participant_id));
+}
+
+function isMemberships(value: unknown): value is ReferralMembership[] {
+  return rows(value, (row) => record(row) && uuid(row.user_id)
+    && (row.email === null || typeof row.email === "string") && status(row.status));
+}
+
+function isLeaderboard(value: unknown): value is ReferralLeaderboardRow[] {
+  return rows(value, (row) => record(row) && uuid(row.participantId)
+    && typeof row.participant === "string" && row.participant.trim().length > 0 && status(row.status)
+    && count(row.newVisitors) && count(row.acquiredSessions) && count(row.outboundSessions)
+    && typeof row.outboundSessionRate === "number" && Number.isFinite(row.outboundSessionRate)
+    && row.outboundSessionRate >= 0 && row.outboundSessionRate <= 100);
 }
 
 function requiredAdminClient() {

@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { AdminNotice } from "@/components/admin/admin-notice";
+import { AdminResponsiveTable } from "@/components/admin/admin-responsive-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   ActivateMemberButton,
   DeactivateMemberDialog,
@@ -14,8 +16,6 @@ import { requireAdminAccess } from "@/lib/admin";
 import { listTeamAccess, type AdminInvitation } from "@/lib/admin-team";
 
 export const dynamic = "force-dynamic";
-
-const responsiveTable = "max-md:block max-md:[&_thead]:sr-only max-md:[&_tbody]:block max-md:[&_tr]:mb-3 max-md:[&_tr]:block max-md:[&_tr]:rounded-lg max-md:[&_tr]:border max-md:[&_tr]:border-border max-md:[&_tr]:p-4 max-md:[&_td]:block max-md:[&_td]:p-0 max-md:[&_td]:pt-3 max-md:[&_td:first-child]:pt-0 max-md:[&_td_button]:min-h-11";
 
 export default async function TeamPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const access = await requireAdminAccess();
@@ -37,10 +37,10 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
         {canInvite ? <InviteMemberDialog actorRole={access.role} /> : null}
       </header>
 
-      {status ? <TeamNotice tone="success">{successMessage(status)}</TeamNotice> : null}
-      {error ? <TeamNotice tone="error">{errorMessage(error)}</TeamNotice> : null}
+      {status ? <AdminNotice tone="success">{successMessage(status)}</AdminNotice> : null}
+      {error ? <AdminNotice tone="error">{errorMessage(error)}</AdminNotice> : null}
       {access.role === "viewer" ? (
-        <TeamNotice tone="neutral">Masz dostęp tylko do odczytu. Zmiany członkostwa są niedostępne dla roli viewer.</TeamNotice>
+        <AdminNotice tone="info">Masz dostęp tylko do odczytu. Zmiany członkostwa są niedostępne dla roli viewer.</AdminNotice>
       ) : null}
 
       <Card>
@@ -50,7 +50,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
         </CardHeader>
         <CardContent>
           {members.length ? (
-            <Table className={responsiveTable}>
+            <AdminResponsiveTable>
               <TableHeader>
                 <TableRow>
                   <TableHead>Osoba</TableHead>
@@ -92,7 +92,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
                   );
                 })}
               </TableBody>
-            </Table>
+            </AdminResponsiveTable>
           ) : <p className="py-8 text-center text-sm text-muted-foreground">Nie ma jeszcze członków zespołu.</p>}
         </CardContent>
       </Card>
@@ -104,7 +104,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
         </CardHeader>
         <CardContent>
           {invitations.length ? (
-            <Table className={responsiveTable}>
+            <AdminResponsiveTable>
               <TableHeader><TableRow><TableHead>Adres</TableHead><TableHead>Rola</TableHead><TableHead>Wysyłka</TableHead><TableHead>Zaproszenie aktywne do</TableHead>{canInvite ? <TableHead className="text-right">Działania</TableHead> : null}</TableRow></TableHeader>
               <TableBody>
                 {invitations.map((invitation) => {
@@ -127,7 +127,7 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
                   );
                 })}
               </TableBody>
-            </Table>
+            </AdminResponsiveTable>
           ) : <p className="py-8 text-center text-sm text-muted-foreground">Brak oczekujących lub nieudanych zaproszeń.</p>}
         </CardContent>
       </Card>
@@ -137,10 +137,6 @@ export default async function TeamPage({ searchParams }: { searchParams: Promise
 
 function RoleBadge({ role }: { role: "owner" | "admin" | "viewer" }) {
   return <Badge variant={role === "owner" ? "default" : role === "admin" ? "secondary" : "outline"}>{role}</Badge>;
-}
-
-function TeamNotice({ children, tone }: { children: React.ReactNode; tone: "success" | "error" | "neutral" }) {
-  return <p role={tone === "error" ? "alert" : "status"} className={`rounded-lg border px-4 py-3 text-sm ${tone === "error" ? "border-destructive/40 bg-destructive/10" : tone === "success" ? "border-emerald-400/30 bg-emerald-400/10" : "text-muted-foreground"}`}>{children}</p>;
 }
 
 function successMessage(status: string) {

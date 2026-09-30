@@ -13,7 +13,7 @@ As verified against current Supabase documentation on 2026-09-22:
 - invite expiry follows Email OTP Expiration (one hour by default);
 - SSR acceptance uses a custom Invite User template carrying `TokenHash` and `type=invite`, then server-side `verifyOtp`.
 
-Production SMTP and hosted template configuration are external release requirements. Local development uses Mailpit and a repository template; UI must not claim production delivery.
+Production delivery will use the signed Supabase Auth Send Email Hook, React Email, and Resend HTTP API as described in `AUTH_EMAIL_DELIVERY.md`. The hook supports `invite` and constructs the existing `/auth/confirm` token-hash link. Local development still uses Mailpit and the repository template; UI must not claim production delivery until the external setup and real-host checks pass.
 
 ## State model
 
@@ -27,7 +27,7 @@ Application invitation state is explicit: `pending`, `accepted`, `revoked`, `exp
 4. An existing confirmed Auth account keeps the invitation pending with `delivery_status=existing_user`. That person initiates their own normal magic-link login, preserving PKCE in their browser.
 5. Other Auth/email failures mark the invitation `failed` with a bounded non-secret code and audit record. Retry uses the same invitation ID, not a second application invitation. Each started delivery writes a begin audit and increments `attempt_count`; failures and successes write their own outcome audit. Pending retries within two minutes of the last start are treated as duplicate submissions and do not send or increment again. A failed delivery is immediately retryable. Revoked, accepted, and lifecycle-expired records cannot be retried.
 
-The application invitation lifecycle defaults to seven days (`expires_at`). The email/Auth invite link follows the separately configured Supabase Email OTP Expiration (one hour in committed local config). The Team page labels only the **application** deadline as “Zaproszenie aktywne do”; it never promises the email link remains usable for seven days. An authorized person can resend the link on the same pending invitation after the duplicate-submission cooldown. Production Auth TTL, SMTP, and redirect allowlist must be checked on the dedicated hosted project before launch.
+The application invitation lifecycle defaults to seven days (`expires_at`). The email/Auth invite link follows the separately configured Supabase Email OTP Expiration (one hour in committed local config). The Team page labels only the **application** deadline as “Zaproszenie aktywne do”; it never promises the email link remains usable for seven days. An authorized person can resend the link on the same pending invitation after the duplicate-submission cooldown. Production Auth TTL, hook delivery, and redirect allowlist must be checked on the dedicated hosted project before launch.
 
 If an owner changes the role of an existing pending invitation, that privilege change and a dedicated `admin.invitation.role_change` audit row commit atomically, with old/new role and invitation identity. A no-op same-role request creates no change audit.
 
@@ -45,6 +45,8 @@ Auth and application Postgres are not represented as one transaction. A new Auth
 ## Revocation and expiry
 
 Revocation changes only application invitation/access state; it does not delete Auth users. Acceptance requires an unexpired pending invitation. A later invitation preparation marks expired pending records as expired before creating a replacement. Revoked/expired links may authenticate an Auth user but cannot create membership.
+
+The approved retention policy keeps accepted, expired and revoked invitations for up to 90 days after their actual terminal transition, and failed invitations for up to 90 days after the last delivery attempt. Pending rows remain until a terminal transition. The deployed retention migration adds `expired_at` to distinguish that transition from the seven-day validity deadline. It also retains `invited_by` as a historical UUID snapshot without an Auth FK, so a privileged Auth-user deletion does not prematurely delete invitation evidence or block the 30-day account policy. The remote function has passed dry-run verification but has not been authorized for destructive execution or scheduled. See [Data retention](../analytics/DATA_RETENTION.md).
 
 ## Failure matrix
 

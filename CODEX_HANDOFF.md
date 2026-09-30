@@ -1,5 +1,17 @@
 # Codex handoff — locally verified repository
 
+This is a dated continuation checkpoint, not the current release procedure. Use `docs/RELEASE.md` for release actions and `docs/VERIFY.md` for current closure checks; recheck Git and platform state before acting.
+
+## Current public IA, 2026-09-27
+
+`/karaoke` is the canonical participant page. `/karaoke-trojmiasto` permanently redirects to it; current navigation, canonical metadata and sitemap use `/karaoke`. The dated checkpoint below records the earlier route state.
+
+## Root-domain marketing-site checkpoint, 2026-09-24
+
+The owner selected `https://pozanuta.pl` as the future canonical origin. `/` is now the main marketing introduction; `/linki` is the compact official destination hub. `/karaoke-trojmiasto`, `/dla-lokali`, `/kontakt`, and `/privacy` remain separate public pages with shared navigation. Destination URLs still come from `getPublicDestinations()`, and `/go/[slug]`, `/r/[code]`, Admin, referrals and Analytics retain their existing contracts. The earlier subdomain release checklist and open domain-choice notes below are historical. The production domain, privacy/consent model, accessibility target, and hosting selection require separate slices; see `docs/PRODUCT_DECISIONS.md`.
+
+The local root-domain contract passed `npm run verify` with `NEXT_PUBLIC_SITE_URL=https://pozanuta.pl` and public Playwright checks at 360px and 1440px. A real `CONTACT_EMAIL` and active official destinations remain required before publication; the local fallback/placeholder does not prove those external channels are ready. The current tracked-QR database contract permits `/` and `/kontakt` as landing paths, not `/linki`.
+
 This repository contains approved decisions 1–82, the explicit analytics refinements, and the implemented Admin Platform V2 contract under `docs/admin/`. Read both document sets before changing access, identity, consent, taxonomy, metrics, or external sinks.
 
 ## Read first
@@ -16,7 +28,7 @@ This repository contains approved decisions 1–82, the explicit analytics refin
 - 100% Impeccable process for UI changes; approve the Codex project hook after install.
 - Public identity is Poza Nutą; “Poza Nutą Social” is not public naming.
 - Primary geography is Trójmiasto.
-- Homepage has no photography and no decorative gradients.
+- For current public media and visual constraints, use `PRODUCT.md` and `DESIGN.md`; superseded decisions are recorded in `docs/PRODUCT_DECISIONS.md`.
 - Final slogan remains unresolved; do not invent one.
 - No Stage/current-event CTA in current scope.
 - Official channel destinations + first-party contact only; no generic CTA builder.
@@ -56,7 +68,7 @@ Run actual rendered passes, not only source detection:
 Also run URL detection at mobile and desktop viewports after a local server/deployment is available.
 
 ## Supabase
-Create a new dedicated project. Apply **all** committed `supabase/migrations/*.sql` files in filename order with the controlled Supabase CLI migration workflow, including `20260922102559_admin_platform_v2.sql` and `20260923080812_post_admin_v2_audit_hardening.sql`. For an isolated local project, `npx supabase db reset --local` is the canonical complete replay and also applies `supabase/seed.sql`. Verify the linked remote project ID before any future remote migration; this hardening slice performs no remote database change.
+Use only the dedicated project after confirming its identity against current platform state. The migration filenames and verification results in this handoff are historical; use `docs/RELEASE.md` for the current all-pending-migrations workflow and authorization boundary. For an isolated local project, `npx supabase db reset --local` replays committed migrations and applies `supabase/seed.sql`.
 
 Use the modern publishable key in `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`; legacy anon-key fallback exists only for compatibility. Use `SUPABASE_SECRET_KEY` server-side only. `SUPABASE_SERVICE_ROLE_KEY` is a narrowly documented legacy fallback for local/older projects and must never be exposed through `NEXT_PUBLIC_*`. Normal login uses `shouldCreateUser: false`; new-user creation happens only through the server invitation service. Configure `BOOTSTRAP_OWNER_EMAIL` only for the first owner, and configure hosted invite templates/redirect allowlists to match the repository contract before production testing.
 
@@ -75,11 +87,15 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 11. exercise owner/admin/viewer/inactive/non-member access, new/existing invitation acceptance and ownership transfer;
 12. prove the Michał → later-session Dima → same-session Victor referral fixture without double credit.
 
-## Completed local evidence
-- Node 24 deterministic install, guards including secret scan, lint, types, 92 unit tests and production build pass.
+## Historical local evidence
+
+The checks below describe earlier checkpoints, not the current gate status or test counts. Run `npm run verify`, `npm run test:db`, `npx supabase db lint --local --schema public`, and `npx supabase db advisors --local --type all --level warn --fail-on error` against a fresh local `npx supabase db reset --local` for current evidence. `npm run test:e2e` and `npm run test:a11y` provide the current browser results.
+
+- Node 24 deterministic install, guards including secret scan, lint, types, unit tests and production build passed at the earlier checkpoint.
 - The dependency audit reports zero vulnerabilities; shadcn reports the expected Next 16.3.5 / `base-nova` project with Chart installed.
 - Public and local integration Playwright passes at 360×800, 390×844, 720×450 zoom-equivalent and 1440×900 in Chromium plus desktop WebKit, including JS-disabled, consent lifecycle and accessibility/responsive invariants.
-- Isolated PostgreSQL 17 applied all eight migrations/seed from zero; the expanded 216 pgTAP assertions, schema lint/advisors, and seven Admin plus seven Analytics concurrency cases pass. The earlier six owner failures were caused by accumulated E2E fixture state and did not recur from clean state. V2 ingest is atomic/idempotent, acquisition rankings are exclusive, rate numerators are valid subsets, membership/invitation/referral mutations are atomic with audit history, all exposed tables have RLS, active RPCs are invoker functions with explicit grants, owner transactions preserve at least one active owner, visitor/session timestamps are monotonic, and event/audit history is append-only for normal secret-key/service-role behavior.
+- Isolated PostgreSQL 17 replayed the then-current migrations and seed from zero; pgTAP, schema lint/advisors, and Admin and Analytics concurrency checks passed. The earlier six owner failures were caused by accumulated E2E fixture state and did not recur from clean state. V2 ingest is atomic/idempotent, acquisition rankings are exclusive, rate numerators are valid subsets, membership/invitation/referral mutations are atomic with audit history, all exposed tables have RLS, active RPCs are invoker functions with explicit grants, owner transactions preserve at least one active owner, visitor/session timestamps are monotonic, and event/audit history is append-only for normal secret-key/service-role behavior.
+
 - Seven real concurrency cases pass with 33 unique events, sequences through 20, same-ID deduplication, stable canonical acquisition, monotonic visitor/session timestamps and intact visitor/session/event relationships.
 - Real local Mailpit magic-link auth and campaign → tracking link → SVG QR → first/last attribution → outbound → audit-log flow pass.
 - Real local Mailpit covers new-user token-hash invitations, existing-user onboarding, revoke-before-accept, fresh role enforcement, ownership transfer and restore.
@@ -87,6 +103,10 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 - The installed shadcn Sidebar is persisted/collapsible on desktop and uses the accessible mobile sheet at 390px; 360/390/720/1440 overflow coverage is automated.
 - A stale owner-rendered form cannot mutate after the server-side role changes to viewer; signed test/internal classification and contact event uniqueness are browser-verified.
 - Rendered Impeccable audit/critique/harden/polish and final detector pass.
+
+## Admin consolidation advisor decision
+
+The local DB advisor reports `function_search_path_mutable` for `public.analytics_reporting_eligible_v1`. This immutable, `SECURITY INVOKER` SQL predicate reads no relations, calls no user-defined functions, and depends only on its three text arguments; execution is revoked from `PUBLIC`, `anon`, and `authenticated` and granted to `service_role`. The warning does not identify an exploitable object lookup or a material runtime issue for this function. No DB migration is warranted solely to silence it; keep reporting the warning in current advisor results.
 
 ## Post-Admin V2 audit hardening, 2026-09-23
 
@@ -96,7 +116,7 @@ Verify 360×800, 390×844 and 1440×900, keyboard-only, 200% zoom and reduced mo
 - README setup replays every committed migration; CI now includes local Supabase advisors and `npm audit --audit-level=moderate`. Final legal/controller/retention approval, production SMTP, firewall, remote Supabase/Vercel, canonical domain, and physical QR tests remain Production Readiness/SEO-GEO work.
 
 ## Remaining external release gates / unresolved product inputs
-- `social.pozanuta.pl` versus `socials.pozanuta.pl`, actual final slogan/copy;
+- root-domain production mapping to `https://pozanuta.pl`, future subdomain behavior, and actual final slogan/copy;
 - final consent/legal basis, production notice, and retention periods;
 - production `ANALYTICS_SIGNING_SECRET`, official contact details and optional GA4/Search Console configuration;
 - production official contact/channel values and complete legal privacy facts;

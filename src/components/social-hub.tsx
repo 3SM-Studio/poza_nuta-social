@@ -1,18 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import {
-  Camera,
-  ExternalLink,
-  Globe2,
-  Music2,
-  Play,
-  Users,
-} from "lucide-react";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { ArrowUpRight, Camera, ExternalLink, Globe2, Music2, Play, Users } from "lucide-react";
+import { recordOutboundChoice } from "@/lib/analytics";
 import type { Destination } from "@/lib/types";
-import { HUB_OUTBOUND_STATE_KEY } from "@/lib/analytics-client";
 
 const icons = {
   instagram: Camera,
@@ -23,41 +14,44 @@ const icons = {
   "external-link": ExternalLink,
 };
 
+function priority(slug: string) {
+  if (slug === "instagram") return 0;
+  if (slug === "tiktok") return 1;
+  return 2;
+}
+
 export function SocialHub({ destinations }: { destinations: Destination[] }) {
+  const ordered = [...destinations].sort((a, b) => priority(a.slug) - priority(b.slug) || a.sort_order - b.sort_order);
+
   return (
-    <div className="grid gap-3" aria-label="Oficjalne linki Poza Nutą">
-      {destinations.map((destination, index) => {
-        const Icon = icons[destination.icon as keyof typeof icons] || ExternalLink;
-        return (
-          <Link
-            key={destination.id}
-            href={`/go/${encodeURIComponent(destination.slug)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={cn(
-              buttonVariants({ variant: index === 0 ? "accent" : "secondary", size: "xl" }),
-              "group w-full justify-between text-left",
-            )}
-            aria-label={`Otwórz ${destination.label}`}
-            onClick={() => {
-              try { sessionStorage.setItem(HUB_OUTBOUND_STATE_KEY, JSON.stringify({ destination: destination.slug, at: Date.now(), hidden: false })); } catch { /* storage is optional */ }
-            }}
-          >
-            <span className="flex min-w-0 items-center gap-3">
-              <Icon className="size-5 shrink-0" aria-hidden="true" />
-              <span className="min-w-0">
-                <span className="block truncate">{destination.label}</span>
-                {destination.description ? (
-                  <span className="mt-0.5 block truncate text-xs font-medium opacity-70">
-                    {destination.description}
+    <nav aria-label="Oficjalne linki Poza Nutą" className="ed-social-hub">
+      <ul className="ed-social-hub__list">
+        {ordered.map((destination) => {
+          const Icon = icons[destination.icon as keyof typeof icons] || ExternalLink;
+          return (
+            <li key={destination.id}>
+              <Link
+                href={`/go/${encodeURIComponent(destination.slug)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ed-social-hub__link"
+                data-channel={destination.slug}
+                aria-label={`Otwórz ${destination.label} w nowej karcie`}
+                onClick={() => recordOutboundChoice(destination.slug)}
+              >
+                <span className="ed-social-hub__content">
+                  <Icon className="ed-social-hub__icon" aria-hidden="true" />
+                  <span className="ed-social-hub__copy">
+                    <span className="ed-social-hub__name">{destination.label}</span>
+                    {destination.description ? <span className="ed-social-hub__description">{destination.description}</span> : null}
                   </span>
-                ) : null}
-              </span>
-            </span>
-            <ExternalLink className="size-4 shrink-0 opacity-50 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-          </Link>
-        );
-      })}
-    </div>
+                </span>
+                <ArrowUpRight className="ed-social-hub__arrow" aria-hidden="true" />
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+    </nav>
   );
 }

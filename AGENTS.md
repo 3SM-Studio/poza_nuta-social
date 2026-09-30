@@ -1,6 +1,9 @@
-# Agent rules for `social.pozanuta.pl`
+# Agent rules for the Poza Nutą marketing site
 
 This repository is an independent application. Never import code, database tables, auth state or runtime assumptions from another Poza Nutą application.
+
+Use `docs/INDEX.md` to find the canonical source for each area; check current Git state for task progress.
+Use `docs/RELEASE.md` for release procedure and authorization boundaries; dated checklists and Preview reports are evidence only.
 
 ## User communication language
 All user-facing progress updates, explanations, questions, approval requests, warnings, blockers, tool-result summaries, sub-agent findings, and final reports must be in Polish. Keep code, identifiers, commands, file paths, API names, raw errors and logs, test and migration names, and repository terminology in their natural technical language; do not translate identifiers for consistency.
@@ -12,14 +15,14 @@ All user-facing progress updates, explanations, questions, approval requests, wa
 4. Never add MUI, Chakra, Ant Design, Mantine, Bootstrap or another competing component library.
 5. Do not bypass `src/components/ui` with raw interactive form controls in application screens.
 6. Do not change durable product/design decisions silently. Propose the change instead.
-7. Run `npm run verify` on a connected Node 24 machine before merging release work.
+7. Use `docs/VERIFY.md` to select closure checks. Run `npm run verify:source` on Node 24 before merging release work; source PASS alone is not release approval.
 
 ## Public product invariants
 - Public name is Poza Nutą, not “Poza Nutą Social”.
 - Primary public geography is Trójmiasto.
-- Final slogan is unresolved: do not invent one.
-- No homepage photography or decorative gradients.
-- No Stage/event CTA in current scope.
+- Final master-brand slogan is unresolved. The approved karaoke/campaign line is not a permanent master slogan.
+- Public Marketing V2 allows authentic event photography/video on the homepage as evidence; no stock or generated substitute karaoke imagery or decorative gradients.
+- No Stage/nearest-event CTA. Own event routes are gated on an authoritative maintained event source and lifecycle.
 - Official channels + first-party contact/collaboration only; not a generic CTA builder.
 
 ## Analytics/privacy invariants

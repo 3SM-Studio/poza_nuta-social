@@ -8,14 +8,20 @@ const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=31536000" },
   { key: "Content-Security-Policy", value: "base-uri 'self'; frame-ancestors 'none'; object-src 'none'" },
 ];
+const previewHeaders = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
 const nonPublicHeaders = [{ key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" }];
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // The public consent UI intentionally occupies the lower corners in development.
+  devIndicators: false,
+  async redirects() {
+    return [{ source: "/karaoke-trojmiasto", destination: "/karaoke", permanent: true }];
+  },
   async headers() {
     return [
-      { source: "/(.*)", headers: securityHeaders },
+      { source: "/(.*)", headers: [...securityHeaders, ...(process.env.VERCEL_ENV === "preview" ? previewHeaders : [])] },
       ...["/admin/:path*", "/auth/:path*", "/api/:path*", "/r/:path*", "/go/:path*"].map((source) => ({ source, headers: nonPublicHeaders })),
     ];
   },

@@ -4,8 +4,8 @@ import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
 
 const config = {
-  sessions: { label: "Sesje", color: "var(--color-accent)" },
-  outboundSessions: { label: "Sesje z wyjściem", color: "var(--color-foreground)" },
+  sessions: { label: "Sesje", color: "var(--chart-2)" },
+  outboundSessions: { label: "Sesje z wyjściem", color: "var(--chart-3)" },
 } satisfies ChartConfig;
 
 export function AnalyticsChart({ data }: { data: Array<{ date: string; sessions: number; outboundSessions: number }> }) {

@@ -1,7 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { signAnalyticsToken } from "./analytics-token";
-import { buildTrackingContext, isConservativeBot } from "./tracking-context";
+import { buildTrackingContext, isConservativeBot, readConsentChoice } from "./tracking-context";
+
+afterEach(() => vi.unstubAllEnvs());
 
 describe("traffic classification", () => {
   it.each([
@@ -28,8 +30,55 @@ describe("traffic classification", () => {
 
   it("does not accept a forged consent or visitor identity", async () => {
     const request = new NextRequest("http://localhost/", { headers: { cookie: "pn_consent=forged; pn_visitor=67a593f7-55d4-4dc5-b720-cf9ccdf09c9c" } });
-    const { context } = await buildTrackingContext(request);
+    const { context, cookies } = await buildTrackingContext(request);
     expect(context.consent).toEqual({ analytics: false, marketing: false });
     expect(context.identity.visitorId).toBeNull();
+    expect(cookies).toEqual([]);
+  });
+
+  it("re-prompts after a consent information version change", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 60;
+    const old = await signAnalyticsToken("consent", { analytics: true, marketing: false, version: 1, exp });
+    const request = new NextRequest("http://localhost/", { headers: { cookie: `pn_consent=${old}` } });
+    expect(await readConsentChoice(request)).toBeNull();
+  });
+
+  it("lets unsigned local state only reduce a signed grant", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 60;
+    const grant = await signAnalyticsToken("consent", { analytics: true, marketing: false, version: 2, exp });
+    for (const override of ["2.deny", "2.pending-accept.96a887d4-e9c8-4fa2-a123-934cedd056c0", "2.accepted", "1.deny"]) {
+      const request = new NextRequest("http://localhost/", { headers: { cookie: `pn_consent=${grant}; pn_consent_preference=${override}` } });
+      const allowed = override === "2.accepted" || override === "1.deny";
+      expect(await readConsentChoice(request)).toBe(allowed);
+      expect((await buildTrackingContext(request)).context.consent.analytics).toBe(allowed);
+    }
+    const forged = new NextRequest("http://localhost/", { headers: { cookie: "pn_consent_preference=2.accepted" } });
+    expect(await readConsentChoice(forged)).toBeNull();
+  });
+
+  it("never reuses Production consent, visitor or session identity on Preview", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 60;
+    const consent = await signAnalyticsToken("consent", { analytics: true, marketing: false, version: 2, environment: "production", exp });
+    const visitor = await signAnalyticsToken("visitor", { id: crypto.randomUUID(), environment: "production", exp });
+    const session = await signAnalyticsToken("session", { id: crypto.randomUUID(), environment: "production", exp });
+    vi.stubEnv("VERCEL_ENV", "preview");
+    const request = new NextRequest("https://preview.example/", { headers: { cookie: `pn_consent=${consent}; pn_visitor=${visitor}; pn_session=${session}` } });
+    expect(await readConsentChoice(request)).toBeNull();
+    const { context } = await buildTrackingContext(request);
+    expect(context.environment).toBe("preview");
+    expect(context.consent.analytics).toBe(false);
+    expect(context.identity.visitorId).toBeNull();
+  });
+
+  it("accepts Preview identity only inside Preview", async () => {
+    const exp = Math.floor(Date.now() / 1000) + 60;
+    const id = crypto.randomUUID();
+    const consent = await signAnalyticsToken("consent", { analytics: true, marketing: false, version: 2, environment: "preview", exp });
+    const visitor = await signAnalyticsToken("visitor", { id, environment: "preview", exp });
+    const cookie = `pn_consent=${consent}; pn_visitor=${visitor}`;
+    vi.stubEnv("VERCEL_ENV", "preview");
+    expect((await buildTrackingContext(new NextRequest("https://preview.example/", { headers: { cookie } }))).context.identity.visitorId).toBe(id);
+    vi.stubEnv("VERCEL_ENV", "production");
+    expect((await buildTrackingContext(new NextRequest("https://production.example/", { headers: { cookie } }))).context.identity.visitorId).toBeNull();
   });
 });

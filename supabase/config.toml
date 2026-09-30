@@ -4,6 +4,12 @@
 # working directory name when running `supabase init`.
 project_id = "pozanuta-social"
 
+# The local Auth stack deliberately keeps Mailpit and does not enable this hook.
+# Production deploys the function without JWT verification; the handler verifies
+# the signed Supabase Auth webhook before accepting any email payload.
+[functions.send-admin-auth-email]
+verify_jwt = false
+
 [api]
 enabled = true
 # Port to use for the API URL.

@@ -1,5 +1,7 @@
+import { CLIENT_EVENT_NAMES } from "./analytics/contract";
+
 export const CHANNEL_GROUPS = ["direct", "offline", "ai_referral", "organic_search", "organic_social", "referral", "email", "paid_social", "paid_search", "other"] as const;
-export const EVENT_NAMES = ["tracking_entry", "page_view", "outbound_click", "contact_view", "contact_click", "hub_resumed"] as const;
+export const EVENT_NAMES = ["tracking_entry", "outbound_click", ...CLIENT_EVENT_NAMES] as const;
 export const TRAFFIC_CLASSES = ["external", "internal", "test", "bot"] as const;
 export const ANALYTICS_ENVIRONMENTS = ["production", "staging", "preview", "development"] as const;
 
@@ -24,6 +26,10 @@ export type AcquisitionContext = {
 
 const KNOWN_REFERRERS: Array<{ domains: string[]; channelGroup: ChannelGroup; source: string; medium: string }> = [
   { domains: ["chatgpt.com", "chat.openai.com"], channelGroup: "ai_referral", source: "chatgpt", medium: "referral" },
+  { domains: ["perplexity.ai"], channelGroup: "ai_referral", source: "perplexity", medium: "referral" },
+  { domains: ["gemini.google.com"], channelGroup: "ai_referral", source: "gemini", medium: "referral" },
+  { domains: ["copilot.com", "copilot.microsoft.com", "copilot.cloud.microsoft"], channelGroup: "ai_referral", source: "copilot", medium: "referral" },
+  { domains: ["claude.ai"], channelGroup: "ai_referral", source: "claude", medium: "referral" },
   { domains: ["google.com", "google.pl"], channelGroup: "organic_search", source: "google", medium: "organic" },
   { domains: ["bing.com"], channelGroup: "organic_search", source: "bing", medium: "organic" },
   { domains: ["instagram.com"], channelGroup: "organic_social", source: "instagram", medium: "social" },
@@ -109,7 +115,7 @@ export function sanitizeTaxonomyValue(value?: string | null, limit = 96) {
   return normalized.replace(/[^a-z0-9._:/+-]+/g, "-").replace(/^-+|-+$/g, "").slice(0, limit) || null;
 }
 
-export function sanitizePath(value?: string | null) {
+export function sanitizeReferralLandingPath(value?: string | null) {
   return value === "/kontakt" ? "/kontakt" : "/";
 }
 
