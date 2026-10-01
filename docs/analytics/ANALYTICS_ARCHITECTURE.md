@@ -10,11 +10,11 @@ The system never stores raw IP addresses, fingerprints, precise location, exact 
 
 ## Request flow
 
-1. `proxy.ts` establishes a signed, 30-minute session token before a public page renders. It records only bounded acquisition fields and classification needed by the first server event. This removes the hydration race for an immediate outbound click.
-2. Server routes construct one `TrackingContext`; clients submit event facts, not trust decisions.
-3. `analytics_ingest_event_v1` validates identifiers and enums, deduplicates the event ID, creates/updates the consent-eligible visitor and session, allocates `session_sequence`, snapshots dimensions, and inserts the event in one transaction.
-4. `/r/[code]` emits `tracking_entry` best-effort and redirects to an allowlisted landing path.
-5. `/go/[slug]` resolves an active database destination, emits `outbound_click` best-effort, and redirects only to a validated official domain.
+1. After server-confirmed consent, `proxy.ts` establishes or refreshes a signed, 30-minute session token before a public page renders and can preserve bounded acquisition fields for the first consented server event. Without consent, it does not establish session or acquisition cookies; responses other than a consent POST clear stale analytics identity cookies. This removes the hydration race for an immediate consented outbound click.
+2. Consented server routes construct one `TrackingContext`; clients submit event facts, not trust decisions. Before consent, eligible events use identity-free cookieless ingest without a visitor or session context.
+3. For consented events, `analytics_ingest_event_v1` validates identifiers and enums, deduplicates the event ID, creates/updates the consent-eligible visitor and session, allocates `session_sequence`, snapshots dimensions, and inserts the event in one transaction.
+4. `/r/[code]` emits `tracking_entry` best-effort in the effective analytics mode and redirects to an allowlisted landing path.
+5. `/go/[slug]` resolves an active database destination, emits `outbound_click` best-effort in the effective analytics mode, and redirects only to a validated official domain, including if tracking fails.
 6. Dashboard queries default to `environment = 'production' AND traffic_class = 'external'`.
 
 ## Core records
@@ -27,7 +27,7 @@ The system never stores raw IP addresses, fingerprints, precise location, exact 
 
 ## TrackingContext
 
-Every sink receives the same server-derived contract:
+Every consented sink receives the same server-derived contract; cookieless events do not carry this visitor/session context:
 
 ```ts
 type TrackingContext = {
