@@ -60,18 +60,20 @@ export function compatibilityColorErrors(css, compatibility, icon) {
     nearBlack: "--output-near-black",
   };
   const errors = [];
+  const encoded = {};
   for (const [key, token] of Object.entries(pairs)) {
     const cssValue = new RegExp(`${token}: (oklch\\([^;]+\\));`).exec(css)?.[1];
     const outputValue = new RegExp(`${key}: "(#[\\da-f]+)"`).exec(compatibility)?.[1];
+    encoded[key] = outputValue;
     if (!cssValue || !outputValue || oklchToHex(cssValue) !== outputValue) errors.push(`${compatibilityFile}: ${key} must encode ${token} as sRGB HEX`);
   }
   const outputLiterals = [...compatibility.matchAll(literal)].map((match) => match[0].toLowerCase());
-  if (outputLiterals.join(",") !== "#101010,#f7f6f3,#ff4fa3,#ffffff,#080808,#0d0b0d") {
+  if (outputLiterals.join(",") !== Object.keys(pairs).map((key) => encoded[key]).join(",")) {
     errors.push(`${compatibilityFile}: only the six checked output encodings are allowed`);
   }
   // The standalone icon cannot load CSS variables; it embeds the checked output colors.
   const iconColors = [...icon.matchAll(literal)].map((match) => match[0].toLowerCase());
-  if (iconColors.join(",") !== "#ff4fa3,#0d0b0d") errors.push("public/icon.svg: expected only the checked brand pink and near-black output colors");
+  if (iconColors.join(",") !== [encoded.brandPink, encoded.nearBlack].join(",")) errors.push("public/icon.svg: expected only the checked brand pink and near-black output colors");
   return errors;
 }
 

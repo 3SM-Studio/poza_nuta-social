@@ -21,4 +21,5 @@ test("compatibility HEX and standalone icon stay equal to canonical OKLCH", () =
   assert.deepEqual(compatibilityColorErrors(css, compatibility, icon), []);
   assert.ok(compatibilityColorErrors(css, compatibility.replace("#ff4fa3", "#ff4fa4"), icon).length > 0);
   assert.ok(compatibilityColorErrors(css, `${compatibility}\nconst extra = "#123456";`, icon).length > 0);
+  assert.ok(compatibilityColorErrors(css, compatibility, icon.replace("#ff4fa3", "#ff4fa4")).length > 0);
 });
