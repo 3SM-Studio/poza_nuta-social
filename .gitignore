@@ -11,6 +11,12 @@ playwright-report
 next-env.d.ts
 supabase/.temp
 supabase/.branches
-.impeccable
+/.impeccable/config.local.json
+/.impeccable/hook.cache.json
+/.impeccable/hook-audit.ndjson
+/.impeccable/exploration/
+/.impeccable/live/
+/.impeccable/review/
+/.impeccable/local-baseline/
 *.log
 .DS_Store
