@@ -4,25 +4,14 @@ Main marketing site for Poza Nutą, with a compact official-links route at `/lin
 
 The application is intentionally independent: its own repository, Vercel deployment, Supabase project, authentication, database and analytics. It does not depend on Stage or any other Poza Nutą application.
 
-Start with [`docs/INDEX.md`](docs/INDEX.md) for the source-of-truth map, [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for technical boundaries, [`docs/VERIFY.md`](docs/VERIFY.md) to choose verification, and [`docs/RELEASE.md`](docs/RELEASE.md) for the current release procedure. Run `npm run doctor` for a read-only local preflight; [`docs/RUNTIME.md`](docs/RUNTIME.md) maps local services, logs and cleanup.
+Start with [`docs/INDEX.md`](docs/INDEX.md) to find the source for your task. Check Git for current work state; an optional `docs/current/WORK.md` exists only during an unfinished long slice. For local setup use [`docs/RUNTIME.md`](docs/RUNTIME.md) and the read-only `npm run doctor`; choose checks in [`docs/VERIFY.md`](docs/VERIFY.md), and use [`docs/RELEASE.md`](docs/RELEASE.md) for release work.
 
-## Product contract
-Read these before changing product/UI behavior:
-- `PRODUCT.md` — durable product truth;
-- `DESIGN.md` — design-system truth;
-- `docs/PRODUCT_DECISIONS.md` — numbered decision history and the superseding Public Marketing V2 owner decision;
-- `docs/PUBLIC_MARKETING_V2.md` — approved Public Marketing V2 implementation direction and phased plan;
-- `docs/STACK_AUDIT.md` — dated engineering/tooling audit; V2 product supersessions are recorded separately;
-- `docs/RELEASE_CHECKLIST.md` — historical checklist for the previous link-hub release target, not a current release runbook;
-- `docs/seo/SEO_GEO_PRODUCTION_HARDENING.md` — dated SEO/GEO implementation evidence from the former hub slice, not the current release plan;
-- `docs/analytics/ANALYTICS_ARCHITECTURE.md` — visitor/session/event and TrackingContext contract;
-- `docs/analytics/SCENARIO_MATRIX.md` — 74 acquisition, journey, identity, consent, failure, audit and history scenarios;
-- `docs/analytics/SCENARIO_TRACEABILITY.md` — critical scenario-to-test mapping;
-- `docs/analytics/CORRECTNESS_FREEZE.md` — V2.1 finding decisions and frozen reporting contracts;
-- `CODEX_HANDOFF.md` — dated continuation checkpoint; verify current state with Git and `docs/VERIFY.md`.
+## Context by task
+
+For public product or UI changes, read `PRODUCT.md`, `DESIGN.md` and the latest applicable decisions in `docs/PRODUCT_DECISIONS.md`. For analytics/privacy, Admin/auth or DB work, follow the corresponding canonical entry in [`docs/INDEX.md`](docs/INDEX.md), then the affected contracts. Dated audits and the archived handoff are historical evidence, not setup or release instructions.
 
 ## Current stack
-- Next.js 16.3.5 / React 19.3;
+- Next.js / React versions pinned in `package.json`;
 - Tailwind CSS 4;
 - shadcn/ui `base-nova` with Base UI and the current `cn` package;
 - Impeccable detector in CI plus required Impeccable design workflow;
@@ -57,4 +46,5 @@ For sharing source, `npm run secret:scan` checks every Git-tracked text file. `n
 Production additionally requires a unique 32+ character `ANALYTICS_SIGNING_SECRET` and confirmed `PRIVACY_*` disclosure values (see `.env.example`). Use `SUPABASE_SECRET_KEY` only in the controlled server runtime; `SUPABASE_SERVICE_ROLE_KEY` is a temporary legacy fallback for older/local projects. Never expose either through `NEXT_PUBLIC_*`. Before server-confirmed analytics consent, limited identity-free public events may be ingested without visitor/session/acquisition identity; `/go` and `/r` still redirect if tracking fails. Consented identity-based analytics applies only to new events. Grant evidence is stored in `analytics_consent_evidence`. Postgres remains authoritative. GA4/Search Console are documented integration boundaries, not active production services in this repository. Retention enforcement, legal facts and privacy review remain production gates.
 
 ## Important
-Do not call the public product “Poza Nutą Social”. Public Marketing V2 permits authentic event photography/video as evidence, while stock or generated substitute karaoke imagery remains excluded. Do not add Stage/nearest-event CTA, premature owned event routes, a second UI library, raw IP storage, fingerprinting, or arbitrary generic CTAs. See `docs/PUBLIC_MARKETING_V2.md` for the event-route gate and consumer-first direction.
+
+Use `PRODUCT.md`, `DESIGN.md` and the latest owner decisions for public naming, media rights, event routes and brand boundaries. Use the analytics/privacy contracts linked from [`docs/INDEX.md`](docs/INDEX.md) for identity and tracking constraints. Do not treat this README as a second product specification.

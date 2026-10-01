@@ -2,41 +2,19 @@
 
 This repository is an independent application. Never import code, database tables, auth state or runtime assumptions from another Poza Nutą application.
 
-Use `docs/INDEX.md` to find the canonical source for each area; check current Git state for task progress.
-Use `docs/RELEASE.md` for release procedure and authorization boundaries; dated checklists and Preview reports are evidence only.
+Check the current Git branch, HEAD, status and diff before relying on task state. Use `docs/INDEX.md` to find the canonical source for the affected area. Read only the sources relevant to the task; dated checkpoints and reports are evidence, not current instructions. If a long slice has an active `docs/current/WORK.md`, use it only for remaining work and verify its Git claims directly.
 
 ## User communication language
 All user-facing progress updates, explanations, questions, approval requests, warnings, blockers, tool-result summaries, sub-agent findings, and final reports must be in Polish. Keep code, identifiers, commands, file paths, API names, raw errors and logs, test and migration names, and repository terminology in their natural technical language; do not translate identifiers for consistency.
 
-## Mandatory UI workflow
-1. Read `PRODUCT.md`, `DESIGN.md`, and `docs/PRODUCT_DECISIONS.md` before changing any UI.
-2. shadcn/ui is the only component system. Current base: `base-nova` + Base UI + `cn`.
-3. Impeccable is mandatory. Use `/impeccable` in supported agents and run detector + audit/critique/harden/polish before release.
-4. Never add MUI, Chakra, Ant Design, Mantine, Bootstrap or another competing component library.
-5. Do not bypass `src/components/ui` with raw interactive form controls in application screens.
-6. Do not change durable product/design decisions silently. Propose the change instead.
-7. Use `docs/VERIFY.md` to select closure checks. Run `npm run verify:source` on Node 24 before merging release work; source PASS alone is not release approval.
+## Contextual routing
+- Public product or UI: read `PRODUCT.md`, `DESIGN.md` and the latest applicable owner decisions via `docs/INDEX.md` before editing. Use shadcn/ui (`base-nova` + Base UI + `cn`) through `src/components/ui`; no competing component system or raw interactive screen controls. Use `/impeccable` in supported agents; run the detector and rendered audit/critique/harden/polish before release. Never approximate the real logo or silently change an approved decision.
+- Analytics or privacy: use the canonical architecture, consent and processing contracts linked from `docs/INDEX.md`. Never store raw IP addresses, fingerprint users, or infer person identity from analytics identifiers.
+- Admin or auth: use the canonical Admin and Auth contracts linked from `docs/INDEX.md`; preserve server-verified membership and authorization boundaries.
+- DB or migration: inspect the affected schema/migrations and select checks from `docs/VERIFY.md`; use `docs/RELEASE.md` for remote migration authorization.
+- Release: use `docs/RELEASE.md`, the only current procedure. Dated checklists and Preview reports are evidence.
 
-## Public product invariants
-- Public name is Poza Nutą, not “Poza Nutą Social”.
-- Primary public geography is Trójmiasto.
-- Final master-brand slogan is unresolved. The approved karaoke/campaign line is not a permanent master slogan.
-- Public Marketing V2 allows authentic event photography/video on the homepage as evidence; no stock or generated substitute karaoke imagery or decorative gradients.
-- No Stage/nearest-event CTA. Own event routes are gated on an authoritative maintained event source and lifecycle.
-- Official channels + first-party contact/collaboration only; not a generic CTA builder.
-
-## Analytics/privacy invariants
-- Do not store raw IP addresses.
-- Do not fingerprint users.
-- Do not persist exact device model or precise geolocation.
-- Session identity remains short-lived. Cross-session pseudonymous browser identity is allowed only with analytics consent as specified by ADR-001; it is never person identity or fingerprinting.
-- Preserve first-touch and last-touch attribution server-side.
-- `/r/[code]` records owned campaign entry when possible; tracking failure must not block redirect.
-- `/go/[slug]` records the outbound choice when possible before redirecting; tracking failure must not block redirect.
-- Printed QR codes encode stable `/r/[code]` URLs and are generated programmatically as SVG.
-
-## Brand asset rule
-Never recreate or approximate the Poza Nutą logo. If the real asset is not present, keep the typographic fallback.
+Use `docs/VERIFY.md` to select closure checks. Run `npm run verify:source` on Node 24 before merging release work; source PASS alone is not release approval. Never commit secrets, expose server-only keys, or mutate remote DB/Production without the authorization required by `docs/RELEASE.md`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

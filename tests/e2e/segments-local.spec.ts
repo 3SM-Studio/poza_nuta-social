@@ -57,7 +57,7 @@ test("Segments uses consented session base, overlap and bounded read states", as
     await page.goto(`/admin/segments?${range}&scope=diagnostic&segment=contact_click`);
     await expect(page.getByRole("heading", { name: "Populacja bazowa" }).locator("..")).toContainText("2");
     await page.goto(`/admin/segments?${range}&segment=arbitrary`);
-    await expect(page.getByText("Nieznany segment. Pokazujemy domyślny preset.")).toBeVisible();
+    await expect(page.getByRole("main").getByText("Nieznany segment. Pokazujemy domyślny preset.")).toBeVisible();
     await page.goto("/admin/segments?range=custom&from=2035-04-11&to=2035-04-11");
     await expect(page.getByRole("main").getByText(/Brak kwalifikujących sesji/).last()).toBeVisible();
     await expect(page.getByText("Brak bazy")).toHaveCount(5);

@@ -118,7 +118,7 @@ JSON parse for project configuration -> ok
 4. production legal privacy-notice facts and final official contact/channel inputs;
 5. physical QR print/scan reliability.
 
-These are not hidden TODOs: they are release gates in `docs/RELEASE_CHECKLIST.md` and `CODEX_HANDOFF.md`.
+These were open at this audit checkpoint. Reassess them through the current `docs/RELEASE.md` procedure; the old checklist and archived handoff are historical evidence.
 
 ## Primary external evidence used for this audit
 

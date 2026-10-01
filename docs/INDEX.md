@@ -1,18 +1,28 @@
 # Documentation map
 
-Use this map to locate the current authority. Read the source relevant to the task rather than treating this index as a second specification.
+Check Git first. Read only the task-relevant entries. `CANONICAL` is durable authority; `CURRENT` is live task state; `HISTORICAL` is superseded; `EVIDENCE` is dated and needs renewal.
 
-| Area | Source and role |
-| --- | --- |
-| Agent policy | [`AGENTS.md`](../AGENTS.md) — repository-wide agent rules and entry point. |
-| Product | [`PRODUCT.md`](../PRODUCT.md) — durable product behavior and boundaries. |
-| Design | [`DESIGN.md`](../DESIGN.md) — durable public visual direction. |
-| Architecture | [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) — technical boundaries and main flows. |
-| Owner decisions | [`docs/PRODUCT_DECISIONS.md`](PRODUCT_DECISIONS.md) — decision history and explicit supersessions; use the latest applicable decision. |
-| Current task state | Current Git branch, HEAD, status and diff are authoritative. [`CODEX_HANDOFF.md`](../CODEX_HANDOFF.md) is a dated continuation aid; verify its claims against Git and current canonical sources. |
-| Verification | [`docs/VERIFY.md`](VERIFY.md) — canonical check selection, closure gates and completion states; `package.json` defines the commands. |
-| Local runtime | [`docs/RUNTIME.md`](RUNTIME.md) — canonical bootstrap, logs, browser, local DB, Mailpit and cleanup map; `npm run doctor` checks read-only local readiness. |
-| Release — CURRENT / CANONICAL | [`docs/RELEASE.md`](RELEASE.md) — the only current release procedure, from source preflight through post-deploy evidence. |
-| Release — HISTORICAL | [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) — superseded link-hub checklist; its migration list and old host instructions are not executable guidance. [`docs/seo/SEO_GEO_PRODUCTION_HARDENING.md`](seo/SEO_GEO_PRODUCTION_HARDENING.md) records the former hub production plan. |
-| Release — EVIDENCE | [`docs/PUBLIC_MARKETING_RELEASE_READINESS.md`](PUBLIC_MARKETING_RELEASE_READINESS.md) — dated local/Preview observations. [`docs/PUBLIC_MARKETING_V2_MEDIA.md`](PUBLIC_MARKETING_V2_MEDIA.md) and [`docs/accessibility/PUBLIC_WCAG_22_AA_EVIDENCE.md`](accessibility/PUBLIC_WCAG_22_AA_EVIDENCE.md) carry scoped gate evidence; refresh it for the release under review. |
-| Other historical evidence | Dated audits and checkpoints record past results. They do not establish current behavior or a current PASS without rerunning checks. |
+| Role | Area | Entry |
+| --- | --- | --- |
+| CANONICAL | Agent rules | [`AGENTS.md`](../AGENTS.md) |
+| CANONICAL | Product / UI | [`PRODUCT.md`](../PRODUCT.md) |
+| CANONICAL | Design / UI | [`DESIGN.md`](../DESIGN.md) |
+| CANONICAL | Latest owner decisions | [`docs/PRODUCT_DECISIONS.md`](PRODUCT_DECISIONS.md) |
+| CANONICAL | Architecture | [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) |
+| CANONICAL | Analytics | [`docs/analytics/ANALYTICS_ARCHITECTURE.md`](analytics/ANALYTICS_ARCHITECTURE.md) |
+| CANONICAL | Consent | [`docs/analytics/PRIVACY_AND_CONSENT.md`](analytics/PRIVACY_AND_CONSENT.md) |
+| CANONICAL | Processing facts | [`docs/privacy/PROCESSING_FACT_MATRIX.md`](privacy/PROCESSING_FACT_MATRIX.md) |
+| CANONICAL | Admin / auth | [`docs/admin/ADMIN_PLATFORM_V2.md`](admin/ADMIN_PLATFORM_V2.md) |
+| CANONICAL | Verification | [`docs/VERIFY.md`](VERIFY.md) |
+| CANONICAL | Local runtime | [`docs/RUNTIME.md`](RUNTIME.md) |
+| CANONICAL | Release procedure | [`docs/RELEASE.md`](RELEASE.md) |
+| CANONICAL | Optional work note | [`docs/current/README.md`](current/README.md) |
+| CURRENT | Task delta | Git is authoritative; optional `docs/current/WORK.md` is a checked continuation aid. |
+| HISTORICAL | Handoff | [`docs/history/CODEX_HANDOFF_2026-09-27.md`](history/CODEX_HANDOFF_2026-09-27.md) |
+| HISTORICAL | Old release checklist | [`docs/RELEASE_CHECKLIST.md`](RELEASE_CHECKLIST.md) |
+| HISTORICAL | Old SEO/GEO plan | [`docs/seo/SEO_GEO_PRODUCTION_HARDENING.md`](seo/SEO_GEO_PRODUCTION_HARDENING.md) |
+| EVIDENCE | Release readiness | [`docs/PUBLIC_MARKETING_RELEASE_READINESS.md`](PUBLIC_MARKETING_RELEASE_READINESS.md) |
+| EVIDENCE | Media rights | [`docs/PUBLIC_MARKETING_V2_MEDIA.md`](PUBLIC_MARKETING_V2_MEDIA.md) |
+| EVIDENCE | Accessibility | [`docs/accessibility/PUBLIC_WCAG_22_AA_EVIDENCE.md`](accessibility/PUBLIC_WCAG_22_AA_EVIDENCE.md) |
+
+For DB work, inspect affected `supabase/migrations/` and schema with VERIFY/RELEASE. Historical evidence never proves a current PASS.
