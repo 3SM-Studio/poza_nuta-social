@@ -1,0 +1,16 @@
+{
+  "buildPath": "comp",
+  "hook": {
+    "enabled": true,
+    "auditLog": ".impeccable/hook-audit.ndjson",
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "detector": {
+    "designSystem": {
+      "enabled": true
+    }
+  }
+}

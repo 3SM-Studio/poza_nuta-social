@@ -14,6 +14,7 @@ Check Git first. Read only the task-relevant entries. `CANONICAL` is durable aut
 | CANONICAL | Processing facts | [`docs/privacy/PROCESSING_FACT_MATRIX.md`](privacy/PROCESSING_FACT_MATRIX.md) |
 | CANONICAL | Admin / auth | [`docs/admin/ADMIN_PLATFORM_V2.md`](admin/ADMIN_PLATFORM_V2.md) |
 | CANONICAL | Verification | [`docs/VERIFY.md`](VERIFY.md) |
+| CANONICAL | Impeccable infrastructure | [`docs/IMPECCABLE_INFRASTRUCTURE.md`](IMPECCABLE_INFRASTRUCTURE.md) |
 | CANONICAL | Local runtime | [`docs/RUNTIME.md`](RUNTIME.md) |
 | CANONICAL | Release procedure | [`docs/RELEASE.md`](RELEASE.md) |
 | CANONICAL | Optional work note | [`docs/current/README.md`](current/README.md) |
