@@ -123,8 +123,7 @@ test("public pages reflow at 320 CSS px and focused controls remain visible", as
     const width = await page.evaluate(() => ({ page: document.documentElement.scrollWidth, viewport: document.documentElement.clientWidth, overflowing: [...document.querySelectorAll("body *")].filter((item) => item.getBoundingClientRect().right > document.documentElement.clientWidth).slice(0, 8).map((item) => `${item.tagName}.${item.className?.toString().slice(0, 40)}:${Math.round(item.getBoundingClientRect().right)}:${item.textContent?.trim().slice(0, 40)}`) }));
     expect(width.page, `${route} horizontal overflow: ${width.overflowing.join(", ")}`).toBeLessThanOrEqual(width.viewport);
   }
-  // This check targets the hydrated footer interaction after the route sweep.
-  await page.goto("/", { waitUntil: "networkidle" });
+  await page.goto("/");
   await page.getByRole("contentinfo").getByRole("button", { name: "Ustawienia prywatności" }).click();
   const dialog = page.getByRole("dialog", { name: "Ustawienia prywatności" });
   await expect(dialog).toBeVisible();
