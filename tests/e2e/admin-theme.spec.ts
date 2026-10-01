@@ -94,10 +94,16 @@ test("Admin light and dark tokens stay scoped to Admin routes", async ({ page },
     const publicRoot = document.querySelector(".editorial-site");
     if (!publicRoot) throw new Error("Public design root is missing");
     const root = getComputedStyle(publicRoot);
+    const canvas = document.createElement("canvas").getContext("2d")!;
+    const srgbHex = (color: string) => {
+      canvas.fillStyle = color;
+      canvas.fillRect(0, 0, 1, 1);
+      return `#${Array.from(canvas.getImageData(0, 0, 1, 1).data).slice(0, 3).map((channel) => channel.toString(16).padStart(2, "0")).join("")}`;
+    };
     return {
       adminMarker: Boolean(document.querySelector(".admin-theme")),
-      background: root.getPropertyValue("--background").trim(),
-      accent: root.getPropertyValue("--accent").trim(),
+      background: srgbHex(root.getPropertyValue("--background").trim()),
+      accent: srgbHex(root.getPropertyValue("--accent").trim()),
       radius: root.getPropertyValue("--radius").trim(),
       font: root.fontFamily,
     };

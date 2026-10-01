@@ -6,6 +6,8 @@ The same full-page screenshot procedure covered `/`, `/karaoke`, `/dla-lokali`, 
 
 Canvas readback of 25 canonical brand, public and root token colors matched the former 8-bit sRGB channels exactly. The 8-bit-alpha caption scrim read back as `(16, 16, 16, 232)` and the existing contact `color-mix(in srgb, ...)` as `(198, 64, 128, 255)`. The Admin login screen returned HTTP 200; its dark screenshot and a light variant with the `dark` class removed each matched their old-root-color control PNG byte for byte. The Admin light/dark and chart token declarations were untouched. This Admin check covers the accessible login composition; the protected dashboard was not opened without authentication.
 
+The focused `admin-theme.spec.ts` browser check converts computed public colors to sRGB before asserting their previous values. It passed on mobile Chromium, desktop Chromium and desktop WebKit (three authenticated cases skipped without the isolated local Auth fixture).
+
 Local rerun material: `.impeccable/local-baseline/token-capture.cjs.txt`, `check-computed.cjs.txt`, `all-pixel-diffs.cjs.txt`, `all-color-control.cjs.txt`, and `admin-check.cjs.txt`. Copy a script to a temporary `.cjs` name in that ignored directory before running with Node, then remove or rename it before `npm run verify:source` so ESLint does not include it. The checked compatibility mapping and guard tests live in tracked source.
 
 **VISUAL DESIGN CHANGED: NO**
