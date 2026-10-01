@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { confirmAnalyticsConsent } from "./helpers/confirmed-analytics-consent";
 
 test("homepage introduces Poza Nutą and routes both audiences", async ({ page }) => {
   await page.goto("/");
@@ -28,7 +29,7 @@ test("link hub uses the official destination route and returns to the marketing 
 
 test("contact is a first-party page", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   const contactView = page.waitForRequest((request) => request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "contact_view");
   await page.goto("/kontakt");
@@ -107,7 +108,7 @@ test("withdrawal clears analytics state in another open tab", async ({ browser }
   const second = await context.newPage();
   await first.goto("/");
   await second.goto("/linki");
-  await first.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
+  await confirmAnalyticsConsent(first, first.getByRole("button", { name: "Zgadzam się na analitykę" }));
   await expect(second.getByRole("button", { name: "Ustawienia prywatności" })).toBeVisible();
   await second.evaluate(() => sessionStorage.setItem("pn_hub_outbound_v1", "temporary-test-state"));
   await first.getByRole("button", { name: "Ustawienia prywatności" }).click();
@@ -127,7 +128,7 @@ test("privacy settings change consent in both directions and persist after reloa
   await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(false);
 
-  await page.getByRole("button", { name: "Włącz analitykę" }).click();
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Włącz analitykę" }));
   await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
   const firstVisitor = (await context.cookies()).find((cookie) => cookie.name === "pn_visitor");
   expect(firstVisitor?.value).toBeTruthy();
@@ -143,7 +144,7 @@ test("privacy settings change consent in both directions and persist after reloa
   await expect.poll(async () => (await context.cookies()).some((cookie) => ["pn_visitor", "pn_session", "pn_acquisition"].includes(cookie.name) && cookie.value)).toBe(false);
   await page.reload();
   await expect(page.getByText("Analityka wyłączona dla tej przeglądarki.")).toBeVisible();
-  await page.getByRole("button", { name: "Włącz analitykę" }).click();
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Włącz analitykę" }));
   await expect(page.getByText("Analityka włączona dla tej przeglądarki.")).toBeVisible();
   expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).toBeTruthy();
   expect((await context.cookies()).find((cookie) => cookie.name === "pn_visitor")?.value).not.toBe(firstVisitor?.value);
@@ -166,7 +167,7 @@ test("privacy page offers the first choice without an overlapping banner", async
   await page.goto("/prywatnosc");
   await expect(page.getByText("Nie wybrano jeszcze ustawienia pełnej analityki.")).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toHaveCount(0);
-  await page.getByRole("button", { name: "Włącz analitykę" }).click();
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Włącz analitykę" }));
   await expect(page.getByText("Pełna analityka włączona dla tej przeglądarki.")).toBeVisible();
   await expect(page.getByRole("complementary", { name: "Wybór analityki" })).toBeHidden();
   expect((await context.cookies()).some((cookie) => cookie.name === "pn_visitor" && cookie.value)).toBe(true);
@@ -234,22 +235,53 @@ test("analytics endpoint is inert before consent and validates consented input",
 });
 
 test("hub resume requires an armed outbound and a meaningful hidden interval", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await page.context().cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
-  const initialView = page.waitForResponse((response) => response.url().endsWith("/api/track") && response.request().postDataJSON()?.eventName === "page_view");
-  await page.goto("/linki");
-  await initialView;
-  await expect(page.locator("html")).toHaveAttribute("data-tracking-lifecycle", "ready");
-  const resumed = page.waitForRequest((request) => request.url().endsWith("/api/track"));
-  const lifecycle = await page.evaluate(() => {
-    sessionStorage.setItem("pn_hub_outbound_v1", JSON.stringify({ destination: "instagram", at: Date.now() - 3_000, hidden: true }));
-    window.dispatchEvent(new PageTransitionEvent("pageshow", { persisted: true }));
-    return { visibility: document.visibilityState, state: sessionStorage.getItem("pn_hub_outbound_v1") };
+  const resumeRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "hub_resumed") {
+      resumeRequests.push(request.postData() || "");
+    }
   });
-  expect(lifecycle).toEqual({ visibility: "visible", state: null });
-  await resumed;
+  await page.goto("/");
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
+  await page.goto("/linki");
+  await expect(page.locator("html")).toHaveAttribute("data-tracking-lifecycle", "ready");
+  await page.getByRole("button", { name: "Ustawienia prywatności" }).click();
+  await expect(page.getByRole("dialog", { name: "Ustawienia prywatności" })
+    .getByText("Pełna analityka włączona dla tej przeglądarki.")).toBeVisible();
+  await page.keyboard.press("Escape");
+  const outbound = page.getByRole("navigation", { name: "Oficjalne linki Poza Nutą" })
+    .getByRole("link", { name: "Otwórz Instagram w nowej karcie" });
+  await outbound.evaluate((link) => link.addEventListener("click", (event) => event.preventDefault(), { once: true }));
+  await outbound.click();
+  await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem("pn_hub_outbound_v1") || "null")))
+    .toMatchObject({ destination: "instagram", hidden: false });
+
+  // Headless Chromium does not reliably hide a page when another Playwright tab
+  // is foregrounded. Exercise the lifecycle listener with a controlled document
+  // visibility seam, and assert the observed state on both sides of the event.
+  await page.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "hidden" });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  expect(await page.evaluate(() => document.visibilityState)).toBe("hidden");
+  await expect.poll(() => page.evaluate(() => JSON.parse(sessionStorage.getItem("pn_hub_outbound_v1") || "null")))
+    .toMatchObject({ destination: "instagram", hidden: true });
+  const hiddenSince = Date.now();
+  await expect.poll(() => Date.now() - hiddenSince).toBeGreaterThanOrEqual(2_000);
+  const resumed = page.waitForRequest((request) =>
+    request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "hub_resumed",
+  );
+  await page.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", { configurable: true, get: () => "visible" });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+  expect(await page.evaluate(() => document.visibilityState)).toBe("visible");
+  const request = await resumed;
+  expect(request.postDataJSON()?.properties).toMatchObject({ priorDestination: "instagram", resumeSignal: "visibilitychange" });
   expect(await page.evaluate(() => sessionStorage.getItem("pn_hub_outbound_v1"))).toBeNull();
+  await page.evaluate(() => document.dispatchEvent(new Event("visibilitychange")));
+  await page.waitForLoadState("networkidle");
+  expect(resumeRequests).toHaveLength(1);
 });
 
 test("public surface preserves responsive and keyboard accessibility invariants", async ({ page }, testInfo) => {

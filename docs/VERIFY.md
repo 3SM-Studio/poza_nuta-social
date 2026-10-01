@@ -13,6 +13,8 @@ Choose checks by changed behavior and risk. A green local command is evidence fo
 
 Playwright keeps two CI retries for diagnosing transient failures, but `failOnFlakyTests` makes a test that passes only on retry fail its job. The built-in GitHub reporter emits passed, failed, flaky and skipped counts when present; a green check therefore means no flaky result. Project-specific skips are expected: public specs run across four browser/viewport projects, while local Auth/Admin scenarios require their designated project and isolated stack. Inspect skipped test names before treating a changed count as a regression.
 
+A Playwright result classified as flaky is a failure. Rerunning an unchanged SHA until its job turns green does not close the defect: identify the root cause, fix it at a new HEAD, and verify that HEAD. A rerun without a code fix is appropriate only for a clearly identified external infrastructure outage unrelated to a Playwright flaky result; record that evidence first.
+
 ## Change-class closure matrix
 
 `Source` means `npm run verify:source` on Node 24. Add rows when a change crosses domains. CI always runs its configured jobs for a PR, regardless of the smaller local focused choice.

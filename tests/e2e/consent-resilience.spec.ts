@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { confirmAnalyticsConsent } from "./helpers/confirmed-analytics-consent";
 
 const bannerName = "Wybór analityki";
 const pendingText = /Zgoda zapisana w tej przeglądarce/;
@@ -57,8 +58,7 @@ test("slow consent endpoint cannot hold reject or accept UI", async ({ page, con
 
 test("withdrawal timeout leaves old identifiers inert until proxy cleanup", async ({ page, context }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
   await outage(page, 6_000);
   await page.getByRole("button", { name: "Ustawienia prywatności" }).click();
   await page.getByRole("dialog", { name: "Ustawienia prywatności" }).getByRole("button", { name: "Tylko niezbędne" }).click();
@@ -76,8 +76,7 @@ test("withdrawal during outage disables both tabs and cleans HttpOnly cookies on
   const first = await context.newPage();
   const second = await context.newPage();
   await first.goto("/");
-  await first.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
+  await confirmAnalyticsConsent(first, first.getByRole("button", { name: "Zgadzam się na analitykę" }));
   await second.goto("/linki");
   await second.evaluate(() => sessionStorage.setItem("pn_hub_outbound_v1", "temporary-test-state"));
   await outage(first);
@@ -114,8 +113,7 @@ test("forged local accept cannot grant analytics and replayed deny can only supp
   await page.goto("/");
   await expect(page.getByRole("complementary", { name: bannerName })).toBeVisible();
   await expect.poll(() => events.length).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
   await context.addCookies([{ name: "pn_consent_preference", value: "2.deny", url: "http://localhost:3000" }]);
   const inert = await context.request.post("/api/track", { data: { eventName: "page_view", eventId: crypto.randomUUID(), path: "/" } });
   expect(inert.status()).toBe(204);
@@ -123,10 +121,9 @@ test("forged local accept cannot grant analytics and replayed deny can only supp
   await expect.poll(async () => (await context.cookies()).some((cookie) => ["pn_visitor", "pn_session"].includes(cookie.name))).toBe(false);
 });
 
-test("a later consent GET outage does not reopen the banner after confirmed acceptance", async ({ page, context }) => {
+test("a later consent GET outage does not reopen the banner after confirmed acceptance", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
   await page.route("**/api/consent", async (route) => {
     if (route.request().method() === "GET") await route.fulfill({ status: 503, body: "{}" });
     else await route.continue();
