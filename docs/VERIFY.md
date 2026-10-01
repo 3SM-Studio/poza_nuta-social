@@ -19,7 +19,7 @@ Playwright keeps two CI retries for diagnosing transient failures, but `failOnFl
 
 | Change class | Focused feedback | Source | Additional local domain gates | Browser/runtime evidence | Local closure |
 | --- | --- | --- | --- | --- | --- |
-| Docs only | Check links, command names and `git diff --check`; run a referenced guard if its contract changed. | No full source gate unless executable verification/config changed. | None for prose-only edits. | No. | Accurate links and claims; no stale PASS or release claim. |
+| Docs only | Run `node scripts/docs-integrity-guard.mjs` for entry-map changes; check links, command names and `git diff --check`. | No full source gate unless executable verification/config changed. | None for prose-only edits. | No. | Accurate links and claims; no stale PASS or release claim. |
 | TypeScript/lib | Affected Vitest file. | Yes. | Add a domain row if shared behavior changes auth, analytics or another contract. | Only if observable runtime behavior changes. | Source PASS and affected contract tests PASS. |
 | UI | Affected component test and focused rendered spec. | Yes. | Relevant `test:e2e` spec across affected viewport/project; Impeccable rendered passes for release work. | Yes, inspect actual changed states and interaction. | Source, applicable browser checks and rendered review PASS. |
 | Accessibility-sensitive UI | Affected component test and keyboard/focus check. | Yes. | `npm run test:a11y` plus relevant `test:e2e` spec; human review of changed criteria. | Yes, including keyboard, focus and responsive state. | Automated and human evidence for affected criteria PASS. |

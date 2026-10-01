@@ -15,7 +15,7 @@ This is the auditable mapping for the high-value subset of `SCENARIO_MATRIX.md`.
 | 31 | `tests/e2e/public.spec.ts`; `supabase/tests/analytics_attribution_test.sql` | `consent choice is explicit and does not create a visitor when denied`; only consented visitors linked |
 | 33 | `tests/e2e/public.spec.ts` | `consent lifecycle grants, reuses, withdraws, separates marketing, and rejects tampering` |
 | 38 | `tests/e2e/admin-local.spec.ts` | signed test-mode page view is stored with `traffic_class=test` |
-| 50 | `docs/RELEASE_CHECKLIST.md` | isolated local database-offline `/r` and `/go` fail-open timing gate |
+| 50 | `src/lib/cookieless-redirects.test.ts`; `docs/VERIFY.md` | unit tests prove `/r` and `/go` redirect when ingest throws; any real-host timing claim needs separate current release evidence |
 | 52 | `supabase/tests/analytics_v1_test.sql`; `scripts/analytics-concurrency.mjs` | duplicate event is acknowledged idempotently; `same-id` concurrency case |
 | 55 | `tests/e2e/admin-local.spec.ts` | `local disabled database destination is not resurrected from environment fallback` |
 | 57 | `tests/e2e/admin-local.spec.ts` | archived campaign tracking route falls back to `/` |

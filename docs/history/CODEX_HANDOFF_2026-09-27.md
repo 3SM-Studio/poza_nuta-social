@@ -1,6 +1,6 @@
-# Codex handoff — locally verified repository
+# Historical Codex handoff — 2026-09-27
 
-This is a dated continuation checkpoint, not the current release procedure. Use `docs/RELEASE.md` for release actions and `docs/VERIFY.md` for current closure checks; recheck Git and platform state before acting.
+**ARCHIVED EVIDENCE.** This snapshot preserves prior reasoning and observations. Its setup instructions, test counts, runtime claims and release blockers may be obsolete; do not execute it as a current continuation plan. Start with [`docs/INDEX.md`](../INDEX.md), current Git/platform state, [`docs/VERIFY.md`](../VERIFY.md) and [`docs/RELEASE.md`](../RELEASE.md) instead.
 
 ## Current public IA, 2026-09-27
 

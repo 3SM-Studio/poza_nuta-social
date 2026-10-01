@@ -1,6 +1,6 @@
 # Release procedure
 
-**CURRENT / CANONICAL procedure.** This document defines the release sequence, not a release approval or a record of current deployment state. Use [VERIFY.md](VERIFY.md) for change-class checks and completion states. Dated readiness reports and the [old release checklist](RELEASE_CHECKLIST.md) are evidence, not instructions for the next release.
+**CURRENT / CANONICAL procedure.** This document defines the release sequence, not a release approval or a record of current deployment state. Use [VERIFY.md](VERIFY.md) for change-class checks and completion states. Dated readiness reports and superseded checklists are evidence, not instructions for the next release; find them in [INDEX.md](INDEX.md).
 
 `main` is the integration branch. Vercel tracks `production` as its Production Branch; merging into `main` does not authorize or trigger a Production deployment. A release uses a reviewed PR to integrate the selected `main` state into `production`. Reconfirm the live Vercel branch setting and active deployment before each release. Merging into `production` is a consequential Production action and requires separate explicit authorization.
 
