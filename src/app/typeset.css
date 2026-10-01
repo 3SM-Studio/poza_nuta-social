@@ -137,7 +137,7 @@
     &:where(mark) {
       background-color: color-mix(
         in oklab,
-        oklch(0.86 0.17 95) 40%,
+        var(--typeset-highlight) 40%,
         transparent
       );
       color: inherit;

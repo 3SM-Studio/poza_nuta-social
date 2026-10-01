@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from "node:fs";
+import { checkColorContract } from "./color-guard.mjs";
 
 const required = ["PRODUCT.md", "DESIGN.md", "components.json", "docs/PRODUCT_DECISIONS.md"];
 for (const file of required) if (!existsSync(file)) throw new Error(`Design/product contract missing: ${file}`);
@@ -12,4 +13,6 @@ const publicSource = ["src/app/(public)/page.tsx", "src/app/(public)/layout.tsx"
 if (publicSource.includes("Gdynia · Trójmiasto") || publicSource.includes("Gdyni i Trójmieście")) throw new Error("Public copy violates approved Trójmiasto-only primary geography.");
 if (publicSource.includes("Nie musisz umieć śpiewać. Musisz chcieć śpiewać.")) throw new Error("Temporary slogan was hard-coded although final slogan is unresolved.");
 if (/gradient|from-(?:purple|blue)|to-(?:purple|blue)/i.test(publicSource)) throw new Error("Public source contains a decorative gradient against DESIGN.md.");
+const colorErrors = checkColorContract();
+if (colorErrors.length) throw new Error(colorErrors.join("\n"));
 console.log("design-guard: ok");

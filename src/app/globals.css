@@ -14,32 +14,66 @@
 @custom-variant admin (&:is(:root:has(.admin-theme) *));
 
 :root {
-  --background: #080808;
-  --foreground: #f7f7f7;
-  --card: #141414;
-  --card-foreground: #f7f7f7;
-  --popover: #141414;
-  --popover-foreground: #f7f7f7;
-  --primary: #f7f7f7;
-  --primary-foreground: #080808;
-  --secondary: #1c1c1c;
-  --secondary-foreground: #f7f7f7;
-  --muted: #1c1c1c;
-  --muted-foreground: #b7b7b7;
-  --accent: #ff4fa3;
-  --accent-foreground: #080808;
-  --destructive: #ff6b6b;
-  --border: #3b3b3b;
-  --input: #3b3b3b;
-  --ring: #ff4fa3;
-  --sidebar: #141414;
-  --sidebar-foreground: #f7f7f7;
-  --sidebar-primary: #ff4fa3;
-  --sidebar-primary-foreground: #080808;
-  --sidebar-accent: #252525;
-  --sidebar-accent-foreground: #f7f7f7;
-  --sidebar-border: #3b3b3b;
-  --sidebar-ring: #ff4fa3;
+  /* Canonical sRGB-derived brand colors. Public and output aliases consume these. */
+  --brand-ink: oklch(0.1730423076 0 0);
+  --brand-paper: oklch(0.9730770612 0.0041189793 91.44622148);
+  --brand-pink: oklch(0.6950236516 0.2229224359 355.31085912);
+  --brand-white: oklch(1 0 0);
+  /* QR SVG and manifest output require a legacy near-black sRGB value. */
+  --output-near-black: oklch(0.1530125483 0.0053683856 325.83612663);
+
+  /* Public semantics remain separate from the default and Admin themes. */
+  --public-pink-ink: oklch(0.4734745872 0.1852083265 358.68207688);
+  --public-muted: oklch(0.4534216276 0.0034618214 84.57010723);
+  --public-line: oklch(0.8327241613 0.0042811564 91.45410745);
+  --public-secondary: oklch(0.9339561265 0.0041611235 91.44815884);
+  --public-inverse-muted: oklch(0.8675845281 0.0046584898 78.29577397);
+  --public-inverse-line: oklch(0.5140439232 0.0033561156 84.56765437);
+  --public-inverse-hover: oklch(0.2644796709 0 0);
+  --public-caption-line: oklch(0.6731222126 0 0);
+  --public-story-copy: oklch(0.9006007207 0 0);
+  --public-setlist-muted: oklch(0.8647853935 0.0035240006 67.77707958);
+  --public-case-surface: oklch(0.9369797992 0.0041577889 91.44800275);
+  --public-venue-line: oklch(0.5692623997 0 0);
+  --public-venue-pink-ink: oklch(0.5270277958 0.1924544793 356.72234431);
+  --public-caption-scrim: color-mix(in srgb, var(--brand-ink) 90.98039215686275%, transparent);
+  --typeset-highlight: oklch(0.86 0.17 95);
+
+  /* Default/root semantics, preserved independently of the Admin theme. */
+  --root-background: oklch(0.1344092305 0 0);
+  --root-foreground: oklch(0.9761387843 0 0);
+  --root-panel: oklch(0.1912512984 0 0);
+  --root-secondary: oklch(0.2264498633 0 0);
+  --root-muted-foreground: oklch(0.7794404747 0 0);
+  --root-destructive: oklch(0.7116074707 0.1812212699 22.83888563);
+  --root-border: oklch(0.3523247380 0 0);
+  --root-sidebar-accent: oklch(0.2644796709 0 0);
+  --background: var(--root-background);
+  --foreground: var(--root-foreground);
+  --card: var(--root-panel);
+  --card-foreground: var(--root-foreground);
+  --popover: var(--root-panel);
+  --popover-foreground: var(--root-foreground);
+  --primary: var(--root-foreground);
+  --primary-foreground: var(--root-background);
+  --secondary: var(--root-secondary);
+  --secondary-foreground: var(--root-foreground);
+  --muted: var(--root-secondary);
+  --muted-foreground: var(--root-muted-foreground);
+  --accent: var(--brand-pink);
+  --accent-foreground: var(--root-background);
+  --destructive: var(--root-destructive);
+  --border: var(--root-border);
+  --input: var(--root-border);
+  --ring: var(--brand-pink);
+  --sidebar: var(--root-panel);
+  --sidebar-foreground: var(--root-foreground);
+  --sidebar-primary: var(--brand-pink);
+  --sidebar-primary-foreground: var(--root-background);
+  --sidebar-accent: var(--root-sidebar-accent);
+  --sidebar-accent-foreground: var(--root-foreground);
+  --sidebar-border: var(--root-border);
+  --sidebar-ring: var(--brand-pink);
   --radius: 0.25rem;
 }
 
@@ -204,7 +238,7 @@ body:has(.admin-theme) {
 }
 
 :focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--accent) 82%, white);
+  outline: 3px solid color-mix(in srgb, var(--accent) 82%, var(--brand-white));
   outline-offset: 3px;
 }
 
