@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { confirmAnalyticsConsent } from "./helpers/confirmed-analytics-consent";
 
 const publicRoutes = [
   { path: "/", heading: "Zanim ktoś chwyci mikrofon." },
@@ -65,14 +66,14 @@ test("new routes remain readable without JavaScript and expose internal links", 
 
 test("new routes keep consented page-view tracking flow", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
   const view = page.waitForRequest((request) => request.url().endsWith("/api/track") && request.postDataJSON()?.eventName === "page_view" && request.postDataJSON()?.path === "/dla-lokali");
   await page.goto("/dla-lokali");
   const request = await view;
   expect((await request.response())?.status()).toBe(204);
 });
 
-test("public browser requests remain first-party after confirmed analytics consent", async ({ page, context }) => {
+test("public browser requests remain first-party after confirmed analytics consent", async ({ page }) => {
   test.skip(!process.env.LOCAL_ADMIN_E2E_EMAIL, "requires connected local Supabase");
   const externalHosts = new Set<string>();
   page.on("request", (request) => {
@@ -82,8 +83,7 @@ test("public browser requests remain first-party after confirmed analytics conse
   });
   for (const { path } of publicRoutes) await page.goto(path);
   await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_visitor")).toBe(true);
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
   for (const { path } of publicRoutes) await page.goto(path);
   expect([...externalHosts]).toEqual([]);
 });

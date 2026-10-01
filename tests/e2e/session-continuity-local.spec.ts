@@ -1,5 +1,6 @@
-import { expect, test, type BrowserContext, type Page } from "@playwright/test";
+import { expect, test, type BrowserContext, type Page, type Request } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { confirmAnalyticsConsent } from "./helpers/confirmed-analytics-consent";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -13,17 +14,20 @@ test("participant and venue journeys each retain one independent Preview session
     const context: BrowserContext = await browser.newContext();
     const page = await context.newPage();
     const eventIds: string[] = [];
+    const consentedRequests = new Set<Request>();
     let captureConsented = false;
+    page.on("request", (request) => {
+      if (captureConsented && request.url().endsWith("/api/track")) consentedRequests.add(request);
+    });
     page.on("response", (response) => {
-      if (!captureConsented || !response.url().endsWith("/api/track") || response.status() !== 204) return;
+      if (!consentedRequests.has(response.request()) || response.status() !== 204) return;
       const payload = response.request().postDataJSON();
       if (typeof payload?.eventId === "string") eventIds.push(payload.eventId);
     });
     try {
       await page.goto("/");
       expect((await context.cookies()).some((cookie) => cookie.name === "pn_session")).toBe(false);
-      await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-      await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_session")).toBe(true);
+      await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
       captureConsented = true;
       await run(page);
       await page.waitForLoadState("networkidle");

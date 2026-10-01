@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
+import { confirmAnalyticsConsent } from "./helpers/confirmed-analytics-consent";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceKey = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -50,8 +51,7 @@ test("navigation-bound CTA persists before destination view in repeated funnels"
     }
     try {
       await page.goto("/");
-      await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-      await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_session")).toBe(true);
+      await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
       collect = true;
 
       if (kind === "venue") {

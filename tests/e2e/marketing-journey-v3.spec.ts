@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
+import { confirmAnalyticsConsent } from "./helpers/confirmed-analytics-consent";
 
-test("consented participant and venue journeys emit stable semantic actions", async ({ page, context }) => {
+test("consented participant and venue journeys emit stable semantic actions", async ({ page }) => {
   const events: Array<{ eventName: string; path: string; properties?: Record<string, string> }> = [];
   page.on("request", (request) => {
     if (request.url().endsWith("/api/track")) {
@@ -9,9 +10,7 @@ test("consented participant and venue journeys emit stable semantic actions", as
     }
   });
   await page.goto("/");
-  await page.getByRole("button", { name: "Zgadzam się na analitykę" }).click();
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_consent")).toBe(true);
-  await expect.poll(async () => (await context.cookies()).some((cookie) => cookie.name === "pn_consent_preference")).toBe(false);
+  await confirmAnalyticsConsent(page, page.getByRole("button", { name: "Zgadzam się na analitykę" }));
 
   const participantProof = page.locator('[data-section-id="home.participation"]');
   await participantProof.scrollIntoViewIfNeeded();
