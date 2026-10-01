@@ -2,15 +2,16 @@
 
 import { ArrowUpRight } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { cn } from "@/lib/utils";
 
-export function TrackedContactLink({ email }: { email: string }) {
+export function TrackedContactLink({ email, className, textClassName }: { email: string; className?: string; textClassName?: string }) {
   return (
     <a
       href={`mailto:${email}`}
       onClick={() => track("contact_click", { contactType: "email" })}
-      className="ed-contact-link"
+      className={cn("ed-contact-link", className)}
     >
-      <span>{email}</span>
+      <span className={textClassName}>{email}</span>
       <ArrowUpRight aria-hidden="true" />
     </a>
   );

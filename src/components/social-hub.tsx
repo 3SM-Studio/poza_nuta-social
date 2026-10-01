@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight, Camera, ExternalLink, Globe2, Music2, Play, Users } from "lucide-react";
 import { recordOutboundChoice } from "@/lib/analytics";
 import type { Destination } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 const icons = {
   instagram: Camera,
@@ -20,12 +21,12 @@ function priority(slug: string) {
   return 2;
 }
 
-export function SocialHub({ destinations }: { destinations: Destination[] }) {
+export function SocialHub({ destinations, listClassName, linkClassName }: { destinations: Destination[]; listClassName?: string; linkClassName?: string }) {
   const ordered = [...destinations].sort((a, b) => priority(a.slug) - priority(b.slug) || a.sort_order - b.sort_order);
 
   return (
     <nav aria-label="Oficjalne linki Poza Nutą" className="ed-social-hub">
-      <ul className="ed-social-hub__list">
+      <ul className={cn("ed-social-hub__list", listClassName)}>
         {ordered.map((destination) => {
           const Icon = icons[destination.icon as keyof typeof icons] || ExternalLink;
           return (
@@ -34,7 +35,7 @@ export function SocialHub({ destinations }: { destinations: Destination[] }) {
                 href={`/go/${encodeURIComponent(destination.slug)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="ed-social-hub__link"
+                className={cn("ed-social-hub__link", linkClassName)}
                 data-channel={destination.slug}
                 aria-label={`Otwórz ${destination.label} w nowej karcie`}
                 onClick={() => recordOutboundChoice(destination.slug)}
