@@ -1,0 +1,235 @@
+{
+  "sourceHead": "f9a046e8082a8c73ef990b996702ec7a2145e665",
+  "comparison": "Working-tree documentation and inventory changes only, before commit",
+  "capture": "Playwright Chromium, full page, 900px height, 1x scale, reduced motion, pl-PL, fresh context per route and width",
+  "localEvidence": ".impeccable/local-baseline/foundation/",
+  "identicalCount": 25,
+  "totalCount": 25,
+  "records": [
+    {
+      "route": "/",
+      "width": 390,
+      "beforeSha256": "0d4c32e51b40d3956325a36e1dd26c9e15b3fd4f9bade0300cc9e26158888d2d",
+      "afterSha256": "0d4c32e51b40d3956325a36e1dd26c9e15b3fd4f9bade0300cc9e26158888d2d",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/",
+      "width": 768,
+      "beforeSha256": "3e315091033a8d0c6e5e1b28d069bbfd174746e65d0e3a6645942d005833f4e6",
+      "afterSha256": "3e315091033a8d0c6e5e1b28d069bbfd174746e65d0e3a6645942d005833f4e6",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/",
+      "width": 1024,
+      "beforeSha256": "832d5b8a0115b46a4f3a790743cee66b490959dd9d6afb279515f9c2b48f1d3c",
+      "afterSha256": "832d5b8a0115b46a4f3a790743cee66b490959dd9d6afb279515f9c2b48f1d3c",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/",
+      "width": 1440,
+      "beforeSha256": "c88b1c14cc04c5f59ee7b2e11a051d335f15fc94b9ec1a6e5db84d5b39dbf4cb",
+      "afterSha256": "c88b1c14cc04c5f59ee7b2e11a051d335f15fc94b9ec1a6e5db84d5b39dbf4cb",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/",
+      "width": 1920,
+      "beforeSha256": "50d91e6ba928106e53256cacee13c6797dae87387b67a91b883bc7206d58c064",
+      "afterSha256": "50d91e6ba928106e53256cacee13c6797dae87387b67a91b883bc7206d58c064",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/karaoke",
+      "width": 390,
+      "beforeSha256": "e9166c137221a2055db8c64e9b82baba24fa18cf794dc724047ff7be0c0edd56",
+      "afterSha256": "e9166c137221a2055db8c64e9b82baba24fa18cf794dc724047ff7be0c0edd56",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/karaoke",
+      "width": 768,
+      "beforeSha256": "deacee3e1db392c15b8de61e56b2be3ffc229603b4e737151f3f902614f805ca",
+      "afterSha256": "deacee3e1db392c15b8de61e56b2be3ffc229603b4e737151f3f902614f805ca",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/karaoke",
+      "width": 1024,
+      "beforeSha256": "0db1fbedc73050e89be149c4fc133cd1a61db2d0dffb0b133a5d0faefc5ee68b",
+      "afterSha256": "0db1fbedc73050e89be149c4fc133cd1a61db2d0dffb0b133a5d0faefc5ee68b",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/karaoke",
+      "width": 1440,
+      "beforeSha256": "be2ad60b2e698cfb45377cec8ca703dc45e53a9a0071102a4fd9658ab5b37a64",
+      "afterSha256": "be2ad60b2e698cfb45377cec8ca703dc45e53a9a0071102a4fd9658ab5b37a64",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/karaoke",
+      "width": 1920,
+      "beforeSha256": "90b0cebf40e91958faed8326b5d4bfdf4e82f4c358e39399c405af13c799714f",
+      "afterSha256": "90b0cebf40e91958faed8326b5d4bfdf4e82f4c358e39399c405af13c799714f",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/dla-lokali",
+      "width": 390,
+      "beforeSha256": "6df5339d87537b176d1eea8e1697ee8f6432d8088e4cec39589004c60131c1a8",
+      "afterSha256": "6df5339d87537b176d1eea8e1697ee8f6432d8088e4cec39589004c60131c1a8",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/dla-lokali",
+      "width": 768,
+      "beforeSha256": "676847d1ded168c7164dd826ebb8e858d662b3c269a53ccfa645a3bbb0920197",
+      "afterSha256": "676847d1ded168c7164dd826ebb8e858d662b3c269a53ccfa645a3bbb0920197",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/dla-lokali",
+      "width": 1024,
+      "beforeSha256": "521ec57c54c3b62218b33e47141d7bd6024f2e668c900100c53fddb345ed5196",
+      "afterSha256": "521ec57c54c3b62218b33e47141d7bd6024f2e668c900100c53fddb345ed5196",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/dla-lokali",
+      "width": 1440,
+      "beforeSha256": "7e29f0a435cc012cf76be9c6318d1907f596c4308b95baeeae8ab7c89ba68465",
+      "afterSha256": "7e29f0a435cc012cf76be9c6318d1907f596c4308b95baeeae8ab7c89ba68465",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/dla-lokali",
+      "width": 1920,
+      "beforeSha256": "dffa4867e6fa6ef60917ff8fac168ca4f10f82796f554b8cdf07865d0de0a4c8",
+      "afterSha256": "dffa4867e6fa6ef60917ff8fac168ca4f10f82796f554b8cdf07865d0de0a4c8",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/kontakt",
+      "width": 390,
+      "beforeSha256": "b4c301a6e1e16cdaf4e9128b3255197b6ce65a0bec07f9901afb2f0139f2c227",
+      "afterSha256": "b4c301a6e1e16cdaf4e9128b3255197b6ce65a0bec07f9901afb2f0139f2c227",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/kontakt",
+      "width": 768,
+      "beforeSha256": "177748f823d290ca73b8fabea0bc084bdc4577e93f2a06b0d41a610d622d7e91",
+      "afterSha256": "177748f823d290ca73b8fabea0bc084bdc4577e93f2a06b0d41a610d622d7e91",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/kontakt",
+      "width": 1024,
+      "beforeSha256": "3f933517c27707440a68e958e2017b66513592b1afe3f1f885d8c120b05ac3e9",
+      "afterSha256": "3f933517c27707440a68e958e2017b66513592b1afe3f1f885d8c120b05ac3e9",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/kontakt",
+      "width": 1440,
+      "beforeSha256": "ccd0514d64ef0adb3245b76b0c2022ab01d7134b4976761e63f6e6207a0b842f",
+      "afterSha256": "ccd0514d64ef0adb3245b76b0c2022ab01d7134b4976761e63f6e6207a0b842f",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/kontakt",
+      "width": 1920,
+      "beforeSha256": "98debd0669984c78b8e81ba8951e5c893a7d0a4fbd09440ad5b8328f283760d3",
+      "afterSha256": "98debd0669984c78b8e81ba8951e5c893a7d0a4fbd09440ad5b8328f283760d3",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/linki",
+      "width": 390,
+      "beforeSha256": "dfc02cb4aed05468bf95f7942a87c4944f850e48d8bc1638a0af4b3918cd8ea5",
+      "afterSha256": "dfc02cb4aed05468bf95f7942a87c4944f850e48d8bc1638a0af4b3918cd8ea5",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/linki",
+      "width": 768,
+      "beforeSha256": "6916187ec27de66e290be057e2b26b333a85b1ece331d4cf1201852e982d74e6",
+      "afterSha256": "6916187ec27de66e290be057e2b26b333a85b1ece331d4cf1201852e982d74e6",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/linki",
+      "width": 1024,
+      "beforeSha256": "e252e30a5011fdb06d29790234793c11dd8dd4f8069836982ae7d67c1acb51fd",
+      "afterSha256": "e252e30a5011fdb06d29790234793c11dd8dd4f8069836982ae7d67c1acb51fd",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/linki",
+      "width": 1440,
+      "beforeSha256": "b2d4557c27d81cba66440932a6d2cbf05b160d530451c7eefda241069de8b6d0",
+      "afterSha256": "b2d4557c27d81cba66440932a6d2cbf05b160d530451c7eefda241069de8b6d0",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    },
+    {
+      "route": "/linki",
+      "width": 1920,
+      "beforeSha256": "b781934d02edf296eb78d1ebf20cb3d0cbf85d432f68236c0b77eb31c031de89",
+      "afterSha256": "b781934d02edf296eb78d1ebf20cb3d0cbf85d432f68236c0b77eb31c031de89",
+      "beforeStatus": 200,
+      "afterStatus": 200,
+      "identical": true
+    }
+  ]
+}

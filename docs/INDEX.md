@@ -7,6 +7,7 @@ Check Git first. Read only the task-relevant entries. `CANONICAL` is durable aut
 | CANONICAL | Agent rules | [`AGENTS.md`](../AGENTS.md) |
 | CANONICAL | Product / UI | [`PRODUCT.md`](../PRODUCT.md) |
 | CANONICAL | Design / UI | [`DESIGN.md`](../DESIGN.md) |
+| CURRENT | UI migration inventory and order | [`docs/ui/FOUNDATION_MIGRATION.md`](ui/FOUNDATION_MIGRATION.md) |
 | CANONICAL | Latest owner decisions | [`docs/PRODUCT_DECISIONS.md`](PRODUCT_DECISIONS.md) |
 | CANONICAL | Architecture | [`docs/ARCHITECTURE.md`](ARCHITECTURE.md) |
 | CANONICAL | Analytics | [`docs/analytics/ANALYTICS_ARCHITECTURE.md`](analytics/ANALYTICS_ARCHITECTURE.md) |
