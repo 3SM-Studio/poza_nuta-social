@@ -9,6 +9,7 @@ import { CONSENT_PREFERENCE_COOKIE, parseLocalPreference } from "@/lib/consent-p
 import { CONSENT_VERSION, tokenMatchesEnvironment } from "@/lib/tracking-context";
 import { resolveServerEnvironment } from "@/lib/runtime-environment";
 import type { AnalyticsEnvironment } from "@/lib/analytics-taxonomy";
+import { outputColorHex } from "@/lib/color-compat";
 import "./globals.css";
 
 const body = DM_Sans({ subsets: ["latin", "latin-ext"], variable: "--font-body", display: "swap" });
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
   ...(process.env.VERCEL_ENV === "preview" ? { robots: { index: false, follow: false } } : {}),
 };
 
-export const viewport: Viewport = { themeColor: "#080808", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: outputColorHex.rootBackground, colorScheme: "dark" };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const store = await cookies();

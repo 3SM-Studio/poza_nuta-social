@@ -11,7 +11,7 @@
     "build": "npm run guard && next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "vitest run && node --test scripts/production-env-guard.test.mjs scripts/skill-integrity-guard.test.mjs scripts/docs-integrity-guard.test.mjs scripts/secrets-export.test.mjs scripts/doctor.test.mjs",
+    "test": "vitest run && node --test scripts/production-env-guard.test.mjs scripts/skill-integrity-guard.test.mjs scripts/docs-integrity-guard.test.mjs scripts/secrets-export.test.mjs scripts/doctor.test.mjs scripts/color-guard.test.mjs",
     "guard": "node scripts/skill-integrity-guard.mjs && node scripts/docs-integrity-guard.mjs && node scripts/production-env-guard.mjs && node scripts/ui-guard.mjs && node scripts/design-guard.mjs && node scripts/privacy-guard.mjs && node scripts/secret-guard.mjs && node scripts/analytics-guard.mjs",
     "secret:scan": "node scripts/secret-guard.mjs",
     "secret:workspace": "node scripts/workspace-secret-guard.mjs",

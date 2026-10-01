@@ -2,6 +2,15 @@
 
 Snapshot of the implementation at `f9a046e` (2026-10-01), before the foundation documentation slice. `DESIGN.md` owns the durable foundation contract. This file records debt and migration order; it does not authorize visual changes. Recheck counts and usages against Git before each migration.
 
+## Color migration status
+
+The OKLCH token migration supersedes the **color source inventory below** as an implementation snapshot. `src/app/globals.css` now owns the canonical sRGB-derived brand values: ink `oklch(0.1730423076 0 0)`, paper `oklch(0.9730770612 0.0041189793 91.44622148)`, pink `oklch(0.6950236516 0.2229224359 355.31085912)`, and white `oklch(1 0 0)`. Public semantic and default/root tokens are separate declarations there; `.editorial-site` and its mobile Sheet map to them through `--ed-*` aliases. `@theme inline` remains the Tailwind/shadcn access layer. Admin light/dark and chart OKLCH values remain unchanged.
+
+Route CSS design HEX values and fallback colors, including the 8-bit-alpha hero scrim, have moved to tokens or a derived `color-mix()`. The prose highlight is a token. `src/lib/color-compat.ts` contains the format-required sRGB output encodings for metadata, OG image and QR; `scripts/color-guard.mjs` checks them against canonical OKLCH. The standalone icon embeds only checked output colors. Recharts selector HEX values match generated stroke attributes, and the real logo SVG is a supplied artwork asset. Existing `color-mix()` effects retain their interpolation spaces. The remaining named `black` utilities in installed shadcn primitives belong to the later Admin normalization slice.
+
+The next public CSS migration is `/kontakt` and `/linki`; their route layout and CSS classes have not been normalized in the color slice.
+The [visual evidence](../evidence/oklch-token-migration-2026-10-01.md) records computed sRGB and 25-route baseline checks.
+
 ## Public styling inventory
 
 `src/app/layout.tsx` loads `globals.css`, which imports `typeset.css`. `src/app/(public)/layout.tsx` loads `editorial.css` for every public route. Route pages then load the additional CSS below; a file shared by two routes is loaded by both pages. The four public-specific stylesheets contain **1,963 lines and 167 distinct `.ed-*` selectors** (distinct names across files, including shared names). There are no keyframes, masks, clip paths or View Transition rules in these four files today.

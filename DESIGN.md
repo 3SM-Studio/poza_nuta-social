@@ -37,7 +37,7 @@ The system is intentionally different from the earlier dark-first poster site. L
 ## Colors
 
 - Brand anchors: near-black `#101010`, Poza Nutą pink `#ff4fa3`, white, and neutral paper `#f7f6f3`.
-- Incumbent public tokens live under `.editorial-site` in `src/app/(public)/editorial.css`: `--ed-ink`, `--ed-paper`, `--ed-pink`, `--ed-pink-ink`, `--ed-white`, `--ed-muted`, and `--ed-line`. They are current migration sources, not a template for new CSS. `--ed-pink-ink` is the darker text treatment on pale surfaces; bright brand pink is reserved for large display accents or filled surfaces with dark text.
+- Canonical brand OKLCH values (`--brand-ink`, `--brand-paper`, `--brand-pink`, `--brand-white`) and public semantic OKLCH values live in `src/app/globals.css`. `.editorial-site` in `src/app/(public)/editorial.css` maps them to incumbent `--ed-*` aliases and scoped shadcn variables. The aliases preserve existing public CSS while routes await Tailwind migration; they are not a second palette. `--ed-pink-ink` is the darker text treatment on pale surfaces; bright brand pink is reserved for large display accents or filled surfaces with dark text.
 - Black, paper and pink each have a narrative job. Do not alternate backgrounds mechanically or add gradients, burgundy/plum, neon glows or decorative shadows.
 - Preserve semantic shadcn tokens for controls and the separate Admin theme. Public route tokens do not redefine Admin.
 

@@ -1,12 +1,12 @@
 /* Public editorial system. All page rules stay beneath the public route marker. */
 .editorial-site {
-  --ed-ink: #101010;
-  --ed-paper: #f7f6f3;
-  --ed-pink: #ff4fa3;
-  --ed-pink-ink: #a50e5a;
-  --ed-white: #ffffff;
-  --ed-muted: #575654;
-  --ed-line: #c9c8c5;
+  --ed-ink: var(--brand-ink);
+  --ed-paper: var(--brand-paper);
+  --ed-pink: var(--brand-pink);
+  --ed-pink-ink: var(--public-pink-ink);
+  --ed-white: var(--brand-white);
+  --ed-muted: var(--public-muted);
+  --ed-line: var(--public-line);
   --ed-sans: var(--font-body), "DM Sans", sans-serif;
   --ed-serif: var(--font-ed-serif), "Instrument Serif", Georgia, serif;
   --background: var(--ed-paper);
@@ -16,7 +16,7 @@
   --ring: var(--ed-pink);
   --primary: var(--ed-ink);
   --primary-foreground: var(--ed-white);
-  --secondary: #eae9e6;
+  --secondary: var(--public-secondary);
   --secondary-foreground: var(--ed-ink);
   --accent: var(--ed-pink);
   --accent-foreground: var(--ed-ink);
@@ -142,8 +142,8 @@
 .editorial-site .ed-inverse {
   --foreground: var(--ed-white);
   --background: var(--ed-ink);
-  --muted-foreground: #d5d3d0;
-  --border: #686765;
+  --muted-foreground: var(--public-inverse-muted);
+  --border: var(--public-inverse-line);
   background: var(--ed-ink);
   color: var(--ed-white);
   color-scheme: dark;
@@ -438,7 +438,7 @@
 }
 
 .editorial-site .ed-footer__identity .ed-meta {
-  color: #d5d3d0;
+  color: var(--public-inverse-muted);
 }
 
 .editorial-site .ed-footer__mark {
@@ -465,7 +465,7 @@
   display: grid;
   grid-template-columns: minmax(0, 0.7fr) minmax(0, 1fr);
   gap: clamp(32px, 5vw, 88px);
-  border-top: 1px solid #686765;
+  border-top: 1px solid var(--public-inverse-line);
   padding-block: 28px 94px;
 }
 
@@ -495,7 +495,7 @@
 
 .editorial-site .ed-footer__group h2 {
   margin: 0 0 18px;
-  color: #d5d3d0;
+  color: var(--public-inverse-muted);
 }
 
 .editorial-site .ed-footer__group nav,
@@ -534,7 +534,7 @@
 
 .editorial-site .ed-footer__empty {
   max-width: 22ch;
-  color: #d5d3d0;
+  color: var(--public-inverse-muted);
   font-size: 0.875rem;
   line-height: 1.5;
 }
@@ -548,7 +548,7 @@
   max-width: 100%;
   min-height: 44px;
   white-space: normal;
-  border: 1px solid #686765;
+  border: 1px solid var(--public-inverse-line);
   border-radius: 0;
   background: transparent;
   color: var(--ed-white);
@@ -556,27 +556,27 @@
 
 .editorial-site .ed-footer__settings button:hover {
   border-color: var(--ed-pink);
-  background: #252525;
+  background: var(--public-inverse-hover);
 }
 
 .editorial-site .ed-footer__bottom {
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  border-top: 1px solid #686765;
+  border-top: 1px solid var(--public-inverse-line);
   padding-block: 18px 30px;
-  color: #d5d3d0;
+  color: var(--public-inverse-muted);
 }
 
 /* Base UI mounts the mobile sheet in a body portal. Its class carries the font variables. */
 .ed-menu-sheet {
-  --ed-ink: #101010;
-  --ed-paper: #f7f6f3;
-  --ed-pink: #ff4fa3;
-  --ed-pink-ink: #a50e5a;
+  --ed-ink: var(--brand-ink);
+  --ed-paper: var(--brand-paper);
+  --ed-pink: var(--brand-pink);
+  --ed-pink-ink: var(--public-pink-ink);
   --foreground: var(--ed-ink);
   --background: var(--ed-paper);
-  --border: #c9c8c5;
+  --border: var(--public-line);
   width: min(26rem, 100vw);
   max-width: none;
   gap: 0;
@@ -624,7 +624,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  border-bottom: 1px solid #c9c8c5;
+  border-bottom: 1px solid var(--public-line);
   color: var(--ed-ink);
   font-size: 1.8rem;
   font-weight: 500;
@@ -648,7 +648,7 @@
   margin: auto 24px 28px;
   border-top: 1px solid var(--ed-ink);
   padding-top: 15px;
-  color: #575654;
+  color: var(--public-muted);
 }
 
 @media (max-width: 1100px) {
