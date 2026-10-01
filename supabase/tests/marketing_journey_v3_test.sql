@@ -1,6 +1,20 @@
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(24);
+set local time zone 'UTC';
+select plan(26);
+
+-- At this fixed instant UTC is still October 1, while Warsaw is already October 2.
+select is((timestamptz '2026-10-01 22:30:00+00')::date, date '2026-10-01', 'UTC session date is the previous calendar day at the Warsaw boundary');
+select ok(
+  t.utc_date <> t.warsaw_date
+  and t.fixture_at >= ((t.utc_date + 1)::timestamp at time zone 'Europe/Warsaw')
+  and t.fixture_at < ((t.warsaw_date + 1)::timestamp at time zone 'Europe/Warsaw'),
+  'UTC-derived end excludes the fixed fixture while Warsaw-derived end includes it'
+) from (
+  select fixture_at, fixture_at::date as utc_date,
+         (fixture_at at time zone 'Europe/Warsaw')::date as warsaw_date
+  from (select timestamptz '2026-10-01 22:30:00+00' as fixture_at) fixed
+) t;
 
 select ok(public.analytics_valid_event_path_v1('/karaoke'), 'canonical karaoke path is valid');
 select ok(not public.analytics_valid_event_path_v1('/karaoke-trojmiasto'), 'legacy path is not valid for new events');
@@ -40,9 +54,11 @@ select throws_ok(
 );
 
 create temp table marketing_v3_baseline on commit drop as
-select public.analytics_marketing_journey_v3('participant',current_date-1,current_date+1,'diagnostic') participant,
-       public.analytics_marketing_journey_v3('participant',current_date-1,current_date+1,'business') business,
-       public.analytics_marketing_journey_v3('venue',current_date-1,current_date+1,'diagnostic') venue;
+select d.warsaw_date,
+       public.analytics_marketing_journey_v3('participant',d.warsaw_date-1,d.warsaw_date+1,'diagnostic') participant,
+       public.analytics_marketing_journey_v3('participant',d.warsaw_date-1,d.warsaw_date+1,'business') business,
+       public.analytics_marketing_journey_v3('venue',d.warsaw_date-1,d.warsaw_date+1,'diagnostic') venue
+from (select (now() at time zone 'Europe/Warsaw')::date as warsaw_date) d;
 
 do $$
 declare
@@ -70,11 +86,11 @@ $$;
 
 select is((select count(*)::int from public.analytics_events_v2 where event_name='cta_click' and session_id=md5('journey-v3-session')::uuid),2,'both semantic CTA events are stored');
 select is((select count(*)::int from public.analytics_events_v2 where event_name='section_view' and session_id=md5('journey-v3-session')::uuid),1,'one proof exposure is stored');
-select is((public.analytics_marketing_journey_v3('participant',current_date-1,current_date+1,'diagnostic')->'steps'->3->>'sessions')::int - (participant->'steps'->3->>'sessions')::int,1,'first-visit journey completes without a consented homepage view') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('participant',current_date-1,current_date+1,'business')->'steps'->3->>'sessions')::int - (business->'steps'->3->>'sessions')::int,0,'development events are excluded from business scope') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('participant',current_date-1,current_date+1,'diagnostic')->>'routeViewSessions')::int - (participant->>'routeViewSessions')::int,1,'karaoke reach is separately countable') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('participant',current_date-1,current_date+1,'diagnostic')->>'proofExposures')::int - (participant->>'proofExposures')::int,1,'proof exposure is separately countable') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('venue',current_date-1,current_date+1,'diagnostic')->'steps'->0->>'sessions')::int - (venue->'steps'->0->>'sessions')::int,0,'participant CTA is not misclassified as venue CTA') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('participant',warsaw_date-1,warsaw_date+1,'diagnostic')->'steps'->3->>'sessions')::int - (participant->'steps'->3->>'sessions')::int,1,'first-visit journey completes without a consented homepage view') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('participant',warsaw_date-1,warsaw_date+1,'business')->'steps'->3->>'sessions')::int - (business->'steps'->3->>'sessions')::int,0,'development events are excluded from business scope') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('participant',warsaw_date-1,warsaw_date+1,'diagnostic')->>'routeViewSessions')::int - (participant->>'routeViewSessions')::int,1,'karaoke reach is separately countable') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('participant',warsaw_date-1,warsaw_date+1,'diagnostic')->>'proofExposures')::int - (participant->>'proofExposures')::int,1,'proof exposure is separately countable') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('venue',warsaw_date-1,warsaw_date+1,'diagnostic')->'steps'->0->>'sessions')::int - (venue->'steps'->0->>'sessions')::int,0,'participant CTA is not misclassified as venue CTA') from marketing_v3_baseline;
 
 do $$
 declare
@@ -97,12 +113,12 @@ begin
 end;
 $$;
 
-select is((public.analytics_marketing_journey_v3('venue',current_date-1,current_date+1,'diagnostic')->'steps'->4->>'sessions')::int - (venue->'steps'->4->>'sessions')::int,1,'venue journey reaches the existing contact click') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('venue',current_date-1,current_date+1,'diagnostic')->>'routeViewSessions')::int - (venue->>'routeViewSessions')::int,1,'venue route reach is separately countable') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('venue',current_date-1,current_date+1,'diagnostic')->>'proofExposures')::int - (venue->>'proofExposures')::int,1,'homepage venue proof exposure is separately countable') from marketing_v3_baseline;
-select is((public.analytics_marketing_journey_v3('venue',current_date-1,current_date+1,'diagnostic')->>'venueProofExposures')::int - (venue->>'venueProofExposures')::int,1,'venue realization exposure is separately countable') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('venue',warsaw_date-1,warsaw_date+1,'diagnostic')->'steps'->4->>'sessions')::int - (venue->'steps'->4->>'sessions')::int,1,'venue journey reaches the existing contact click') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('venue',warsaw_date-1,warsaw_date+1,'diagnostic')->>'routeViewSessions')::int - (venue->>'routeViewSessions')::int,1,'venue route reach is separately countable') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('venue',warsaw_date-1,warsaw_date+1,'diagnostic')->>'proofExposures')::int - (venue->>'proofExposures')::int,1,'homepage venue proof exposure is separately countable') from marketing_v3_baseline;
+select is((public.analytics_marketing_journey_v3('venue',warsaw_date-1,warsaw_date+1,'diagnostic')->>'venueProofExposures')::int - (venue->>'venueProofExposures')::int,1,'venue realization exposure is separately countable') from marketing_v3_baseline;
 select throws_ok(
-  $$select public.analytics_marketing_journey_v3('unknown',current_date-1,current_date+1,'diagnostic')$$,
+  $$select public.analytics_marketing_journey_v3('unknown',warsaw_date-1,warsaw_date+1,'diagnostic') from marketing_v3_baseline$$,
   'P0001','invalid_journey_request','unknown journey is rejected'
 );
 
