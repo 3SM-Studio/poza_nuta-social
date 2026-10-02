@@ -93,7 +93,7 @@ test("participant and venue journeys answer the first decision and reach the rig
   await expect(page.getByRole("main").getByText("Możesz śpiewać, słuchać albo po prostu spędzić wieczór z ludźmi.", { exact: false })).toBeVisible();
   await page.getByRole("main").getByRole("link", { name: "Daty w oficjalnych kanałach" }).first().click();
   await expect(page).toHaveURL(/\/linki$/);
-  await expect(page.locator(".ed-links-intro")).toContainText(/Sprawdź najnowszy komunikat|Tam sprawdź komunikat o dacie i miejscu/);
+  await expect(page.getByRole("main").locator("section[aria-labelledby='links-heading'] > p")).toContainText(/Sprawdź najnowszy komunikat|Tam sprawdź komunikat o dacie i miejscu/);
   await page.goto("/");
   await page.getByRole("main").getByRole("link", { name: "Informacje o karaoke" }).first().click();
   await expect(page.getByRole("heading", { name: "Udział ma wiele głosów." })).toBeVisible();
