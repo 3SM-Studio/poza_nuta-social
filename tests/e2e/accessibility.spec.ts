@@ -133,6 +133,45 @@ test("public pages reflow at 320 CSS px and focused controls remain visible", as
   await expect(dialog.getByRole("button", { name: "Włącz analitykę" })).toBeVisible();
 });
 
+test("privacy settings open after narrow route navigation even when event registration is late", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "desktop-chromium");
+  // Recreate the lost-event window from the previous trigger/dialog contract.
+  // The visitor still uses the real footer control and dialog.
+  await page.addInitScript(() => {
+    const add = window.addEventListener.bind(window);
+    const dispatch = window.dispatchEvent.bind(window);
+    let pending: (() => void) | undefined;
+    Object.defineProperty(window, "addEventListener", {
+      value: (type: string, listener: EventListenerOrEventListenerObject, options?: AddEventListenerOptions | boolean) => {
+        if (type === "pn-open-privacy-settings") {
+          pending = () => add(type, listener, options);
+          return;
+        }
+        add(type, listener, options);
+      },
+    });
+    Object.defineProperty(window, "dispatchEvent", {
+      value: (event: Event) => {
+        const result = dispatch(event);
+        if (event.type === "pn-open-privacy-settings") queueMicrotask(() => pending?.());
+        return result;
+      },
+    });
+  });
+  await page.setViewportSize({ width: 320, height: 700 });
+  for (const route of [...routes, "/"]) {
+    await page.goto(route);
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  }
+  const control = page.getByRole("contentinfo").getByRole("button", { name: "Ustawienia prywatności" });
+  await control.click();
+  const dialog = page.getByRole("dialog", { name: "Ustawienia prywatności" });
+  await expect(dialog).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(control).toBeFocused();
+});
+
 test("public footers reflow with WCAG text spacing at 320 CSS px", async ({ page }, testInfo) => {
   test.skip(testInfo.project.name !== "desktop-chromium");
   await page.setViewportSize({ width: 320, height: 700 });
