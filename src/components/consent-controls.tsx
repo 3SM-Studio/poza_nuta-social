@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { createContext, useContext, useEffect, useRef, useState, type Dispatch, type MouseEvent, type ReactNode, type SetStateAction } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Cookie } from "lucide-react";
@@ -9,21 +9,32 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { chooseConsent, currentConsentState, listenForConsentChanges, readConsentState, type ConsentState } from "@/lib/consent-state";
 import { publicPage } from "@/lib/public-paths";
 
+const PrivacySettingsContext = createContext<{
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+} | null>(null);
+
+export function PrivacySettingsProvider({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return <PrivacySettingsContext.Provider value={{ open, setOpen }}>{children}</PrivacySettingsContext.Provider>;
+}
+
+function usePrivacySettings() {
+  const context = useContext(PrivacySettingsContext);
+  if (!context) throw new Error("Privacy settings controls require PrivacySettingsProvider");
+  return context;
+}
+
 export function ConsentBanner({ initialConsentMissing }: { initialConsentMissing: boolean }) {
   const pathname = usePathname();
   const [consentMissing, setConsentMissing] = useState(initialConsentMissing);
   const [statusMessage, setStatusMessage] = useState("");
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { open: settingsOpen, setOpen: setSettingsOpen } = usePrivacySettings();
   const bannerRef = useRef<HTMLElement>(null);
   const focusAfterChoiceRef = useRef(false);
   const [bannerSpace, setBannerSpace] = useState(0);
   const publicRoute = !pathname.startsWith("/admin") && !pathname.startsWith("/auth");
   const visible = consentMissing === true && publicRoute && pathname !== publicPage.privacy && pathname !== publicPage.cookies;
-  useEffect(() => {
-    const open = () => setSettingsOpen(true);
-    window.addEventListener("pn-open-privacy-settings", open);
-    return () => window.removeEventListener("pn-open-privacy-settings", open);
-  }, []);
   useEffect(() => {
     if (!publicRoute) return;
     let active = true;
@@ -132,5 +143,6 @@ export function ConsentPreferences({ onSaved }: { onSaved?: (analytics: boolean)
 }
 
 export function PrivacySettingsControl() {
-  return <Button type="button" variant="secondary" data-privacy-settings-trigger aria-label="Ustawienia prywatności" className="h-11 px-3 text-xs sm:px-4 sm:text-sm" onClick={() => window.dispatchEvent(new Event("pn-open-privacy-settings"))}><Cookie className="size-4" aria-hidden="true" /><span className="sm:hidden">Prywatność</span><span className="hidden sm:inline">Ustawienia prywatności</span></Button>;
+  const { setOpen } = usePrivacySettings();
+  return <Button type="button" variant="secondary" data-privacy-settings-trigger aria-label="Ustawienia prywatności" className="h-11 px-3 text-xs sm:px-4 sm:text-sm" onClick={() => setOpen(true)}><Cookie className="size-4" aria-hidden="true" /><span className="sm:hidden">Prywatność</span><span className="hidden sm:inline">Ustawienia prywatności</span></Button>;
 }

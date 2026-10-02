@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { cookies } from "next/headers";
 import { DM_Sans } from "next/font/google";
 import { getSiteUrl } from "@/lib/env";
-import { ConsentBanner } from "@/components/consent-controls";
+import { ConsentBanner, PrivacySettingsProvider } from "@/components/consent-controls";
 import { PublicSkipLink } from "@/components/public-skip-link";
 import { ANALYTICS_CONSENT_COOKIE, verifyAnalyticsToken } from "@/lib/analytics-token";
 import { CONSENT_PREFERENCE_COOKIE, parseLocalPreference } from "@/lib/consent-preference";
@@ -32,5 +32,5 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   );
   const initialConsentMissing = !preference && !(tokenMatchesEnvironment(consent, resolveServerEnvironment())
     && consent?.version === CONSENT_VERSION && typeof consent.analytics === "boolean");
-  return <html lang="pl" className={body.variable}><body><PublicSkipLink /><ConsentBanner initialConsentMissing={initialConsentMissing} />{children}</body></html>;
+  return <html lang="pl" className={body.variable}><body><PublicSkipLink /><PrivacySettingsProvider><ConsentBanner initialConsentMissing={initialConsentMissing} />{children}</PrivacySettingsProvider></body></html>;
 }
