@@ -8,12 +8,12 @@ The OKLCH token migration supersedes the **color source inventory below** as an 
 
 Route CSS design HEX values and fallback colors, including the 8-bit-alpha hero scrim, have moved to tokens or a derived `color-mix()`. The prose highlight is a token. `src/lib/color-compat.ts` contains the format-required sRGB output encodings for metadata, OG image and QR; `scripts/color-guard.mjs` checks them against canonical OKLCH. The standalone icon embeds only checked output colors. Recharts selector HEX values match generated stroke attributes, and the real logo SVG is a supplied artwork asset. Existing `color-mix()` effects retain their interpolation spaces. The remaining named `black` utilities in installed shadcn primitives belong to the later Admin normalization slice.
 
-The next public CSS migration is `/kontakt` and `/linki`; their route layout and CSS classes have not been normalized in the color slice.
+The `/kontakt` and `/linki` route-specific CSS migration is complete. Ordinary route styling now lives in colocated Tailwind utilities; both route imports and `contact-links.css` were removed. Shared `editorial.css` intentionally remains for the public shell, breadcrumb, SocialHub, tracked contact link, `ed-meta`, `ed-serif` and inverse surface. Local overrides of shared components are passed through optional `className` props. The next public legacy route is not authorized by this slice.
 The [visual evidence](../evidence/oklch-token-migration-2026-10-01.md) records computed sRGB and 25-route baseline checks.
 
 ## Public styling inventory
 
-`src/app/layout.tsx` loads `globals.css`, which imports `typeset.css`. `src/app/(public)/layout.tsx` loads `editorial.css` for every public route. Route pages then load the additional CSS below; a file shared by two routes is loaded by both pages. The four public-specific stylesheets contain **1,963 lines and 167 distinct `.ed-*` selectors** (distinct names across files, including shared names). There are no keyframes, masks, clip paths or View Transition rules in these four files today.
+`src/app/layout.tsx` loads `globals.css`, which imports `typeset.css`. `src/app/(public)/layout.tsx` loads `editorial.css` for every public route. The remaining three public-specific stylesheets contain **1,630 lines and 149 distinct `.ed-*` selectors** (distinct names across files, including shared names). The deleted `contact-links.css` had 333 lines and 21 distinct `.ed-*` names. There are no keyframes, masks, clip paths or View Transition rules in the remaining public stylesheets today.
 
 | CSS file | Lines | Distinct `.ed-*` names in file | `@media` blocks | Scope and dominant rule families |
 | --- | ---: | ---: | ---: | --- |
@@ -22,7 +22,7 @@ The [visual evidence](../evidence/oklch-token-migration-2026-10-01.md) records c
 | `src/app/(public)/editorial.css` | 701 | 53 | 5 | All public routes: tokens, shell, header, menu, actions, social links, footer, privacy/consent treatments; 4 width breakpoints and reduced motion. |
 | `src/app/(public)/home-editorial.css` | 181 | 50 | 4 | `/`: hero, editorial chapters, setlist and archive; width breakpoints at 1100, 900/701, 700 and 370 px. |
 | `src/app/(public)/karaoke-venues.css` | 748 | 55 | 4 | `/karaoke` and `/dla-lokali`: their separate hero, steps, venue evidence and action layouts; 1050, 760 and 380 px plus reduced motion. |
-| `src/app/(public)/contact-links.css` | 333 | 21 | 2 | `/kontakt` and `/linki`: contact block, routing and official channel hub; 700 and 370 px. |
+| `/kontakt` and `/linki` route styles | 0 | 0 | 0 | Colocated Tailwind utilities; the former `contact-links.css` and both imports are removed. |
 
 The `.ed-*` family is an incumbent naming system, not the default architecture for future work. Representative TSX use is in `src/components/public-header.tsx`, `public-footer.tsx` and the five page files under `src/app/(public)/`. `editorial.css` also scopes some existing shadcn control colors with `--background`, `--foreground`, `--border`, `--ring` and related variables.
 
@@ -32,15 +32,15 @@ The `.ed-*` family is an incumbent naming system, not the default architecture f
 | Padding, margin, gap, section rhythm, type size/weight/leading/tracking, text alignment, borders, ordinary colors and hover/focus states | **TAILWIND MIGRATABLE** | Use utilities and semantic tokens; preserve visible focus and contrast. Current `.ed-action`, `.ed-text-link`, `.ed-shell`, `.ed-meta` and route hero/section classes are migration sources, not new abstraction templates. |
 | Public `--ed-*` theme definitions and shadcn theme bridge in `editorial.css`; Admin theme and `@theme inline` in `globals.css` | **CUSTOM CSS JUSTIFIED** | Token declarations and theme scoping are shared CSS boundaries. Values and aliases need consolidation in the color migration, not mechanical inlining. |
 | `typeset.css` semantic prose descendants, print and `forced-colors`; global selection/focus and reduced-motion fallback | **CUSTOM CSS JUSTIFIED** | Shared document semantics and browser media behavior benefit from a scoped stylesheet. Audit whether any ordinary one-off declaration can later become a utility. |
-| Current `color-mix()` for a derived pink (`contact-links.css`) and `color-mix()` in prose/focus styling | **CUSTOM CSS JUSTIFIED** | Derived or browser-specific color behavior may stay at a token/effect boundary; avoid making each mix a component literal. |
+| `color-mix()` in prose/focus styling | **CUSTOM CSS JUSTIFIED** | Derived or browser-specific color behavior may stay at a token/effect boundary; the unused route-local mix disappeared with `contact-links.css`. |
 | `writing-mode: vertical-rl` plus rotate for the homepage section index | **TAILWIND MIGRATABLE** | Utilities can express this existing treatment; preserve it only while preserving the incumbent pixels. |
 | Keyframes, View Transition pseudo-elements, masks/clips and advanced choreography | **CUSTOM CSS JUSTIFIED** only if introduced for a demonstrated need | No such current public rule needs preservation. `overflow-x: clip` is ordinary overflow, not mask choreography. |
 
-The current media blocks are responsive layout and accessibility behavior, not evidence that CSS is inherently required. There are 15 `@media` blocks in the four public stylesheets and 4 in shared CSS. Shared CSS currently has no `.ed-*` selectors. The counted rule families include layout, typography, spacing, ordinary states and custom properties; count totals are intentionally not used as automatic quality gates because shorthands and multi-declaration lines make text counts misleading.
+The current media blocks are responsive layout and accessibility behavior, not evidence that CSS is inherently required. There are 13 `@media` blocks in the three remaining public stylesheets and 4 in shared CSS. Shared CSS currently has no `.ed-*` selectors. The counted rule families include layout, typography, spacing, ordinary states and custom properties; count totals are intentionally not used as automatic quality gates because shorthands and multi-declaration lines make text counts misleading.
 
-## Color source inventory
+## Historical color source inventory (before OKLCH migration)
 
-Source scan covers application CSS, TS/TSX, Tailwind theme bridge, chart configuration, public and Admin token scopes. Current design literals are HEX and OKLCH. No RGB/RGBA or HSL/HSLA literal function is present in the scanned application source; `color-mix(in srgb, ...)` and `color-mix(in oklab, ...)` specify interpolation spaces, not RGB/HSL source literals. `transparent` and `currentColor` are contextual values. Tailwind `black` in shadcn overlays and the destructive button is a named color literal.
+This pre-OKLCH source scan is historical evidence; the current color implementation is described above. It covered application CSS, TS/TSX, Tailwind theme bridge, chart configuration, public and Admin token scopes. `color-mix(in srgb, ...)` and `color-mix(in oklab, ...)` specify interpolation spaces, not RGB/HSL source literals.
 
 | Source | Current representation | Classification and next treatment |
 | --- | --- | --- |
@@ -92,10 +92,10 @@ Conceptual composition: Button + Popover + Calendar `mode="range"` + Field/form 
 ## Migration order and acceptance
 
 1. **A — COLORS / TOKENS:** consolidate canonical OKLCH values, semantic scopes and compatibility output; verify same computed colors and screenshots.
-2. **B — PUBLIC CSS → TAILWIND:** migrate `/kontakt`, `/linki`, `/karaoke`, `/dla-lokali`, then `/`. Move ordinary `.ed-*` rules into colocated utilities; retain only documented CSS exceptions. Verify route behavior and responsive geometry at each step.
+2. **B — PUBLIC CSS → TAILWIND:** `/kontakt` and `/linki` are complete. `/karaoke`, `/dla-lokali`, then `/` remain in the planned order, each requiring separate authorization. Move ordinary `.ed-*` rules into colocated utilities; retain only documented CSS exceptions. Verify route behavior and responsive geometry at each step.
 3. **C — ADMIN SHADCN NORMALIZATION:** add needed primitives and compose report filters/date range, then normalize empty/loading/form patterns without altering query/API or permissions.
 4. **D — FRONTEND CONTRACT GUARDS:** add small mechanical guards only after the migrated patterns are stable. Do not attempt a regex design judge.
 5. **E — REPLACEMENT VISUAL DIRECTION:** explore and approve a new visual world with comps. Digital Music Editorial is incumbent evidence, not the destination authority; do not generate `.impeccable/design.json` from it.
 6. **F — HOMEPAGE NORTH STAR:** build the approved new homepage after direction and content evidence exist.
 
-Every migration has the acceptance rule: **same pixels, same behavior, better architecture**. This inventory slice performs none of A–F.
+Every migration has the acceptance rule: **same pixels, same behavior, better architecture**. A is complete; the first B slice covers only `/kontakt` and `/linki`.
